@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getTaskById, priorityLabels, statusLabels } from "@/lib/tasks";
+import TaskHistoryList from "@/components/tasks/TaskHistoryList";
+import TaskStatusForm from "@/components/tasks/TaskStatusForm";
+import {
+  getTaskById,
+  getTaskHistoriesByTaskId,
+  priorityLabels,
+  statusLabels,
+} from "@/lib/tasks";
 
 type TaskDetailPageProps = {
   params: Promise<{
@@ -35,6 +42,8 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
     notFound();
   }
 
+  const histories = getTaskHistoriesByTaskId(task.id);
+
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-900">
       <section className="mx-auto max-w-3xl">
@@ -61,77 +70,80 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
           </div>
         </div>
 
-        <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-wrap gap-2">
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-              {statusLabels[task.status]}
-            </span>
+        <div className="space-y-6">
+          <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                {statusLabels[task.status]}
+              </span>
 
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-              우선순위 {priorityLabels[task.priority]}
-            </span>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                우선순위 {priorityLabels[task.priority]}
+              </span>
 
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-              {task.isPublic ? "공개" : "비공개"}
-            </span>
-          </div>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                {task.isPublic ? "공개" : "비공개"}
+              </span>
+            </div>
 
-          <div className="mt-8 space-y-6">
-            <section>
-              <h2 className="text-sm font-semibold text-slate-500">설명</h2>
-              <p className="mt-2 leading-7 text-slate-700">
-                {task.description}
-              </p>
-            </section>
+            <div className="mt-8 space-y-6">
+              <section>
+                <h2 className="text-sm font-semibold text-slate-500">설명</h2>
+                <p className="mt-2 leading-7 text-slate-700">
+                  {task.description}
+                </p>
+              </section>
 
-            <section>
-              <h2 className="text-sm font-semibold text-slate-500">메모</h2>
-              <p className="mt-2 leading-7 text-slate-700">
-                {task.memo ?? "등록된 메모가 없습니다."}
-              </p>
-            </section>
+              <section>
+                <h2 className="text-sm font-semibold text-slate-500">메모</h2>
+                <p className="mt-2 leading-7 text-slate-700">
+                  {task.memo ?? "등록된 메모가 없습니다."}
+                </p>
+              </section>
 
-            <section>
-              <h2 className="text-sm font-semibold text-slate-500">마감일</h2>
-              <p className="mt-2 text-slate-700">
-                {task.dueDate ?? "마감일 없음"}
-              </p>
-            </section>
+              <section>
+                <h2 className="text-sm font-semibold text-slate-500">마감일</h2>
+                <p className="mt-2 text-slate-700">
+                  {task.dueDate ?? "마감일 없음"}
+                </p>
+              </section>
 
-            <section>
-              <h2 className="text-sm font-semibold text-slate-500">태그</h2>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {task.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-500"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            </section>
+              <section>
+                <h2 className="text-sm font-semibold text-slate-500">태그</h2>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {task.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-500"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </section>
 
-            <section className="grid gap-4 border-t border-slate-200 pt-6 sm:grid-cols-2">
-              <div>
-                <h2 className="text-sm font-semibold text-slate-500">생성일</h2>
-                <p className="mt-2 text-slate-700">{task.createdAt}</p>
-              </div>
+              <section className="grid gap-4 border-t border-slate-200 pt-6 sm:grid-cols-2">
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-500">
+                    생성일
+                  </h2>
+                  <p className="mt-2 text-slate-700">{task.createdAt}</p>
+                </div>
 
-              <div>
-                <h2 className="text-sm font-semibold text-slate-500">수정일</h2>
-                <p className="mt-2 text-slate-700">{task.updatedAt}</p>
-              </div>
-            </section>
-          </div>
-        </article>
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-500">
+                    수정일
+                  </h2>
+                  <p className="mt-2 text-slate-700">{task.updatedAt}</p>
+                </div>
+              </section>
+            </div>
+          </article>
 
-        <section className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-6">
-          <h2 className="text-lg font-bold">상태 변경 이력</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            다음 단계에서 상태 변경 이력 데이터를 연결합니다.
-          </p>
-        </section>
+          <TaskStatusForm task={task} />
+
+          <TaskHistoryList histories={histories} />
+        </div>
       </section>
     </main>
   );

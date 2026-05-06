@@ -15,3 +15,12 @@ export type Task = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type TaskHistory = {
+  id: string;
+  taskId: string;
+  fromStatus: TaskStatus | null;
+  toStatus: TaskStatus;
+  memo: string | null;
+  createdAt: string;
+};

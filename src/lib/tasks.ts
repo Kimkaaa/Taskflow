@@ -1,3 +1,4 @@
+import { taskHistories } from "@/data/taskHistories";
 import { tasks } from "@/data/tasks";
 import type { TaskPriority, TaskStatus } from "@/types/task";
 
@@ -136,4 +137,10 @@ export function getPublicTasks(query: TaskQuery = {}) {
 
 export function getTaskById(id: string) {
   return tasks.find((task) => task.id === id);
+}
+
+export function getTaskHistoriesByTaskId(taskId: string) {
+  return taskHistories
+    .filter((history) => history.taskId === taskId)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
