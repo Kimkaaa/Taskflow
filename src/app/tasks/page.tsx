@@ -9,7 +9,7 @@ type TasksPageProps = {
 export default async function TasksPage({ searchParams }: TasksPageProps) {
   const params = await searchParams;
   const query = parseTaskQuery(params);
-  const tasks = getPublicTasks(query);
+  const tasks = await getPublicTasks(query);
 
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-900">

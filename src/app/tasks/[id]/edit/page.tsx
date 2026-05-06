@@ -12,7 +12,7 @@ type EditTaskPageProps = {
 
 export default async function EditTaskPage({ params }: EditTaskPageProps) {
   const { id } = await params;
-  const task = getTaskById(id);
+  const task = await getTaskById(id);
 
   if (!task) {
     notFound();

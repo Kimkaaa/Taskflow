@@ -60,3 +60,6 @@ next-env.d.ts
 # prisma
 prisma/dev.db
 /src/generated/prisma
+
+# local seed data
+prisma/seed.ts

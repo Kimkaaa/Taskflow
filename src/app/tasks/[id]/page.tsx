@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import TaskHistoryList from "@/components/tasks/TaskHistoryList";
 import TaskStatusForm from "@/components/tasks/TaskStatusForm";
+import MemoList from "@/components/tasks/MemoList";
 import { updateTaskStatus } from "@/app/actions/tasks";
 import {
   getTaskById,
@@ -21,7 +22,7 @@ export async function generateMetadata({
   params,
 }: TaskDetailPageProps): Promise<Metadata> {
   const { id } = await params;
-  const task = getTaskById(id);
+  const task = await getTaskById(id);
 
   if (!task || !task.isPublic) {
     return {
@@ -37,13 +38,13 @@ export async function generateMetadata({
 
 export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   const { id } = await params;
-  const task = getTaskById(id);
+  const task = await getTaskById(id);
 
   if (!task || !task.isPublic) {
     notFound();
   }
 
-  const histories = getTaskHistoriesByTaskId(task.id);
+  const histories = await getTaskHistoriesByTaskId(task.id);
   const updateTaskStatusWithId = updateTaskStatus.bind(null, task.id);
 
   return (
@@ -98,9 +99,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
 
               <section>
                 <h2 className="text-sm font-semibold text-slate-500">메모</h2>
-                <p className="mt-2 leading-7 text-slate-700">
-                  {task.memo ?? "등록된 메모가 없습니다."}
-                </p>
+                <MemoList memo={task.memo} />
               </section>
 
               <section>

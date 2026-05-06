@@ -29,6 +29,14 @@ function getStringValue(formData: FormData, key: string) {
   return value.trim();
 }
 
+function normalizeMemo(value: string) {
+  return value
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
 function isTaskStatus(value: string): value is TaskStatus {
   return taskStatuses.includes(value as TaskStatus);
 }
@@ -44,7 +52,7 @@ export function parseTaskFormData(formData: FormData): TaskFormInput {
   const priority = getStringValue(formData, "priority");
   const dueDate = getStringValue(formData, "dueDate");
   const tags = getStringValue(formData, "tags");
-  const memo = getStringValue(formData, "memo");
+  const memo = normalizeMemo(getStringValue(formData, "memo"));
 
   if (!title) {
     throw new Error("작업 제목을 입력해주세요.");
@@ -79,7 +87,7 @@ export function parseTaskFormData(formData: FormData): TaskFormInput {
 
 export function parseTaskStatusFormData(formData: FormData): TaskStatusInput {
   const status = getStringValue(formData, "status");
-  const memo = getStringValue(formData, "memo");
+  const memo = normalizeMemo(getStringValue(formData, "memo"));
 
   if (!isTaskStatus(status)) {
     throw new Error("올바르지 않은 작업 상태입니다.");
