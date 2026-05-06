@@ -7,16 +7,11 @@ export type TaskFormInput = {
   priority: TaskPriority;
   dueDate: string | null;
   tags: string[];
-  memo: string | null;
+  todos: string[];
   isPublic: boolean;
 };
 
-export type TaskStatusInput = {
-  status: TaskStatus;
-  memo: string | null;
-};
-
-const taskStatuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "HOLD", "DONE"];
+const taskStatuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
 const taskPriorities: TaskPriority[] = ["LOW", "MEDIUM", "HIGH"];
 
 function getStringValue(formData: FormData, key: string) {
@@ -29,20 +24,26 @@ function getStringValue(formData: FormData, key: string) {
   return value.trim();
 }
 
-function normalizeMemo(value: string) {
-  return value
-    .split(/\r?\n/)
-    .map((item) => item.trim())
-    .filter(Boolean)
-    .join("\n");
-}
-
 function isTaskStatus(value: string): value is TaskStatus {
   return taskStatuses.includes(value as TaskStatus);
 }
 
 function isTaskPriority(value: string): value is TaskPriority {
   return taskPriorities.includes(value as TaskPriority);
+}
+
+function parseTags(value: string) {
+  return value
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
+function parseTodos(value: string) {
+  return value
+    .split(/\r?\n/)
+    .map((todo) => todo.trim())
+    .filter(Boolean);
 }
 
 export function parseTaskFormData(formData: FormData): TaskFormInput {
@@ -52,7 +53,7 @@ export function parseTaskFormData(formData: FormData): TaskFormInput {
   const priority = getStringValue(formData, "priority");
   const dueDate = getStringValue(formData, "dueDate");
   const tags = getStringValue(formData, "tags");
-  const memo = normalizeMemo(getStringValue(formData, "memo"));
+  const todos = getStringValue(formData, "todos");
 
   if (!title) {
     throw new Error("작업 제목을 입력해주세요.");
@@ -67,7 +68,7 @@ export function parseTaskFormData(formData: FormData): TaskFormInput {
   }
 
   if (!isTaskPriority(priority)) {
-    throw new Error("올바르지 않은 우선순위입니다.");
+    throw new Error("올바르지 않은 중요도입니다.");
   }
 
   return {
@@ -76,25 +77,8 @@ export function parseTaskFormData(formData: FormData): TaskFormInput {
     status,
     priority,
     dueDate: dueDate || null,
-    tags: tags
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter(Boolean),
-    memo: memo || null,
+    tags: parseTags(tags),
+    todos: parseTodos(todos),
     isPublic: formData.get("isPublic") === "on",
-  };
-}
-
-export function parseTaskStatusFormData(formData: FormData): TaskStatusInput {
-  const status = getStringValue(formData, "status");
-  const memo = normalizeMemo(getStringValue(formData, "memo"));
-
-  if (!isTaskStatus(status)) {
-    throw new Error("올바르지 않은 작업 상태입니다.");
-  }
-
-  return {
-    status,
-    memo: memo || null,
   };
 }

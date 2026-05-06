@@ -2,23 +2,119 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { parseTaskFormData, parseTaskStatusFormData } from "@/lib/taskForm";
+import { prisma } from "@/lib/prisma";
+import { parseTaskFormData } from "@/lib/taskForm";
+
+type TagWriteClient = Pick<typeof prisma, "tag">;
+
+function toDate(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  return new Date(`${value}T00:00:00.000Z`);
+}
+
+function removeDuplicateTags(tags: string[]) {
+  return Array.from(new Set(tags));
+}
+
+async function getOrCreateTags(tags: string[], tx: TagWriteClient) {
+  const uniqueTags = removeDuplicateTags(tags);
+  const result = [];
+
+  for (const name of uniqueTags) {
+    const existingTag = await tx.tag.findFirst({
+      where: {
+        userId: null,
+        name,
+      },
+    });
+
+    if (existingTag) {
+      result.push(existingTag);
+      continue;
+    }
+
+    const createdTag = await tx.tag.create({
+      data: {
+        userId: null,
+        name,
+      },
+    });
+
+    result.push(createdTag);
+  }
+
+  return result;
+}
 
 export async function createTask(formData: FormData) {
   const input = parseTaskFormData(formData);
 
-  console.log("createTask", input);
+  const task = await prisma.$transaction(async (tx) => {
+    const tags = await getOrCreateTags(input.tags, tx);
+
+    return tx.task.create({
+      data: {
+        userId: null,
+        title: input.title,
+        description: input.description,
+        status: input.status,
+        priority: input.priority,
+        dueDate: toDate(input.dueDate),
+        isPublic: input.isPublic,
+        todos: {
+          create: input.todos.map((content, index) => ({
+            content,
+            sortOrder: index,
+          })),
+        },
+        taskTags: {
+          create: tags.map((tag) => ({
+            tagId: tag.id,
+          })),
+        },
+      },
+    });
+  });
 
   revalidatePath("/tasks");
-  redirect("/tasks");
+  redirect(`/tasks/${task.id}`);
 }
 
 export async function updateTask(taskId: string, formData: FormData) {
   const input = parseTaskFormData(formData);
 
-  console.log("updateTask", {
-    taskId,
-    ...input,
+  await prisma.$transaction(async (tx) => {
+    const tags = await getOrCreateTags(input.tags, tx);
+
+    await tx.task.update({
+      where: {
+        id: taskId,
+      },
+      data: {
+        title: input.title,
+        description: input.description,
+        status: input.status,
+        priority: input.priority,
+        dueDate: toDate(input.dueDate),
+        isPublic: input.isPublic,
+        todos: {
+          deleteMany: {},
+          create: input.todos.map((content, index) => ({
+            content,
+            sortOrder: index,
+          })),
+        },
+        taskTags: {
+          deleteMany: {},
+          create: tags.map((tag) => ({
+            tagId: tag.id,
+          })),
+        },
+      },
+    });
   });
 
   revalidatePath("/tasks");
@@ -26,15 +122,13 @@ export async function updateTask(taskId: string, formData: FormData) {
   redirect(`/tasks/${taskId}`);
 }
 
-export async function updateTaskStatus(taskId: string, formData: FormData) {
-  const input = parseTaskStatusFormData(formData);
-
-  console.log("updateTaskStatus", {
-    taskId,
-    ...input,
+export async function deleteTask(taskId: string) {
+  await prisma.task.delete({
+    where: {
+      id: taskId,
+    },
   });
 
   revalidatePath("/tasks");
-  revalidatePath(`/tasks/${taskId}`);
-  redirect(`/tasks/${taskId}`);
+  redirect("/tasks");
 }

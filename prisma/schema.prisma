@@ -10,7 +10,6 @@ datasource db {
 enum TaskStatus {
   TODO
   IN_PROGRESS
-  HOLD
   DONE
 }
 
@@ -28,18 +27,32 @@ model Task {
   status      TaskStatus   @default(TODO)
   priority    TaskPriority @default(MEDIUM)
   dueDate     DateTime?
-  memo        String?
   isPublic    Boolean      @default(false)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  taskTags  TaskTag[]
-  histories TaskHistory[]
+  todos    TaskTodo[]
+  taskTags TaskTag[]
 
   @@index([userId])
   @@index([isPublic])
   @@index([status])
   @@index([priority])
+  @@index([dueDate])
+}
+
+model TaskTodo {
+  id        String   @id @default(cuid())
+  taskId    String
+  content   String
+  isDone    Boolean  @default(false)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
 }
 
 model Tag {
@@ -62,17 +75,4 @@ model TaskTag {
   tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([taskId, tagId])
-}
-
-model TaskHistory {
-  id         String      @id @default(cuid())
-  taskId     String
-  fromStatus TaskStatus?
-  toStatus   TaskStatus
-  memo       String?
-  createdAt  DateTime    @default(now())
-
-  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
-
-  @@index([taskId])
 }

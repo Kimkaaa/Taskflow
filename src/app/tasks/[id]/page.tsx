@@ -1,14 +1,12 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import TaskHistoryList from "@/components/tasks/TaskHistoryList";
-import TaskStatusForm from "@/components/tasks/TaskStatusForm";
-import MemoList from "@/components/tasks/MemoList";
-import { updateTaskStatus } from "@/app/actions/tasks";
+import { Check, ChevronLeft, Circle, Pencil } from "lucide-react";
+import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
 import {
   getTaskById,
-  getTaskHistoriesByTaskId,
+  priorityBadgeStyles,
   priorityLabels,
+  statusBadgeStyles,
   statusLabels,
 } from "@/lib/tasks";
 
@@ -18,133 +16,138 @@ type TaskDetailPageProps = {
   }>;
 };
 
-export async function generateMetadata({
-  params,
-}: TaskDetailPageProps): Promise<Metadata> {
-  const { id } = await params;
-  const task = await getTaskById(id);
-
-  if (!task || !task.isPublic) {
-    return {
-      title: "작업을 찾을 수 없음 | TaskFlow",
-    };
-  }
-
-  return {
-    title: `${task.title} | TaskFlow`,
-    description: task.description,
-  };
-}
+const badgeBaseClass =
+  "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium";
 
 export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   const { id } = await params;
   const task = await getTaskById(id);
 
-  if (!task || !task.isPublic) {
+  if (!task) {
     notFound();
   }
 
-  const histories = await getTaskHistoriesByTaskId(task.id);
-  const updateTaskStatusWithId = updateTaskStatus.bind(null, task.id);
+  const completedTodoCount = task.todos.filter((todo) => todo.isDone).length;
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-900">
+    <main className="min-h-screen bg-[#191919] px-6 py-8 text-white">
       <section className="mx-auto max-w-3xl">
-        <div className="mb-8">
+        <div className="mb-6 flex items-center justify-between gap-4">
           <Link
             href="/tasks"
-            className="text-sm font-medium text-slate-500 transition hover:text-slate-900"
+            aria-label="목록으로 돌아가기"
+            title="목록으로 돌아가기"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#d1d5db]"
           >
-            ← 작업 목록으로
+            <ChevronLeft className="h-6 w-6" aria-hidden="true" />
           </Link>
 
-          <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-500">Task Detail</p>
-              <h1 className="mt-2 text-3xl font-bold">{task.title}</h1>
-            </div>
-
+          <div className="flex items-center gap-2">
             <Link
               href={`/tasks/${task.id}/edit`}
-              className="inline-flex w-fit rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
+              className="inline-flex items-center gap-2 rounded-full border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-[#d1d5db]"
             >
+              <Pencil className="h-4 w-4" aria-hidden="true" />
               수정
             </Link>
+
+            <DeleteTaskButton taskId={task.id} />
           </div>
         </div>
 
-        <div className="space-y-6">
-          <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex flex-wrap gap-2">
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                {statusLabels[task.status]}
-              </span>
+        <article className="rounded-2xl border border-[#3a3a3a] bg-[#242424] p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <span
+              className={`${badgeBaseClass} ${statusBadgeStyles[task.status]}`}
+            >
+              {statusLabels[task.status]}
+            </span>
 
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                우선순위 {priorityLabels[task.priority]}
-              </span>
+            <span
+              className={`${badgeBaseClass} ${priorityBadgeStyles[task.priority]}`}
+            >
+              {priorityLabels[task.priority]}
+            </span>
 
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                {task.isPublic ? "공개" : "비공개"}
+            <span className="text-xs font-medium text-[#a3a3a3]">
+              {task.dueDate ? `마감일 ${task.dueDate}` : "마감일 없음"}
+            </span>
+          </div>
+
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            {task.title}
+          </h1>
+
+          <section className="mt-8">
+            <h2 className="text-sm font-semibold text-white">설명</h2>
+
+            <p className="mt-3 text-sm leading-6 text-[#d1d5db]">
+              {task.description}
+            </p>
+          </section>
+
+          <section className="mt-8">
+            <div className="mb-3 flex items-center justify-between gap-4">
+              <h2 className="text-sm font-semibold text-white">체크리스트</h2>
+
+              <span className="text-xs font-medium text-[#a3a3a3]">
+                {completedTodoCount}/{task.todos.length}
               </span>
             </div>
 
-            <div className="mt-8 space-y-6">
-              <section>
-                <h2 className="text-sm font-semibold text-slate-500">설명</h2>
-                <p className="mt-2 leading-7 text-slate-700">
-                  {task.description}
-                </p>
-              </section>
+            {task.todos.length > 0 ? (
+              <ul className="space-y-2">
+                {task.todos.map((todo) => (
+                  <li
+                    key={todo.id}
+                    className="flex items-start gap-3 rounded-xl border border-[#3a3a3a] bg-[#191919] px-4 py-3 text-sm text-[#d1d5db]"
+                  >
+                    {todo.isDone ? (
+                      <Check
+                        className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <Circle
+                        className="mt-0.5 h-4 w-4 shrink-0 text-[#a3a3a3]"
+                        aria-hidden="true"
+                      />
+                    )}
 
-              <section>
-                <h2 className="text-sm font-semibold text-slate-500">메모</h2>
-                <MemoList memo={task.memo} />
-              </section>
-
-              <section>
-                <h2 className="text-sm font-semibold text-slate-500">마감일</h2>
-                <p className="mt-2 text-slate-700">
-                  {task.dueDate ?? "마감일 없음"}
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-sm font-semibold text-slate-500">태그</h2>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {task.tags.map((tag) => (
                     <span
-                      key={tag}
-                      className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-500"
+                      className={
+                        todo.isDone ? "text-[#a3a3a3] line-through" : ""
+                      }
                     >
-                      #{tag}
+                      {todo.content}
                     </span>
-                  ))}
-                </div>
-              </section>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="rounded-xl border border-dashed border-[#3a3a3a] bg-[#191919] px-4 py-5 text-sm text-[#a3a3a3]">
+                등록된 체크리스트가 없습니다.
+              </p>
+            )}
+          </section>
 
-              <section className="grid gap-4 border-t border-slate-200 pt-6 sm:grid-cols-2">
-                <div>
-                  <h2 className="text-sm font-semibold text-slate-500">
-                    생성일
-                  </h2>
-                  <p className="mt-2 text-slate-700">{task.createdAt}</p>
-                </div>
+          {task.tags.length > 0 ? (
+            <section className="mt-8">
+              <h2 className="text-sm font-semibold text-white">태그</h2>
 
-                <div>
-                  <h2 className="text-sm font-semibold text-slate-500">
-                    수정일
-                  </h2>
-                  <p className="mt-2 text-slate-700">{task.updatedAt}</p>
-                </div>
-              </section>
-            </div>
-          </article>
-
-          <TaskStatusForm task={task} action={updateTaskStatusWithId} />
-
-          <TaskHistoryList histories={histories} />
-        </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {task.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-md border border-[#3a3a3a] bg-[#191919] px-2 py-1 text-xs text-[#a3a3a3]"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </section>
+          ) : null}
+        </article>
       </section>
     </main>
   );

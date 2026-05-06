@@ -1,6 +1,16 @@
-export type TaskStatus = "TODO" | "IN_PROGRESS" | "HOLD" | "DONE";
+export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
 
 export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
+
+export type TaskTodo = {
+  id: string;
+  taskId: string;
+  content: string;
+  isDone: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export type Task = {
   id: string;
@@ -10,17 +20,8 @@ export type Task = {
   priority: TaskPriority;
   dueDate: string | null;
   tags: string[];
-  memo: string | null;
+  todos: TaskTodo[];
   isPublic: boolean;
   createdAt: string;
   updatedAt: string;
-};
-
-export type TaskHistory = {
-  id: string;
-  taskId: string;
-  fromStatus: TaskStatus | null;
-  toStatus: TaskStatus;
-  memo: string | null;
-  createdAt: string;
 };

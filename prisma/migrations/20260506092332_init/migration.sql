@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "TaskStatus" AS ENUM ('TODO', 'IN_PROGRESS', 'HOLD', 'DONE');
+CREATE TYPE "TaskStatus" AS ENUM ('TODO', 'IN_PROGRESS', 'DONE');
 
 -- CreateEnum
 CREATE TYPE "TaskPriority" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
@@ -13,12 +13,24 @@ CREATE TABLE "Task" (
     "status" "TaskStatus" NOT NULL DEFAULT 'TODO',
     "priority" "TaskPriority" NOT NULL DEFAULT 'MEDIUM',
     "dueDate" TIMESTAMP(3),
-    "memo" TEXT,
     "isPublic" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TaskTodo" (
+    "id" TEXT NOT NULL,
+    "taskId" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "isDone" BOOLEAN NOT NULL DEFAULT false,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "TaskTodo_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -39,18 +51,6 @@ CREATE TABLE "TaskTag" (
     CONSTRAINT "TaskTag_pkey" PRIMARY KEY ("taskId","tagId")
 );
 
--- CreateTable
-CREATE TABLE "TaskHistory" (
-    "id" TEXT NOT NULL,
-    "taskId" TEXT NOT NULL,
-    "fromStatus" "TaskStatus",
-    "toStatus" "TaskStatus" NOT NULL,
-    "memo" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "TaskHistory_pkey" PRIMARY KEY ("id")
-);
-
 -- CreateIndex
 CREATE INDEX "Task_userId_idx" ON "Task"("userId");
 
@@ -64,19 +64,22 @@ CREATE INDEX "Task_status_idx" ON "Task"("status");
 CREATE INDEX "Task_priority_idx" ON "Task"("priority");
 
 -- CreateIndex
+CREATE INDEX "Task_dueDate_idx" ON "Task"("dueDate");
+
+-- CreateIndex
+CREATE INDEX "TaskTodo_taskId_idx" ON "TaskTodo"("taskId");
+
+-- CreateIndex
 CREATE INDEX "Tag_userId_idx" ON "Tag"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Tag_userId_name_key" ON "Tag"("userId", "name");
 
--- CreateIndex
-CREATE INDEX "TaskHistory_taskId_idx" ON "TaskHistory"("taskId");
+-- AddForeignKey
+ALTER TABLE "TaskTodo" ADD CONSTRAINT "TaskTodo_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "Task"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TaskTag" ADD CONSTRAINT "TaskTag_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "Task"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TaskTag" ADD CONSTRAINT "TaskTag_tagId_fkey" FOREIGN KEY ("tagId") REFERENCES "Tag"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "TaskHistory" ADD CONSTRAINT "TaskHistory_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "Task"("id") ON DELETE CASCADE ON UPDATE CASCADE;

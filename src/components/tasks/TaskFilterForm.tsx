@@ -1,120 +1,166 @@
 import Link from "next/link";
-import {
-  priorityLabels,
-  sortLabels,
-  statusLabels,
-  type TaskQuery,
-} from "@/lib/tasks";
+import { RotateCcw, Search } from "lucide-react";
+import type { TaskPriority, TaskStatus } from "@/types/task";
+import type { TaskQuery, TaskSortOption } from "@/lib/tasks";
+import { priorityLabels, statusLabels } from "@/lib/tasks";
 
 type TaskFilterFormProps = {
   query: TaskQuery;
 };
 
+const statusOptions: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
+const priorityOptions: TaskPriority[] = ["HIGH", "MEDIUM", "LOW"];
+
+const chipBaseClass =
+  "inline-flex h-9 items-center justify-center rounded-full border px-3 text-sm font-medium transition";
+
+function getChipClass(isActive: boolean) {
+  return isActive
+    ? `${chipBaseClass} border-[#555555] bg-[#3a3a3a] text-white`
+    : `${chipBaseClass} border-[#3a3a3a] bg-[#191919] text-[#d1d5db]`;
+}
+
+function createTaskListHref(
+  query: TaskQuery,
+  updates: Partial<{
+    keyword: string;
+    status: TaskStatus | null;
+    priority: TaskPriority | null;
+    sort: TaskSortOption | null;
+  }>,
+) {
+  const params = new URLSearchParams();
+
+  const keyword =
+    updates.keyword !== undefined ? updates.keyword : query.keyword ?? "";
+  const status =
+    updates.status !== undefined ? updates.status : query.status;
+  const priority =
+    updates.priority !== undefined ? updates.priority : query.priority;
+  const sort = updates.sort !== undefined ? updates.sort : query.sort;
+
+  if (keyword) {
+    params.set("keyword", keyword);
+  }
+
+  if (status) {
+    params.set("status", status);
+  }
+
+  if (priority) {
+    params.set("priority", priority);
+  }
+
+  if (sort) {
+    params.set("sort", sort);
+  }
+
+  const queryString = params.toString();
+
+  return queryString ? `/tasks?${queryString}` : "/tasks";
+}
+
 export default function TaskFilterForm({ query }: TaskFilterFormProps) {
   return (
-    <form
-      action="/tasks"
-      className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-    >
-      <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr_1fr_1fr_auto]">
-        <div>
-          <label
-            htmlFor="keyword"
-            className="block text-sm font-semibold text-slate-700"
-          >
-            검색어
-          </label>
-          <input
-            id="keyword"
-            name="keyword"
-            type="search"
-            defaultValue={query.keyword ?? ""}
-            placeholder="제목, 설명, 메모, 태그 검색"
-            className="mt-2 w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900"
+    <section className="mb-5 rounded-2xl border border-[#3a3a3a] bg-[#242424] p-4 shadow-sm">
+      <form action="/tasks" className="flex gap-2">
+        {query.status ? (
+          <input type="hidden" name="status" value={query.status} />
+        ) : null}
+
+        {query.priority ? (
+          <input type="hidden" name="priority" value={query.priority} />
+        ) : null}
+
+        {query.sort ? (
+          <input type="hidden" name="sort" value={query.sort} />
+        ) : null}
+
+        <label className="relative flex-1">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a3a3a3]"
+            aria-hidden="true"
           />
+
+          <input
+            type="search"
+            name="keyword"
+            enterKeyHint="search"
+            defaultValue={query.keyword ?? ""}
+            placeholder="검색"
+            className="task-search-input h-10 w-full rounded-xl border border-[#3a3a3a] bg-[#191919] pl-9 pr-1 text-sm text-white outline-none transition placeholder:text-[#a3a3a3] focus:border-[#6b7280] focus:bg-[#191919]"
+          />
+        </label>
+
+        <Link
+          href="/tasks"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#3a3a3a] bg-[#191919] text-[#d1d5db] transition"
+          aria-label="초기화"
+          title="초기화"
+        >
+          <RotateCcw className="h-4 w-4" aria-hidden="true" />
+        </Link>
+      </form>
+
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2">
+          {statusOptions.map((status) => {
+            const isActive = query.status === status;
+            const href = createTaskListHref(query, {
+              status: isActive ? null : status,
+            });
+
+            return (
+              <Link key={status} href={href} className={getChipClass(isActive)}>
+                {statusLabels[status]}
+              </Link>
+            );
+          })}
         </div>
 
-        <div>
-          <label
-            htmlFor="status"
-            className="block text-sm font-semibold text-slate-700"
-          >
-            상태
-          </label>
-          <select
-            id="status"
-            name="status"
-            defaultValue={query.status ?? "ALL"}
-            className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900"
-          >
-            <option value="ALL">전체</option>
-            {Object.entries(statusLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+        <span className="hidden h-5 w-px bg-[#3a3a3a] sm:block" />
+
+        <div className="flex shrink-0 items-center gap-2">
+          {priorityOptions.map((priority) => {
+            const isActive = query.priority === priority;
+            const href = createTaskListHref(query, {
+              priority: isActive ? null : priority,
+            });
+
+            return (
+              <Link
+                key={priority}
+                href={href}
+                className={getChipClass(isActive)}
+              >
+                {priorityLabels[priority]}
+              </Link>
+            );
+          })}
         </div>
 
-        <div>
-          <label
-            htmlFor="priority"
-            className="block text-sm font-semibold text-slate-700"
-          >
-            우선순위
-          </label>
-          <select
-            id="priority"
-            name="priority"
-            defaultValue={query.priority ?? "ALL"}
-            className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900"
-          >
-            <option value="ALL">전체</option>
-            {Object.entries(priorityLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <span className="hidden h-5 w-px bg-[#3a3a3a] sm:block" />
 
-        <div>
-          <label
-            htmlFor="sort"
-            className="block text-sm font-semibold text-slate-700"
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href={createTaskListHref(query, {
+              sort: query.sort === "dueAsc" ? null : "dueAsc",
+            })}
+            className={getChipClass(query.sort === "dueAsc")}
           >
-            정렬
-          </label>
-          <select
-            id="sort"
-            name="sort"
-            defaultValue={query.sort ?? "updatedDesc"}
-            className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900"
-          >
-            {Object.entries(sortLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex items-end gap-2">
-          <button
-            type="submit"
-            className="h-[46px] rounded-lg bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-700"
-          >
-            적용
-          </button>
+            마감일
+          </Link>
 
           <Link
-            href="/tasks"
-            className="flex h-[46px] items-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+            href={createTaskListHref(query, {
+              sort: query.sort === "priorityDesc" ? null : "priorityDesc",
+            })}
+            className={getChipClass(query.sort === "priorityDesc")}
           >
-            초기화
+            중요도
           </Link>
         </div>
       </div>
-    </form>
+    </section>
   );
 }
