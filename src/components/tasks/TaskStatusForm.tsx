@@ -3,11 +3,15 @@ import { statusLabels } from "@/lib/tasks";
 
 type TaskStatusFormProps = {
   task: Task;
+  action: (formData: FormData) => void | Promise<void>;
 };
 
-export default function TaskStatusForm({ task }: TaskStatusFormProps) {
+export default function TaskStatusForm({ task, action }: TaskStatusFormProps) {
   return (
-    <form className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form
+      action={action}
+      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+    >
       <div>
         <p className="text-sm font-medium text-slate-500">Status</p>
         <h2 className="mt-2 text-xl font-bold">상태 변경</h2>
@@ -58,10 +62,10 @@ export default function TaskStatusForm({ task }: TaskStatusFormProps) {
 
       <div className="mt-6 flex justify-end">
         <button
-          type="button"
+          type="submit"
           className="rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
         >
-          상태 변경 준비 중
+          상태 변경
         </button>
       </div>
     </form>

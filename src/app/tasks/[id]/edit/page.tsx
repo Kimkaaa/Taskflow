@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { updateTask } from "@/app/actions/tasks";
 import TaskForm from "@/components/tasks/TaskForm";
 import { getTaskById } from "@/lib/tasks";
 
@@ -16,6 +17,8 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
   if (!task) {
     notFound();
   }
+
+  const updateTaskWithId = updateTask.bind(null, task.id);
 
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-900">
@@ -35,7 +38,7 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
           </p>
         </div>
 
-        <TaskForm mode="edit" task={task} />
+        <TaskForm mode="edit" task={task} action={updateTaskWithId} />
       </section>
     </main>
   );

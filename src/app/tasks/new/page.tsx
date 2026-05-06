@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { createTask } from "@/app/actions/tasks";
 import TaskForm from "@/components/tasks/TaskForm";
 
 export default function NewTaskPage() {
@@ -20,7 +21,7 @@ export default function NewTaskPage() {
           </p>
         </div>
 
-        <TaskForm mode="create" />
+        <TaskForm mode="create" action={createTask} />
       </section>
     </main>
   );

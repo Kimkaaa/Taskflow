@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import TaskHistoryList from "@/components/tasks/TaskHistoryList";
 import TaskStatusForm from "@/components/tasks/TaskStatusForm";
+import { updateTaskStatus } from "@/app/actions/tasks";
 import {
   getTaskById,
   getTaskHistoriesByTaskId,
@@ -43,6 +44,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   }
 
   const histories = getTaskHistoriesByTaskId(task.id);
+  const updateTaskStatusWithId = updateTaskStatus.bind(null, task.id);
 
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-900">
@@ -140,7 +142,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
             </div>
           </article>
 
-          <TaskStatusForm task={task} />
+          <TaskStatusForm task={task} action={updateTaskStatusWithId} />
 
           <TaskHistoryList histories={histories} />
         </div>

@@ -1,16 +1,22 @@
+import Link from "next/link";
 import type { Task } from "@/types/task";
 import { priorityLabels, statusLabels } from "@/lib/tasks";
 
 type TaskFormProps = {
   mode: "create" | "edit";
+  action: (formData: FormData) => void | Promise<void>;
   task?: Task;
 };
 
-export default function TaskForm({ mode, task }: TaskFormProps) {
+export default function TaskForm({ mode, action, task }: TaskFormProps) {
   const isEditMode = mode === "edit";
+  const cancelHref = isEditMode && task ? `/tasks/${task.id}` : "/tasks";
 
   return (
-    <form className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form
+      action={action}
+      className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+    >
       <div>
         <label
           htmlFor="title"
@@ -160,15 +166,15 @@ export default function TaskForm({ mode, task }: TaskFormProps) {
       </label>
 
       <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-end">
-        <button
-          type="button"
-          className="rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+        <Link
+          href={cancelHref}
+          className="rounded-lg border border-slate-300 bg-white px-5 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
         >
           취소
-        </button>
+        </Link>
 
         <button
-          type="button"
+          type="submit"
           className="rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
         >
           {isEditMode ? "작업 수정" : "작업 등록"}
