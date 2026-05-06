@@ -18,6 +18,8 @@ const badgeBaseClass =
   "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium";
 
 export default async function TasksPage({ searchParams }: TasksPageProps) {
+  // throw new Error("에러 페이지 확인용");
+
   const params = await searchParams;
   const query = parseTaskQuery(params);
   const tasks = await getPublicTasks(query);
