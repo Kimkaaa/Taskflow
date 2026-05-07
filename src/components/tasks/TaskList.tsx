@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import type { Task, TaskPriority, TaskStatus } from "@/types/task";
 import type { TaskQuery } from "@/lib/tasks";
@@ -77,9 +77,7 @@ export default function TaskList({
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
   const isLoadingRef = useRef(false);
-  const canAutoLoadRef = useRef(true);
 
   const loadMoreTasks = useCallback(async () => {
     if (!nextCursor || isLoadingRef.current) {
@@ -109,7 +107,6 @@ export default function TaskList({
       });
 
       setNextCursor(data.nextCursor);
-      canAutoLoadRef.current = false;
     } catch {
       setErrorMessage("작업 목록을 추가로 불러오지 못했습니다.");
     } finally {
@@ -117,40 +114,6 @@ export default function TaskList({
       setIsLoading(false);
     }
   }, [nextCursor, query]);
-
-  useEffect(() => {
-    const target = sentinelRef.current;
-
-    if (!target || !nextCursor) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) {
-          canAutoLoadRef.current = true;
-          return;
-        }
-
-        if (!canAutoLoadRef.current) {
-          return;
-        }
-
-        canAutoLoadRef.current = false;
-        void loadMoreTasks();
-      },
-      {
-        rootMargin: "0px",
-        threshold: 1,
-      },
-    );
-
-    observer.observe(target);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [loadMoreTasks, nextCursor]);
 
   if (tasks.length === 0) {
     return (
@@ -218,7 +181,7 @@ export default function TaskList({
         ))}
       </div>
 
-      <div ref={sentinelRef} className="mt-6 flex justify-center">
+      <div className="mt-6 flex justify-center">
         {nextCursor ? (
           <button
             type="button"
