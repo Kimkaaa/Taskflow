@@ -8,9 +8,7 @@ type TasksPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-function createTaskListKey(
-  query: ReturnType<typeof parseTaskQuery>,
-) {
+function createTaskListKey(query: ReturnType<typeof parseTaskQuery>) {
   return [
     query.keyword ?? "",
     query.status ?? "",
@@ -31,9 +29,12 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
     <main className="min-h-screen bg-[#191919] px-6 py-8 text-white">
       <section className="mx-auto max-w-5xl">
         <div className="mb-6 flex items-center justify-between gap-4">
-          <h1 className="text-3xl font-bold tracking-tight text-white">
+          <Link
+            href="/tasks"
+            className="text-3xl font-bold tracking-tight text-white"
+          >
             TaskFlow
-          </h1>
+          </Link>
 
           <Link
             href="/login"
