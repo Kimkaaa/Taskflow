@@ -67,7 +67,7 @@ const inputClass =
   "w-full rounded-xl border border-[#3a3a3a] bg-[#191919] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#a3a3a3] focus:border-[#6b7280]";
 
 const chipBaseClass =
-  "inline-flex h-10 cursor-pointer items-center justify-center rounded-full border px-4 text-sm font-medium transition";
+  "inline-flex h-9 cursor-pointer items-center justify-center rounded-full border px-3 text-sm font-medium transition";
 
 function getDefaultStatus(task?: Task): TaskStatus {
   return task?.status ?? "TODO";
@@ -168,9 +168,7 @@ function SortableTodoItem({
           onClick={() => onDoneChange(todo.id)}
           className="shrink-0 text-[#a3a3a3] transition hover:text-white"
           aria-label={
-            todo.isDone
-              ? "체크리스트 미완료로 변경"
-              : "체크리스트 완료로 변경"
+            todo.isDone ? "체크리스트 미완료로 변경" : "체크리스트 완료로 변경"
           }
         >
           {todo.isDone ? (
@@ -303,7 +301,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
         required
       />
 
-      <div className="grid items-center gap-3 lg:grid-cols-[1.2fr_1fr_1fr]">
+      <div className="grid items-center gap-3 min-[600px]:grid-cols-[max-content_max-content_180px] min-[600px]:justify-between">
         <fieldset className="flex flex-wrap items-center gap-2">
           <legend className="sr-only">상태</legend>
 
