@@ -2,7 +2,25 @@
 
 import { useState } from "react";
 import {
+  DndContext,
+  type DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
   CheckSquare,
+  GripVertical,
   Pencil,
   Plus,
   RotateCcw,
@@ -21,6 +39,13 @@ type EditableTodo = {
   id: string;
   content: string;
   isDone: boolean;
+};
+
+type SortableTodoItemProps = {
+  todo: EditableTodo;
+  onContentChange: (todoId: string, content: string) => void;
+  onDoneChange: (todoId: string) => void;
+  onRemove: (todoId: string) => void;
 };
 
 const statusOptions: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
@@ -84,10 +109,118 @@ function isExistingTodoId(id: string) {
   return !id.startsWith("new-");
 }
 
+function SortableTodoItem({
+  todo,
+  onContentChange,
+  onDoneChange,
+  onRemove,
+}: SortableTodoItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: todo.id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-1 ${
+        isDragging ? "relative z-10 opacity-80" : ""
+      }`}
+    >
+      <button
+        type="button"
+        className="flex h-10 w-4 shrink-0 cursor-grab items-center justify-center text-[#737373] transition hover:text-[#d1d5db] active:cursor-grabbing"
+        aria-label="체크리스트 순서 변경"
+        title="순서 변경"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-4 w-4" aria-hidden="true" />
+      </button>
+
+      <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[#3a3a3a] bg-[#191919] px-3 py-2">
+        <input
+          type="hidden"
+          name="todoId"
+          value={isExistingTodoId(todo.id) ? todo.id : ""}
+        />
+
+        <input
+          type="hidden"
+          name="todoIsDone"
+          value={todo.isDone ? "true" : "false"}
+        />
+
+        <button
+          type="button"
+          onClick={() => onDoneChange(todo.id)}
+          className="shrink-0 text-[#a3a3a3] transition hover:text-white"
+          aria-label={
+            todo.isDone
+              ? "체크리스트 미완료로 변경"
+              : "체크리스트 완료로 변경"
+          }
+        >
+          {todo.isDone ? (
+            <CheckSquare
+              className="h-4 w-4 text-emerald-300"
+              aria-hidden="true"
+            />
+          ) : (
+            <Square className="h-4 w-4" aria-hidden="true" />
+          )}
+        </button>
+
+        <input
+          name="todoContent"
+          type="text"
+          value={todo.content}
+          onChange={(event) => onContentChange(todo.id, event.target.value)}
+          placeholder="체크리스트"
+          className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-white outline-none placeholder:text-[#737373]"
+        />
+
+        <button
+          type="button"
+          onClick={() => onRemove(todo.id)}
+          className="shrink-0 text-[#737373] transition hover:text-red-300"
+          aria-label="체크리스트 항목 삭제"
+          title="삭제"
+        >
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
   const defaultStatus = getDefaultStatus(task);
   const defaultPriority = getDefaultPriority(task);
   const [todos, setTodos] = useState(() => getInitialTodos(task));
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 6,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   const handleTodoContentChange = (todoId: string, content: string) => {
     setTodos((currentTodos) =>
@@ -129,6 +262,25 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
 
   const handleResetTodos = () => {
     setTodos(getInitialTodos(task));
+  };
+
+  const handleTodoDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    setTodos((currentTodos) => {
+      const oldIndex = currentTodos.findIndex((todo) => todo.id === active.id);
+      const newIndex = currentTodos.findIndex((todo) => todo.id === over.id);
+
+      if (oldIndex === -1 || newIndex === -1) {
+        return currentTodos;
+      }
+
+      return arrayMove(currentTodos, oldIndex, newIndex);
+    });
   };
 
   return (
@@ -225,66 +377,28 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
           </button>
         </div>
 
-        <div className="space-y-2">
-          {todos.map((todo) => (
-            <div
-              key={todo.id}
-              className="flex items-center gap-2 rounded-xl border border-[#3a3a3a] bg-[#191919] px-3 py-2"
-            >
-              <input
-                type="hidden"
-                name="todoId"
-                value={isExistingTodoId(todo.id) ? todo.id : ""}
-              />
-              <input
-                type="hidden"
-                name="todoIsDone"
-                value={todo.isDone ? "true" : "false"}
-              />
-
-              <button
-                type="button"
-                onClick={() => handleTodoDoneChange(todo.id)}
-                className="shrink-0 text-[#a3a3a3] transition hover:text-white"
-                aria-label={
-                  todo.isDone
-                    ? "체크리스트 미완료로 변경"
-                    : "체크리스트 완료로 변경"
-                }
-              >
-                {todo.isDone ? (
-                  <CheckSquare
-                    className="h-4 w-4 text-emerald-300"
-                    aria-hidden="true"
-                  />
-                ) : (
-                  <Square className="h-4 w-4" aria-hidden="true" />
-                )}
-              </button>
-
-              <input
-                name="todoContent"
-                type="text"
-                value={todo.content}
-                onChange={(event) =>
-                  handleTodoContentChange(todo.id, event.target.value)
-                }
-                placeholder="체크리스트"
-                className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-white outline-none placeholder:text-[#737373]"
-              />
-
-              <button
-                type="button"
-                onClick={() => handleRemoveTodo(todo.id)}
-                className="shrink-0 text-[#737373] transition hover:text-red-300"
-                aria-label="체크리스트 항목 삭제"
-                title="삭제"
-              >
-                <Trash2 className="h-4 w-4" aria-hidden="true" />
-              </button>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleTodoDragEnd}
+        >
+          <SortableContext
+            items={todos.map((todo) => todo.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-2">
+              {todos.map((todo) => (
+                <SortableTodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onContentChange={handleTodoContentChange}
+                  onDoneChange={handleTodoDoneChange}
+                  onRemove={handleRemoveTodo}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       </div>
 
       <div className="flex items-center justify-between gap-4">
