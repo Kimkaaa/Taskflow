@@ -45,6 +45,8 @@ export type TaskQuery = {
   sort?: TaskSortOption;
 };
 
+const TASK_PAGE_SIZE = 3;
+
 const taskStatuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
 const taskPriorities: TaskPriority[] = ["LOW", "MEDIUM", "HIGH"];
 const taskSortOptions: TaskSortOption[] = ["dueAsc", "priorityDesc"];
@@ -176,6 +178,9 @@ function getTaskOrderBy(
       {
         createdAt: "desc",
       },
+      {
+        id: "asc",
+      },
     ];
   }
 
@@ -189,26 +194,13 @@ function getTaskOrderBy(
     {
       createdAt: "desc",
     },
+    {
+      id: "asc",
+    },
   ];
 }
 
-export function parseTaskQuery(
-  params: Record<string, string | string[] | undefined>,
-): TaskQuery {
-  const keyword = getFirstParam(params.keyword)?.trim() ?? "";
-  const status = getFirstParam(params.status);
-  const priority = getFirstParam(params.priority);
-  const sort = getFirstParam(params.sort);
-
-  return {
-    keyword,
-    status: status && isTaskStatus(status) ? status : undefined,
-    priority: priority && isTaskPriority(priority) ? priority : undefined,
-    sort: sort && isTaskSortOption(sort) ? sort : undefined,
-  };
-}
-
-export async function getPublicTasks(query: TaskQuery = {}) {
+function buildTaskWhere(query: TaskQuery = {}): Prisma.TaskWhereInput {
   const keyword = query.keyword?.trim() ?? "";
 
   const where: Prisma.TaskWhereInput = {
@@ -262,13 +254,114 @@ export async function getPublicTasks(query: TaskQuery = {}) {
     ];
   }
 
-  const rows = await prisma.task.findMany({
+  return where;
+}
+
+async function findTaskListRows({
+  where,
+  query,
+  cursor,
+  limit,
+}: {
+  where: Prisma.TaskWhereInput;
+  query: TaskQuery;
+  cursor?: string;
+  limit: number;
+}) {
+  return prisma.task.findMany({
     where,
     select: taskListSelect,
     orderBy: getTaskOrderBy(query.sort),
+    take: limit + 1,
+    cursor: cursor
+      ? {
+          id: cursor,
+        }
+      : undefined,
+    skip: cursor ? 1 : 0,
+  });
+}
+
+function createTaskPageResult({
+  rows,
+  limit,
+  totalCount,
+}: {
+  rows: TaskListRow[];
+  limit: number;
+  totalCount?: number;
+}) {
+  const hasNextPage = rows.length > limit;
+  const pageRows = hasNextPage ? rows.slice(0, limit) : rows;
+
+  return {
+    tasks: pageRows.map(toTaskSummary),
+    nextCursor: hasNextPage ? pageRows[pageRows.length - 1].id : null,
+    totalCount,
+  };
+}
+
+export function parseTaskQuery(
+  params: Record<string, string | string[] | undefined>,
+): TaskQuery {
+  const keyword = getFirstParam(params.keyword)?.trim() ?? "";
+  const status = getFirstParam(params.status);
+  const priority = getFirstParam(params.priority);
+  const sort = getFirstParam(params.sort);
+
+  return {
+    keyword,
+    status: status && isTaskStatus(status) ? status : undefined,
+    priority: priority && isTaskPriority(priority) ? priority : undefined,
+    sort: sort && isTaskSortOption(sort) ? sort : undefined,
+  };
+}
+
+export async function getPublicTaskPage(
+  query: TaskQuery = {},
+  options: {
+    cursor?: string;
+    limit?: number;
+    includeTotalCount?: boolean;
+  } = {},
+) {
+  const limit = options.limit ?? TASK_PAGE_SIZE;
+  const where = buildTaskWhere(query);
+
+  const rowsPromise = findTaskListRows({
+    where,
+    query,
+    cursor: options.cursor,
+    limit,
   });
 
-  return rows.map(toTaskSummary);
+  if (!options.includeTotalCount) {
+    const rows = await rowsPromise;
+
+    return createTaskPageResult({
+      rows,
+      limit,
+    });
+  }
+
+  const [rows, totalCount] = await Promise.all([
+    rowsPromise,
+    prisma.task.count({
+      where,
+    }),
+  ]);
+
+  return createTaskPageResult({
+    rows,
+    limit,
+    totalCount,
+  });
+}
+
+export async function getPublicTasks(query: TaskQuery = {}) {
+  const result = await getPublicTaskPage(query);
+
+  return result.tasks;
 }
 
 export async function getTaskById(id: string) {
