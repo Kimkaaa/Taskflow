@@ -20,10 +20,18 @@
 # production
 /build
 
+# cache
+.turbo
+.eslintcache
+.stylelintcache
+
 # misc
 .DS_Store
+.AppleDouble
+.LSOverride
 Thumbs.db
 Desktop.ini
+$RECYCLE.BIN/
 *.pem
 
 # debug / logs
@@ -47,7 +55,6 @@ next-env.d.ts
 # IDE / Editor
 .vscode/*
 !.vscode/extensions.json
-!.vscode/settings.json
 
 .idea/
 *.iml
