@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Check, ChevronLeft, Circle, Pencil } from "lucide-react";
+import { CheckSquare, ChevronLeft, Pencil, Square } from "lucide-react";
 import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
 import {
   getTaskById,
@@ -103,12 +103,12 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
                     className="flex items-start gap-3 rounded-xl border border-[#3a3a3a] bg-[#191919] px-4 py-3 text-sm text-[#d1d5db]"
                   >
                     {todo.isDone ? (
-                      <Check
+                      <CheckSquare
                         className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300"
                         aria-hidden="true"
                       />
                     ) : (
-                      <Circle
+                      <Square
                         className="mt-0.5 h-4 w-4 shrink-0 text-[#a3a3a3]"
                         aria-hidden="true"
                       />
