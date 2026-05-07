@@ -62,6 +62,10 @@ function createTaskApiUrl(query: TaskQuery, cursor: string) {
     params.set("sort", query.sort);
   }
 
+  if (query.tag) {
+    params.set("tag", query.tag);
+  }
+
   params.set("cursor", cursor);
 
   return `/api/tasks?${params.toString()}`;

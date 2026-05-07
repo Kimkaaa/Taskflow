@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
     status: searchParams.get("status") ?? undefined,
     priority: searchParams.get("priority") ?? undefined,
     sort: searchParams.get("sort") ?? undefined,
+    tag: searchParams.get("tag") ?? undefined,
   });
 
   const cursor = searchParams.get("cursor") ?? undefined;

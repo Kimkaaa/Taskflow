@@ -27,17 +27,18 @@ function createTaskListHref(
     status: TaskStatus | null;
     priority: TaskPriority | null;
     sort: TaskSortOption | null;
+    tag: string | null;
   }>,
 ) {
   const params = new URLSearchParams();
 
   const keyword =
-    updates.keyword !== undefined ? updates.keyword : query.keyword ?? "";
-  const status =
-    updates.status !== undefined ? updates.status : query.status;
+    updates.keyword !== undefined ? updates.keyword : (query.keyword ?? "");
+  const status = updates.status !== undefined ? updates.status : query.status;
   const priority =
     updates.priority !== undefined ? updates.priority : query.priority;
   const sort = updates.sort !== undefined ? updates.sort : query.sort;
+  const tag = updates.tag !== undefined ? updates.tag : query.tag;
 
   if (keyword) {
     params.set("keyword", keyword);
@@ -53,6 +54,10 @@ function createTaskListHref(
 
   if (sort) {
     params.set("sort", sort);
+  }
+
+  if (tag) {
+    params.set("tag", tag);
   }
 
   const queryString = params.toString();
@@ -74,6 +79,10 @@ export default function TaskFilterForm({ query }: TaskFilterFormProps) {
 
         {query.sort ? (
           <input type="hidden" name="sort" value={query.sort} />
+        ) : null}
+
+        {query.tag ? (
+          <input type="hidden" name="tag" value={query.tag} />
         ) : null}
 
         <label className="relative flex-1">
@@ -101,6 +110,14 @@ export default function TaskFilterForm({ query }: TaskFilterFormProps) {
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
         </Link>
       </form>
+
+      {query.tag ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          <span className="rounded-md border border-[#3a3a3a] bg-[#191919] px-2 py-1 text-xs text-[#a3a3a3]">
+            #{query.tag}
+          </span>
+        </div>
+      ) : null}
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <div className="flex shrink-0 items-center gap-2">

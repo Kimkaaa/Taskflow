@@ -14,6 +14,7 @@ function createTaskListKey(query: ReturnType<typeof parseTaskQuery>) {
     query.status ?? "",
     query.priority ?? "",
     query.sort ?? "",
+    query.tag ?? "",
   ].join("-");
 }
 

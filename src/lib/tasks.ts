@@ -43,6 +43,7 @@ export type TaskQuery = {
   status?: TaskStatus;
   priority?: TaskPriority;
   sort?: TaskSortOption;
+  tag?: string;
 };
 
 const TASK_PAGE_SIZE = 3;
@@ -202,6 +203,7 @@ function getTaskOrderBy(
 
 function buildTaskWhere(query: TaskQuery = {}): Prisma.TaskWhereInput {
   const keyword = query.keyword?.trim() ?? "";
+  const tag = query.tag?.trim() ?? "";
 
   const where: Prisma.TaskWhereInput = {
     isPublic: true,
@@ -213,6 +215,16 @@ function buildTaskWhere(query: TaskQuery = {}): Prisma.TaskWhereInput {
 
   if (query.priority) {
     where.priority = query.priority;
+  }
+
+  if (tag) {
+    where.taskTags = {
+      some: {
+        tag: {
+          name: tag,
+        },
+      },
+    };
   }
 
   if (keyword) {
@@ -227,18 +239,6 @@ function buildTaskWhere(query: TaskQuery = {}): Prisma.TaskWhereInput {
         description: {
           contains: keyword,
           mode: "insensitive",
-        },
-      },
-      {
-        taskTags: {
-          some: {
-            tag: {
-              name: {
-                contains: keyword,
-                mode: "insensitive",
-              },
-            },
-          },
         },
       },
       {
@@ -308,12 +308,14 @@ export function parseTaskQuery(
   const status = getFirstParam(params.status);
   const priority = getFirstParam(params.priority);
   const sort = getFirstParam(params.sort);
+  const tag = getFirstParam(params.tag)?.trim() ?? "";
 
   return {
     keyword,
     status: status && isTaskStatus(status) ? status : undefined,
     priority: priority && isTaskPriority(priority) ? priority : undefined,
     sort: sort && isTaskSortOption(sort) ? sort : undefined,
+    tag: tag || undefined,
   };
 }
 

@@ -95,12 +95,13 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
 
               <div className="mt-3 flex flex-wrap gap-2">
                 {task.tags.map((tag) => (
-                  <span
+                  <Link
                     key={tag}
-                    className="rounded-md border border-[#3a3a3a] bg-[#191919] px-2 py-1 text-xs text-[#a3a3a3]"
+                    href={`/tasks?tag=${encodeURIComponent(tag)}`}
+                    className="rounded-md border border-[#3a3a3a] bg-[#191919] px-2 py-1 text-xs text-[#a3a3a3] transition hover:border-[#555555] hover:text-white"
                   >
                     #{tag}
-                  </span>
+                  </Link>
                 ))}
               </div>
             </section>
