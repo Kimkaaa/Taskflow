@@ -1,6 +1,15 @@
-import { Pencil, RotateCcw } from "lucide-react";
-import type { Task, TaskPriority, TaskStatus } from "@/types/task";
-import { priorityLabels, statusLabels } from "@/lib/tasks";
+"use client";
+
+import { useState } from "react";
+import {
+  CheckSquare,
+  Pencil,
+  Plus,
+  RotateCcw,
+  Square,
+  Trash2,
+} from "lucide-react";
+import type { Task, TaskPriority, TaskStatus, TaskTodo } from "@/types/task";
 
 type TaskFormProps = {
   action: (formData: FormData) => void | Promise<void>;
@@ -8,8 +17,26 @@ type TaskFormProps = {
   submitLabel: string;
 };
 
+type EditableTodo = {
+  id: string;
+  content: string;
+  isDone: boolean;
+};
+
 const statusOptions: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
 const priorityOptions: TaskPriority[] = ["HIGH", "MEDIUM", "LOW"];
+
+const statusLabels: Record<TaskStatus, string> = {
+  TODO: "예정",
+  IN_PROGRESS: "진행",
+  DONE: "완료",
+};
+
+const priorityLabels: Record<TaskPriority, string> = {
+  HIGH: "상",
+  MEDIUM: "중",
+  LOW: "하",
+};
 
 const inputClass =
   "w-full rounded-xl border border-[#3a3a3a] bg-[#191919] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#a3a3a3] focus:border-[#6b7280]";
@@ -25,17 +52,84 @@ function getDefaultPriority(task?: Task): TaskPriority {
   return task?.priority ?? "HIGH";
 }
 
-function getDefaultTodos(task?: Task) {
-  return task?.todos.map((todo) => todo.content).join("\n") ?? "";
+function toEditableTodo(todo: TaskTodo): EditableTodo {
+  return {
+    id: todo.id,
+    content: todo.content,
+    isDone: todo.isDone,
+  };
 }
 
-export default function TaskForm({
-  action,
-  task,
-  submitLabel,
-}: TaskFormProps) {
+function createEmptyTodo(): EditableTodo {
+  return {
+    id: `new-${crypto.randomUUID()}`,
+    content: "",
+    isDone: false,
+  };
+}
+
+function getInitialTodos(task?: Task): EditableTodo[] {
+  if (!task) {
+    return [createEmptyTodo()];
+  }
+
+  if (task.todos.length === 0) {
+    return [createEmptyTodo()];
+  }
+
+  return task.todos.map(toEditableTodo);
+}
+
+function isExistingTodoId(id: string) {
+  return !id.startsWith("new-");
+}
+
+export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
   const defaultStatus = getDefaultStatus(task);
   const defaultPriority = getDefaultPriority(task);
+  const [todos, setTodos] = useState(() => getInitialTodos(task));
+
+  const handleTodoContentChange = (todoId: string, content: string) => {
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) =>
+        todo.id === todoId
+          ? {
+              ...todo,
+              content,
+            }
+          : todo,
+      ),
+    );
+  };
+
+  const handleTodoDoneChange = (todoId: string) => {
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) =>
+        todo.id === todoId
+          ? {
+              ...todo,
+              isDone: !todo.isDone,
+            }
+          : todo,
+      ),
+    );
+  };
+
+  const handleAddTodo = () => {
+    setTodos((currentTodos) => [...currentTodos, createEmptyTodo()]);
+  };
+
+  const handleRemoveTodo = (todoId: string) => {
+    setTodos((currentTodos) => {
+      const nextTodos = currentTodos.filter((todo) => todo.id !== todoId);
+
+      return nextTodos.length > 0 ? nextTodos : [createEmptyTodo()];
+    });
+  };
+
+  const handleResetTodos = () => {
+    setTodos(getInitialTodos(task));
+  };
 
   return (
     <form action={action} className="space-y-4">
@@ -119,12 +213,79 @@ export default function TaskForm({
         className={inputClass}
       />
 
-      <textarea
-        name="todos"
-        defaultValue={getDefaultTodos(task)}
-        placeholder="한 줄에 하나씩 입력하면 체크리스트 항목으로 저장됩니다."
-        className={`${inputClass} min-h-40 resize-none leading-6`}
-      />
+      <div className="space-y-2">
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={handleAddTodo}
+            className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full border border-[#3a3a3a] bg-[#242424] px-3 text-xs font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] hover:text-white"
+          >
+            <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+            추가
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          {todos.map((todo) => (
+            <div
+              key={todo.id}
+              className="flex items-center gap-2 rounded-xl border border-[#3a3a3a] bg-[#191919] px-3 py-2"
+            >
+              <input
+                type="hidden"
+                name="todoId"
+                value={isExistingTodoId(todo.id) ? todo.id : ""}
+              />
+              <input
+                type="hidden"
+                name="todoIsDone"
+                value={todo.isDone ? "true" : "false"}
+              />
+
+              <button
+                type="button"
+                onClick={() => handleTodoDoneChange(todo.id)}
+                className="shrink-0 text-[#a3a3a3] transition hover:text-white"
+                aria-label={
+                  todo.isDone
+                    ? "체크리스트 미완료로 변경"
+                    : "체크리스트 완료로 변경"
+                }
+              >
+                {todo.isDone ? (
+                  <CheckSquare
+                    className="h-4 w-4 text-emerald-300"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <Square className="h-4 w-4" aria-hidden="true" />
+                )}
+              </button>
+
+              <input
+                name="todoContent"
+                type="text"
+                value={todo.content}
+                onChange={(event) =>
+                  handleTodoContentChange(todo.id, event.target.value)
+                }
+                placeholder="체크리스트"
+                className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-white outline-none placeholder:text-[#737373]"
+              />
+
+              <button
+                type="button"
+                onClick={() => handleRemoveTodo(todo.id)}
+                className="shrink-0 text-[#737373] transition hover:text-red-300"
+                aria-label="체크리스트 항목 삭제"
+                title="삭제"
+              >
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div className="flex items-center justify-between gap-4">
         <label className="flex items-center gap-2 text-sm text-[#d1d5db]">
@@ -134,13 +295,13 @@ export default function TaskForm({
             defaultChecked={task?.isPublic ?? true}
             className="h-4 w-4 accent-[#3a3a3a]"
           />
-
           공개
         </label>
 
         <div className="flex items-center gap-2">
           <button
             type="reset"
+            onClick={handleResetTodos}
             className="inline-flex h-11 w-11 cursor-pointer items-center justify-center text-[#a3a3a3] transition hover:text-white"
             aria-label="초기화"
             title="초기화"

@@ -65,8 +65,9 @@ export async function createTask(formData: FormData) {
         dueDate: toDate(input.dueDate),
         isPublic: input.isPublic,
         todos: {
-          create: input.todos.map((content, index) => ({
-            content,
+          create: input.todos.map((todo, index) => ({
+            content: todo.content,
+            isDone: todo.isDone,
             sortOrder: index,
           })),
         },
@@ -102,8 +103,9 @@ export async function updateTask(taskId: string, formData: FormData) {
         isPublic: input.isPublic,
         todos: {
           deleteMany: {},
-          create: input.todos.map((content, index) => ({
-            content,
+          create: input.todos.map((todo, index) => ({
+            content: todo.content,
+            isDone: todo.isDone,
             sortOrder: index,
           })),
         },

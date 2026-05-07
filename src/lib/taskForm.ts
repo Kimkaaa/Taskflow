@@ -1,5 +1,11 @@
 import type { TaskPriority, TaskStatus } from "@/types/task";
 
+export type TaskFormTodoInput = {
+  id: string | null;
+  content: string;
+  isDone: boolean;
+};
+
 export type TaskFormInput = {
   title: string;
   description: string;
@@ -7,7 +13,7 @@ export type TaskFormInput = {
   priority: TaskPriority;
   dueDate: string | null;
   tags: string[];
-  todos: string[];
+  todos: TaskFormTodoInput[];
   isPublic: boolean;
 };
 
@@ -22,6 +28,13 @@ function getStringValue(formData: FormData, key: string) {
   }
 
   return value.trim();
+}
+
+function getStringValues(formData: FormData, key: string) {
+  return formData
+    .getAll(key)
+    .filter((value): value is string => typeof value === "string")
+    .map((value) => value.trim());
 }
 
 function isTaskStatus(value: string): value is TaskStatus {
@@ -39,11 +52,18 @@ function parseTags(value: string) {
     .filter(Boolean);
 }
 
-function parseTodos(value: string) {
-  return value
-    .split(/\r?\n/)
-    .map((todo) => todo.trim())
-    .filter(Boolean);
+function parseTodos(formData: FormData): TaskFormTodoInput[] {
+  const ids = getStringValues(formData, "todoId");
+  const contents = getStringValues(formData, "todoContent");
+  const isDoneValues = getStringValues(formData, "todoIsDone");
+
+  return contents
+    .map((content, index) => ({
+      id: ids[index] || null,
+      content,
+      isDone: isDoneValues[index] === "true",
+    }))
+    .filter((todo) => todo.content);
 }
 
 export function parseTaskFormData(formData: FormData): TaskFormInput {
@@ -53,7 +73,6 @@ export function parseTaskFormData(formData: FormData): TaskFormInput {
   const priority = getStringValue(formData, "priority");
   const dueDate = getStringValue(formData, "dueDate");
   const tags = getStringValue(formData, "tags");
-  const todos = getStringValue(formData, "todos");
 
   if (!title) {
     throw new Error("작업 제목을 입력해주세요.");
@@ -78,7 +97,7 @@ export function parseTaskFormData(formData: FormData): TaskFormInput {
     priority,
     dueDate: dueDate || null,
     tags: parseTags(tags),
-    todos: parseTodos(todos),
+    todos: parseTodos(formData),
     isPublic: formData.get("isPublic") === "on",
   };
 }
