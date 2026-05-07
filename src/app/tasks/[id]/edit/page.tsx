@@ -31,6 +31,10 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
     notFound();
   }
 
+  if (task.userId !== user.id) {
+    notFound();
+  }
+
   const updateTaskWithId = updateTask.bind(null, task.id);
 
   return (

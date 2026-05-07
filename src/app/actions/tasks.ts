@@ -22,6 +22,24 @@ async function requireUser() {
   return user;
 }
 
+async function requireTaskOwner(taskId: string, userId: string) {
+  const task = await prisma.task.findFirst({
+    where: {
+      id: taskId,
+      userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!task) {
+    throw new Error("작업을 변경할 권한이 없습니다.");
+  }
+
+  return task;
+}
+
 function toDate(value: string | null) {
   if (!value) {
     return null;
@@ -101,7 +119,8 @@ export async function createTask(formData: FormData) {
 }
 
 export async function updateTask(taskId: string, formData: FormData) {
-  await requireUser();
+  const user = await requireUser();
+  await requireTaskOwner(taskId, user.id);
 
   const input = parseTaskFormData(formData);
 
@@ -143,7 +162,8 @@ export async function updateTask(taskId: string, formData: FormData) {
 }
 
 export async function deleteTask(taskId: string) {
-  await requireUser();
+  const user = await requireUser();
+  await requireTaskOwner(taskId, user.id);
 
   await prisma.task.delete({
     where: {
@@ -160,7 +180,8 @@ export async function updateTaskTodoDone(
   todoId: string,
   isDone: boolean,
 ) {
-  await requireUser();
+  const user = await requireUser();
+  await requireTaskOwner(taskId, user.id);
 
   const result = await prisma.taskTodo.updateMany({
     where: {

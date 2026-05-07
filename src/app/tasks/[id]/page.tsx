@@ -35,6 +35,8 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const canEdit = Boolean(user && task.userId === user.id);
+
   return (
     <main className="min-h-screen bg-[#191919] px-6 py-8 text-white">
       <section className="mx-auto max-w-3xl">
@@ -48,7 +50,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
             <ChevronLeft className="h-6 w-6" aria-hidden="true" />
           </Link>
 
-          {user ? (
+          {canEdit ? (
             <div className="flex items-center gap-2">
               <Link
                 href={`/tasks/${task.id}/edit`}
@@ -99,7 +101,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
           <TaskTodoList
             taskId={task.id}
             todos={task.todos}
-            canEdit={Boolean(user)}
+            canEdit={canEdit}
           />
 
           {task.tags.length > 0 ? (

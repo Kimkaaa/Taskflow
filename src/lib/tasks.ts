@@ -54,6 +54,7 @@ const taskSortOptions: TaskSortOption[] = ["dueAsc", "priorityDesc"];
 
 const taskListSelect = {
   id: true,
+  userId: true,
   title: true,
   description: true,
   status: true,
@@ -133,6 +134,7 @@ function toTaskTodo(row: TaskDetailRow["todos"][number]): TaskTodo {
 function toTaskSummary(row: TaskListRow): Task {
   return {
     id: row.id,
+    userId: row.userId,
     title: row.title,
     description: row.description,
     status: row.status,
@@ -149,6 +151,7 @@ function toTaskSummary(row: TaskListRow): Task {
 function toTask(row: TaskDetailRow): Task {
   return {
     id: row.id,
+    userId: row.userId,
     title: row.title,
     description: row.description,
     status: row.status,

@@ -14,6 +14,7 @@ export type TaskTodo = {
 
 export type Task = {
   id: string;
+  userId: string | null;
   title: string;
   description: string;
   status: TaskStatus;
