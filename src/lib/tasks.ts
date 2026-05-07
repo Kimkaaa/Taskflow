@@ -20,8 +20,8 @@ export const priorityLabels: Record<TaskPriority, string> = {
 };
 
 export const statusBadgeStyles: Record<TaskStatus, string> = {
-  TODO: "bg-emerald-400/15 text-emerald-300",
-  IN_PROGRESS: "bg-blue-400/15 text-blue-300",
+  TODO: "bg-blue-400/15 text-blue-300",
+  IN_PROGRESS: "bg-emerald-400/15 text-emerald-300",
   DONE: "bg-zinc-700 text-zinc-300",
 };
 
@@ -49,13 +49,28 @@ const taskStatuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
 const taskPriorities: TaskPriority[] = ["LOW", "MEDIUM", "HIGH"];
 const taskSortOptions: TaskSortOption[] = ["dueAsc", "priorityDesc"];
 
-const priorityScore: Record<TaskPriority, number> = {
-  HIGH: 3,
-  MEDIUM: 2,
-  LOW: 1,
-};
+const taskListSelect = {
+  id: true,
+  title: true,
+  description: true,
+  status: true,
+  priority: true,
+  dueDate: true,
+  isPublic: true,
+  createdAt: true,
+  updatedAt: true,
+  taskTags: {
+    select: {
+      tag: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  },
+} satisfies Prisma.TaskSelect;
 
-const taskInclude = {
+const taskDetailInclude = {
   todos: {
     orderBy: {
       sortOrder: "asc",
@@ -68,8 +83,12 @@ const taskInclude = {
   },
 } satisfies Prisma.TaskInclude;
 
-type TaskRow = Prisma.TaskGetPayload<{
-  include: typeof taskInclude;
+type TaskListRow = Prisma.TaskGetPayload<{
+  select: typeof taskListSelect;
+}>;
+
+type TaskDetailRow = Prisma.TaskGetPayload<{
+  include: typeof taskDetailInclude;
 }>;
 
 function getFirstParam(value: string | string[] | undefined) {
@@ -96,7 +115,7 @@ function formatDate(value: Date) {
   return value.toISOString().slice(0, 10);
 }
 
-function toTaskTodo(row: TaskRow["todos"][number]): TaskTodo {
+function toTaskTodo(row: TaskDetailRow["todos"][number]): TaskTodo {
   return {
     id: row.id,
     taskId: row.taskId,
@@ -108,7 +127,23 @@ function toTaskTodo(row: TaskRow["todos"][number]): TaskTodo {
   };
 }
 
-function toTask(row: TaskRow): Task {
+function toTaskSummary(row: TaskListRow): Task {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    status: row.status,
+    priority: row.priority,
+    dueDate: row.dueDate ? formatDate(row.dueDate) : null,
+    tags: row.taskTags.map((taskTag) => taskTag.tag.name),
+    todos: [],
+    isPublic: row.isPublic,
+    createdAt: formatDate(row.createdAt),
+    updatedAt: formatDate(row.updatedAt),
+  };
+}
+
+function toTask(row: TaskDetailRow): Task {
   return {
     id: row.id,
     title: row.title,
@@ -124,18 +159,37 @@ function toTask(row: TaskRow): Task {
   };
 }
 
-function sortTasks(tasks: Task[], sort: TaskSortOption = "dueAsc") {
-  return [...tasks].sort((a, b) => {
-    if (sort === "priorityDesc") {
-      return priorityScore[b.priority] - priorityScore[a.priority];
-    }
+function getTaskOrderBy(
+  sort: TaskSortOption = "dueAsc",
+): Prisma.TaskOrderByWithRelationInput[] {
+  if (sort === "priorityDesc") {
+    return [
+      {
+        priority: "desc",
+      },
+      {
+        dueDate: {
+          sort: "asc",
+          nulls: "last",
+        },
+      },
+      {
+        createdAt: "desc",
+      },
+    ];
+  }
 
-    if (!a.dueDate && !b.dueDate) return 0;
-    if (!a.dueDate) return 1;
-    if (!b.dueDate) return -1;
-
-    return a.dueDate.localeCompare(b.dueDate);
-  });
+  return [
+    {
+      dueDate: {
+        sort: "asc",
+        nulls: "last",
+      },
+    },
+    {
+      createdAt: "desc",
+    },
+  ];
 }
 
 export function parseTaskQuery(
@@ -210,10 +264,11 @@ export async function getPublicTasks(query: TaskQuery = {}) {
 
   const rows = await prisma.task.findMany({
     where,
-    include: taskInclude,
+    select: taskListSelect,
+    orderBy: getTaskOrderBy(query.sort),
   });
 
-  return sortTasks(rows.map(toTask), query.sort);
+  return rows.map(toTaskSummary);
 }
 
 export async function getTaskById(id: string) {
@@ -222,7 +277,7 @@ export async function getTaskById(id: string) {
       id,
       isPublic: true,
     },
-    include: taskInclude,
+    include: taskDetailInclude,
   });
 
   if (!row) {
