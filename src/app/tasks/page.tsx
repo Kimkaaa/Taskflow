@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import TaskFilterForm from "@/components/tasks/TaskFilterForm";
 import TaskList from "@/components/tasks/TaskList";
 import { getPublicTaskPage, parseTaskQuery } from "@/lib/tasks";
+import { createClient } from "@/lib/supabase/server";
 
 type TasksPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -22,6 +23,11 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
   const params = await searchParams;
   const query = parseTaskQuery(params);
 
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { tasks, nextCursor, totalCount } = await getPublicTaskPage(query, {
     includeTotalCount: true,
   });
@@ -37,12 +43,23 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
             TaskFlow
           </Link>
 
-          <Link
-            href="/login"
-            className="rounded-full border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] hover:text-white"
-          >
-            로그인
-          </Link>
+          {user ? (
+            <form action="/logout" method="post">
+              <button
+                type="submit"
+                className="rounded-full border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] hover:text-white"
+              >
+                로그아웃
+              </button>
+            </form>
+          ) : (
+            <a
+              href="/login"
+              className="rounded-full border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] hover:text-white"
+            >
+              로그인
+            </a>
+          )}
         </div>
 
         <TaskFilterForm query={query} />
