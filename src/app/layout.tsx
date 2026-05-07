@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={pretendard.className}>
+    <html lang="ko" className={pretendard.className} data-scroll-behavior="smooth">
       <body>{children}</body>
     </html>
   );
