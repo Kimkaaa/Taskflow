@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckSquare, ChevronLeft, Pencil, Square } from "lucide-react";
+import { ChevronLeft, Pencil } from "lucide-react";
+import TaskTodoList from "@/components/tasks/TaskTodoList";
 import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
 import {
   getTaskById,
@@ -26,8 +27,6 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   if (!task) {
     notFound();
   }
-
-  const completedTodoCount = task.todos.filter((todo) => todo.isDone).length;
 
   return (
     <main className="min-h-screen bg-[#191919] px-6 py-8 text-white">
@@ -86,50 +85,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
             </p>
           </section>
 
-          <section className="mt-8">
-            <div className="mb-3 flex items-center justify-between gap-4">
-              <h2 className="text-sm font-semibold text-white">체크리스트</h2>
-
-              <span className="text-xs font-medium text-[#a3a3a3]">
-                {completedTodoCount}/{task.todos.length}
-              </span>
-            </div>
-
-            {task.todos.length > 0 ? (
-              <ul className="space-y-2">
-                {task.todos.map((todo) => (
-                  <li
-                    key={todo.id}
-                    className="flex items-start gap-3 rounded-xl border border-[#3a3a3a] bg-[#191919] px-4 py-3 text-sm text-[#d1d5db]"
-                  >
-                    {todo.isDone ? (
-                      <CheckSquare
-                        className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <Square
-                        className="mt-0.5 h-4 w-4 shrink-0 text-[#a3a3a3]"
-                        aria-hidden="true"
-                      />
-                    )}
-
-                    <span
-                      className={
-                        todo.isDone ? "text-[#a3a3a3] line-through" : ""
-                      }
-                    >
-                      {todo.content}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="rounded-xl border border-dashed border-[#3a3a3a] bg-[#191919] px-4 py-5 text-sm text-[#a3a3a3]">
-                등록된 체크리스트가 없습니다.
-              </p>
-            )}
-          </section>
+          <TaskTodoList taskId={task.id} todos={task.todos} />
 
           {task.tags.length > 0 ? (
             <section className="mt-8">

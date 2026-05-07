@@ -132,3 +132,26 @@ export async function deleteTask(taskId: string) {
   revalidatePath("/tasks");
   redirect("/tasks");
 }
+
+export async function updateTaskTodoDone(
+  taskId: string,
+  todoId: string,
+  isDone: boolean,
+) {
+  const result = await prisma.taskTodo.updateMany({
+    where: {
+      id: todoId,
+      taskId,
+    },
+    data: {
+      isDone,
+    },
+  });
+
+  if (result.count === 0) {
+    throw new Error("체크리스트 항목을 찾을 수 없습니다.");
+  }
+
+  revalidatePath("/tasks");
+  revalidatePath(`/tasks/${taskId}`);
+}
