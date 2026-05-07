@@ -146,7 +146,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
         name="description"
         type="text"
         defaultValue={task?.description ?? ""}
-        placeholder="작업 내용을 간단히 정리해주세요."
+        placeholder="설명"
         className={inputClass}
         required
       />
@@ -209,7 +209,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
         name="tags"
         type="text"
         defaultValue={task?.tags.join(", ") ?? ""}
-        placeholder="태그는 쉼표로 구분해 입력합니다."
+        placeholder="태그 (쉼표로 구분)"
         className={inputClass}
       />
 
