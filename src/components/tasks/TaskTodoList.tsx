@@ -8,9 +8,14 @@ import type { TaskTodo } from "@/types/task";
 type TaskTodoListProps = {
   taskId: string;
   todos: TaskTodo[];
+  canEdit: boolean;
 };
 
-export default function TaskTodoList({ taskId, todos }: TaskTodoListProps) {
+export default function TaskTodoList({
+  taskId,
+  todos,
+  canEdit,
+}: TaskTodoListProps) {
   const [items, setItems] = useState(todos);
   const [pendingTodoId, setPendingTodoId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -19,6 +24,10 @@ export default function TaskTodoList({ taskId, todos }: TaskTodoListProps) {
   const completedTodoCount = items.filter((todo) => todo.isDone).length;
 
   const handleToggle = (todoId: string, nextIsDone: boolean) => {
+    if (!canEdit) {
+      return;
+    }
+
     const previousItems = items;
 
     setItems((currentItems) =>
@@ -67,29 +76,45 @@ export default function TaskTodoList({ taskId, todos }: TaskTodoListProps) {
                 key={todo.id}
                 className="flex items-start gap-3 rounded-xl border border-[#3a3a3a] bg-[#191919] px-4 py-3 text-sm text-[#d1d5db]"
               >
-                <button
-                  type="button"
-                  onClick={() => handleToggle(todo.id, !todo.isDone)}
-                  disabled={isPending}
-                  aria-label={
-                    todo.isDone
-                      ? "체크리스트 미완료로 변경"
-                      : "체크리스트 완료로 변경"
-                  }
-                  className="mt-0.5 shrink-0 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {todo.isDone ? (
-                    <CheckSquare
-                      className="h-4 w-4 text-emerald-300"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <Square
-                      className="h-4 w-4 text-[#a3a3a3]"
-                      aria-hidden="true"
-                    />
-                  )}
-                </button>
+                {canEdit ? (
+                  <button
+                    type="button"
+                    onClick={() => handleToggle(todo.id, !todo.isDone)}
+                    disabled={isPending}
+                    aria-label={
+                      todo.isDone
+                        ? "체크리스트 미완료로 변경"
+                        : "체크리스트 완료로 변경"
+                    }
+                    className="mt-0.5 shrink-0 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {todo.isDone ? (
+                      <CheckSquare
+                        className="h-4 w-4 text-emerald-300"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <Square
+                        className="h-4 w-4 text-[#a3a3a3]"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </button>
+                ) : (
+                  <span className="mt-0.5 shrink-0">
+                    {todo.isDone ? (
+                      <CheckSquare
+                        className="h-4 w-4 text-emerald-300"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <Square
+                        className="h-4 w-4 text-[#a3a3a3]"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </span>
+                )}
 
                 <span
                   className={

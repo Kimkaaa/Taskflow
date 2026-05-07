@@ -1,9 +1,21 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createTask } from "@/app/actions/tasks";
 import TaskForm from "@/components/tasks/TaskForm";
+import { createClient } from "@/lib/supabase/server";
 
-export default function NewTaskPage() {
+export default async function NewTaskPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login?next=/tasks/new");
+  }
+
   return (
     <main className="min-h-screen bg-[#191919] px-6 py-8 text-white">
       <section className="mx-auto max-w-3xl">

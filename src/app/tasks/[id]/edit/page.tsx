@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { updateTask } from "@/app/actions/tasks";
 import TaskForm from "@/components/tasks/TaskForm";
 import { getTaskById } from "@/lib/tasks";
+import { createClient } from "@/lib/supabase/server";
 
 type EditTaskPageProps = {
   params: Promise<{
@@ -13,6 +14,17 @@ type EditTaskPageProps = {
 
 export default async function EditTaskPage({ params }: EditTaskPageProps) {
   const { id } = await params;
+
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/login?next=/tasks/${id}/edit`);
+  }
+
   const task = await getTaskById(id);
 
   if (!task) {

@@ -81,7 +81,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
       </section>
 
       <Link
-        href="/tasks/new"
+        href={user ? "/tasks/new" : "/login?next=/tasks/new"}
         aria-label="작업 등록"
         title="작업 등록"
         className="fixed bottom-6 right-6 flex h-12 w-12 items-center justify-center rounded-full bg-[#3a3a3a]/80 text-white shadow-lg backdrop-blur transition"

@@ -4,8 +4,23 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { parseTaskFormData } from "@/lib/taskForm";
+import { createClient } from "@/lib/supabase/server";
 
 type TagWriteClient = Pick<typeof prisma, "tag">;
+
+async function requireUser() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  return user;
+}
 
 function toDate(value: string | null) {
   if (!value) {
@@ -50,6 +65,7 @@ async function getOrCreateTags(tags: string[], tx: TagWriteClient) {
 }
 
 export async function createTask(formData: FormData) {
+  const user = await requireUser();
   const input = parseTaskFormData(formData);
 
   const task = await prisma.$transaction(async (tx) => {
@@ -57,7 +73,7 @@ export async function createTask(formData: FormData) {
 
     return tx.task.create({
       data: {
-        userId: null,
+        userId: user.id,
         title: input.title,
         description: input.description,
         status: input.status,
@@ -85,6 +101,8 @@ export async function createTask(formData: FormData) {
 }
 
 export async function updateTask(taskId: string, formData: FormData) {
+  await requireUser();
+
   const input = parseTaskFormData(formData);
 
   await prisma.$transaction(async (tx) => {
@@ -125,6 +143,8 @@ export async function updateTask(taskId: string, formData: FormData) {
 }
 
 export async function deleteTask(taskId: string) {
+  await requireUser();
+
   await prisma.task.delete({
     where: {
       id: taskId,
@@ -140,6 +160,8 @@ export async function updateTaskTodoDone(
   todoId: string,
   isDone: boolean,
 ) {
+  await requireUser();
+
   const result = await prisma.taskTodo.updateMany({
     where: {
       id: todoId,

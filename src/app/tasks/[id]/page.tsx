@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ChevronLeft, Pencil } from "lucide-react";
 import TaskTodoList from "@/components/tasks/TaskTodoList";
 import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
+import { createClient } from "@/lib/supabase/server";
 import {
   getTaskById,
   priorityBadgeStyles,
@@ -28,6 +29,12 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
     notFound();
   }
 
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <main className="min-h-screen bg-[#191919] px-6 py-8 text-white">
       <section className="mx-auto max-w-3xl">
@@ -41,17 +48,19 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
             <ChevronLeft className="h-6 w-6" aria-hidden="true" />
           </Link>
 
-          <div className="flex items-center gap-2">
-            <Link
-              href={`/tasks/${task.id}/edit`}
-              className="inline-flex items-center gap-2 rounded-full border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-[#d1d5db]"
-            >
-              <Pencil className="h-4 w-4" aria-hidden="true" />
-              수정
-            </Link>
+          {user ? (
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/tasks/${task.id}/edit`}
+                className="inline-flex items-center gap-2 rounded-full border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-[#d1d5db]"
+              >
+                <Pencil className="h-4 w-4" aria-hidden="true" />
+                수정
+              </Link>
 
-            <DeleteTaskButton taskId={task.id} />
-          </div>
+              <DeleteTaskButton taskId={task.id} />
+            </div>
+          ) : null}
         </div>
 
         <article className="rounded-2xl border border-[#3a3a3a] bg-[#242424] p-6 shadow-sm">
@@ -87,7 +96,11 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
             </section>
           ) : null}
 
-          <TaskTodoList taskId={task.id} todos={task.todos} />
+          <TaskTodoList
+            taskId={task.id}
+            todos={task.todos}
+            canEdit={Boolean(user)}
+          />
 
           {task.tags.length > 0 ? (
             <section className="mt-8">
