@@ -298,7 +298,6 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
         defaultValue={task?.description ?? ""}
         placeholder="설명"
         className={inputClass}
-        required
       />
 
       <div className="grid items-center gap-3 min-[600px]:grid-cols-[max-content_max-content_180px] min-[600px]:justify-between">

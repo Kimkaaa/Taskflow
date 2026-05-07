@@ -78,10 +78,6 @@ export function parseTaskFormData(formData: FormData): TaskFormInput {
     throw new Error("작업 제목을 입력해주세요.");
   }
 
-  if (!description) {
-    throw new Error("작업 설명을 입력해주세요.");
-  }
-
   if (!isTaskStatus(status)) {
     throw new Error("올바르지 않은 작업 상태입니다.");
   }

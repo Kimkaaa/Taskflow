@@ -77,13 +77,15 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
             {task.title}
           </h1>
 
-          <section className="mt-8">
-            <h2 className="text-sm font-semibold text-white">설명</h2>
+          {task.description ? (
+            <section className="mt-8">
+              <h2 className="text-sm font-semibold text-white">설명</h2>
 
-            <p className="mt-3 text-sm leading-6 text-[#d1d5db]">
-              {task.description}
-            </p>
-          </section>
+              <p className="mt-3 text-sm leading-6 text-[#d1d5db]">
+                {task.description}
+              </p>
+            </section>
+          ) : null}
 
           <TaskTodoList taskId={task.id} todos={task.todos} />
 

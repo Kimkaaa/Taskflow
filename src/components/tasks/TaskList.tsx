@@ -118,9 +118,7 @@ export default function TaskList({
   if (tasks.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-[#3a3a3a] bg-[#242424] p-10 text-center">
-        <p className="font-semibold text-white">
-          조건에 맞는 작업이 없습니다.
-        </p>
+        <p className="font-semibold text-white">조건에 맞는 작업이 없습니다.</p>
         <p className="mt-2 text-sm text-[#a3a3a3]">
           검색어나 필터 조건을 변경해보세요.
         </p>
@@ -153,17 +151,17 @@ export default function TaskList({
                   </span>
 
                   <span className="text-xs font-medium text-[#a3a3a3]">
-                    {task.dueDate
-                      ? `마감일 ${task.dueDate}`
-                      : "마감일 없음"}
+                    {task.dueDate ? `마감일 ${task.dueDate}` : "마감일 없음"}
                   </span>
                 </div>
 
                 <h2 className="text-xl font-bold text-white">{task.title}</h2>
 
-                <p className="mt-2 text-sm leading-6 text-[#d1d5db]">
-                  {task.description}
-                </p>
+                {task.description ? (
+                  <p className="mt-2 text-sm leading-6 text-[#d1d5db]">
+                    {task.description}
+                  </p>
+                ) : null}
               </div>
             </div>
 
@@ -192,9 +190,7 @@ export default function TaskList({
             {isLoading ? "불러오는 중..." : "더 보기"}
           </button>
         ) : (
-          <p className="text-sm text-[#737373]">
-            모든 작업을 불러왔습니다.
-          </p>
+          <p className="text-sm text-[#737373]">모든 작업을 불러왔습니다.</p>
         )}
       </div>
 
