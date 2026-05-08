@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ChevronLeft, Pencil } from "lucide-react";
 import TaskTodoList from "@/components/tasks/TaskTodoList";
 import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth";
 import {
   getTaskById,
   priorityBadgeStyles,
@@ -29,11 +29,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
     notFound();
   }
 
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const canEdit = Boolean(user && task.userId === user.id);
 
@@ -98,11 +94,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
             </section>
           ) : null}
 
-          <TaskTodoList
-            taskId={task.id}
-            todos={task.todos}
-            canEdit={canEdit}
-          />
+          <TaskTodoList taskId={task.id} todos={task.todos} canEdit={canEdit} />
 
           {task.tags.length > 0 ? (
             <section className="mt-8">

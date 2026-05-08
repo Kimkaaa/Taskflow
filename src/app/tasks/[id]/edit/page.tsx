@@ -4,7 +4,7 @@ import { ChevronLeft } from "lucide-react";
 import { updateTask } from "@/app/actions/tasks";
 import TaskForm from "@/components/tasks/TaskForm";
 import { getTaskById } from "@/lib/tasks";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth";
 
 type EditTaskPageProps = {
   params: Promise<{
@@ -15,11 +15,7 @@ type EditTaskPageProps = {
 export default async function EditTaskPage({ params }: EditTaskPageProps) {
   const { id } = await params;
 
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     redirect(`/login?next=/tasks/${id}/edit`);
@@ -52,11 +48,7 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
         </div>
 
         <div className="rounded-2xl border border-[#3a3a3a] bg-[#242424] p-6 shadow-sm">
-          <TaskForm
-            task={task}
-            action={updateTaskWithId}
-            submitLabel="수정"
-          />
+          <TaskForm task={task} action={updateTaskWithId} submitLabel="수정" />
         </div>
       </section>
     </main>

@@ -4,41 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { parseTaskFormData } from "@/lib/taskForm";
-import { createClient } from "@/lib/supabase/server";
+import { requireTaskOwner, requireUser } from "@/lib/auth";
 
 type TagWriteClient = Pick<typeof prisma, "tag">;
-
-async function requireUser() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  return user;
-}
-
-async function requireTaskOwner(taskId: string, userId: string) {
-  const task = await prisma.task.findFirst({
-    where: {
-      id: taskId,
-      userId,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!task) {
-    throw new Error("작업을 변경할 권한이 없습니다.");
-  }
-
-  return task;
-}
 
 function toDate(value: string | null) {
   if (!value) {
@@ -119,8 +87,7 @@ export async function createTask(formData: FormData) {
 }
 
 export async function updateTask(taskId: string, formData: FormData) {
-  const user = await requireUser();
-  await requireTaskOwner(taskId, user.id);
+  await requireTaskOwner(taskId);
 
   const input = parseTaskFormData(formData);
 
@@ -162,8 +129,7 @@ export async function updateTask(taskId: string, formData: FormData) {
 }
 
 export async function deleteTask(taskId: string) {
-  const user = await requireUser();
-  await requireTaskOwner(taskId, user.id);
+  await requireTaskOwner(taskId);
 
   await prisma.task.delete({
     where: {
@@ -180,8 +146,7 @@ export async function updateTaskTodoDone(
   todoId: string,
   isDone: boolean,
 ) {
-  const user = await requireUser();
-  await requireTaskOwner(taskId, user.id);
+  await requireTaskOwner(taskId);
 
   const result = await prisma.taskTodo.updateMany({
     where: {

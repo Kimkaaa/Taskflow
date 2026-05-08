@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import TaskFilterForm from "@/components/tasks/TaskFilterForm";
 import TaskList from "@/components/tasks/TaskList";
 import { getPublicTaskPage, parseTaskQuery } from "@/lib/tasks";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth";
 
 type TasksPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -23,10 +23,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
   const params = await searchParams;
   const query = parseTaskQuery(params);
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const { tasks, nextCursor, totalCount } = await getPublicTaskPage(query, {
     includeTotalCount: true,
