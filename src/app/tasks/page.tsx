@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import AuthButton from "@/components/auth/AuthButton";
 import TaskFilterForm from "@/components/tasks/TaskFilterForm";
 import TaskList from "@/components/tasks/TaskList";
-import { getPublicTaskPage, parseTaskQuery } from "@/lib/tasks";
 import { getCurrentUser } from "@/lib/auth";
+import { getPublicTaskPage, parseTaskQuery } from "@/lib/tasks";
 
 type TasksPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -40,23 +41,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
             TaskFlow
           </Link>
 
-          {user ? (
-            <form action="/logout" method="post">
-              <button
-                type="submit"
-                className="rounded-full border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] hover:text-white"
-              >
-                로그아웃
-              </button>
-            </form>
-          ) : (
-            <a
-              href="/login"
-              className="rounded-full border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] hover:text-white"
-            >
-              로그인
-            </a>
-          )}
+          <AuthButton isLoggedIn={Boolean(user)} />
         </div>
 
         <TaskFilterForm query={query} />

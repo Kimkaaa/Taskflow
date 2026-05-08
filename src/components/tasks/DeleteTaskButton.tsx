@@ -1,12 +1,43 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, X } from "lucide-react";
+import { LoaderCircle, Trash2, X } from "lucide-react";
+import { useFormStatus } from "react-dom";
 import { deleteTask } from "@/app/actions/tasks";
 
 type DeleteTaskButtonProps = {
   taskId: string;
 };
+
+const deleteTriggerButtonClass =
+  "inline-flex cursor-pointer items-center gap-2 rounded-full border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-red-300";
+
+const dialogActionButtonBaseClass =
+  "inline-flex h-9 w-14 cursor-pointer items-center justify-center rounded-xl text-sm font-semibold";
+
+const cancelDialogButtonClass = `${dialogActionButtonBaseClass} text-[#d1d5db]`;
+
+const deleteDialogButtonClass = `${dialogActionButtonBaseClass} bg-red-500/15 text-red-300 disabled:cursor-wait disabled:opacity-80`;
+
+function DeleteSubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className={deleteDialogButtonClass}
+      aria-label={pending ? "삭제 중" : "삭제"}
+      title={pending ? "삭제 중" : "삭제"}
+    >
+      {pending ? (
+        <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
+      ) : (
+        "삭제"
+      )}
+    </button>
+  );
+}
 
 export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,7 +49,7 @@ export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-red-300"
+        className={deleteTriggerButtonClass}
       >
         <Trash2 className="h-4 w-4" aria-hidden="true" />
         삭제
@@ -54,7 +85,7 @@ export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="text-[#a3a3a3] cursor-pointer"
+                className="cursor-pointer text-[#a3a3a3]"
                 aria-label="닫기"
                 title="닫기"
               >
@@ -66,18 +97,13 @@ export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="cursor-pointer rounded-xl px-4 py-2 text-sm font-medium text-[#d1d5db]"
+                className={cancelDialogButtonClass}
               >
                 취소
               </button>
 
               <form action={deleteTaskWithId}>
-                <button
-                  type="submit"
-                  className="cursor-pointer rounded-xl bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-300"
-                >
-                  삭제
-                </button>
+                <DeleteSubmitButton />
               </form>
             </div>
           </div>

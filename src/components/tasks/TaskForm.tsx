@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import {
   DndContext,
   type DragEndEvent,
@@ -21,6 +22,7 @@ import { CSS } from "@dnd-kit/utilities";
 import {
   CheckSquare,
   GripVertical,
+  LoaderCircle,
   Pencil,
   Plus,
   RotateCcw,
@@ -68,6 +70,9 @@ const inputClass =
 
 const chipBaseClass =
   "inline-flex h-9 cursor-pointer items-center justify-center rounded-full border px-3 text-sm font-medium transition";
+
+const submitButtonClass =
+  "inline-flex h-11 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#3a3a3a]/80 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-80";
 
 function getDefaultStatus(task?: Task): TaskStatus {
   return task?.status ?? "TODO";
@@ -201,6 +206,29 @@ function SortableTodoItem({
         </button>
       </div>
     </div>
+  );
+}
+
+function SubmitButton({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className={submitButtonClass}
+      aria-label={pending ? `${label} 중` : label}
+      title={pending ? `${label} 중` : label}
+    >
+      {pending ? (
+        <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
+      ) : (
+        <>
+          <Pencil className="h-4 w-4" aria-hidden="true" />
+          {label}
+        </>
+      )}
+    </button>
   );
 }
 
@@ -367,7 +395,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
           <button
             type="button"
             onClick={handleAddTodo}
-            className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full border border-[#3a3a3a] bg-[#242424] px-3 text-xs font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] hover:text-white"
+            className="inline-flex h-9 cursor-pointer shrink-0 items-center gap-1 rounded-full border border-[#3a3a3a] bg-[#242424] px-3 text-xs font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] hover:text-white"
           >
             <Plus className="h-3.5 w-3.5" aria-hidden="true" />
             추가
@@ -399,12 +427,12 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
       </div>
 
       <div className="flex items-center justify-between gap-4">
-        <label className="flex items-center gap-2 text-sm text-[#d1d5db]">
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-[#d1d5db]">
           <input
             type="checkbox"
             name="isPublic"
             defaultChecked={task?.isPublic ?? true}
-            className="h-4 w-4 accent-[#3a3a3a]"
+            className="h-4 w-4 cursor-pointer accent-[#3a3a3a]"
           />
           공개
         </label>
@@ -420,13 +448,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
             <RotateCcw className="h-4 w-4" aria-hidden="true" />
           </button>
 
-          <button
-            type="submit"
-            className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#3a3a3a]/80 px-4 text-sm font-semibold text-white"
-          >
-            <Pencil className="h-4 w-4" aria-hidden="true" />
-            {submitLabel}
-          </button>
+          <SubmitButton label={submitLabel} />
         </div>
       </div>
     </form>
