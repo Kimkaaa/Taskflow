@@ -1,11 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
-import type {
-  Task,
-  TaskPriority,
-  TaskStatus,
-  TaskTodo,
-} from "@/types/task";
+import type { Task, TaskPriority, TaskStatus, TaskTodo } from "@/types/task";
 
 export const statusLabels: Record<TaskStatus, string> = {
   TODO: "예정",
@@ -165,14 +160,18 @@ function toTask(row: TaskDetailRow): Task {
   };
 }
 
+function getPriorityOrderBy(): Prisma.TaskOrderByWithRelationInput {
+  return {
+    priority: "desc",
+  };
+}
+
 function getTaskOrderBy(
-  sort: TaskSortOption = "dueAsc",
+  sort?: TaskSortOption,
 ): Prisma.TaskOrderByWithRelationInput[] {
   if (sort === "priorityDesc") {
     return [
-      {
-        priority: "desc",
-      },
+      getPriorityOrderBy(),
       {
         dueDate: {
           sort: "asc",
@@ -195,6 +194,7 @@ function getTaskOrderBy(
         nulls: "last",
       },
     },
+    getPriorityOrderBy(),
     {
       createdAt: "desc",
     },
@@ -214,6 +214,10 @@ function buildTaskWhere(query: TaskQuery = {}): Prisma.TaskWhereInput {
 
   if (query.status) {
     where.status = query.status;
+  } else {
+    where.status = {
+      not: "DONE",
+    };
   }
 
   if (query.priority) {
