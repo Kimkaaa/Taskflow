@@ -1,0 +1,60 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import TaskFilterForm from "@/components/tasks/TaskFilterForm";
+import TaskList from "@/components/tasks/TaskList";
+import TaskListLoading from "@/components/tasks/TaskListLoading";
+import type { Task, TaskQuery } from "@/types/task";
+
+type TaskBoardProps = {
+  query: TaskQuery;
+  tasks: Task[];
+  nextCursor: string | null;
+  totalCount: number | undefined;
+};
+
+export default function TaskBoard({
+  query,
+  tasks,
+  nextCursor,
+  totalCount,
+}: TaskBoardProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [optimisticQuery, setOptimisticQuery] = useState<TaskQuery>(query);
+
+  const handleNavigate = (href: string, nextQuery: TaskQuery) => {
+    setOptimisticQuery(nextQuery);
+
+    startTransition(() => {
+      router.push(href, {
+        scroll: false,
+      });
+    });
+  };
+
+  return (
+    <>
+      <TaskFilterForm query={optimisticQuery} onNavigate={handleNavigate} />
+
+      <div className="mb-4 text-sm text-[#a3a3a3]">
+        총{" "}
+        <span className="font-semibold text-white">
+          {totalCount ?? tasks.length}
+        </span>
+        개의 작업
+      </div>
+
+      {isPending ? (
+        <TaskListLoading />
+      ) : (
+        <TaskList
+          initialTasks={tasks}
+          initialNextCursor={nextCursor}
+          query={query}
+        />
+      )}
+    </>
+  );
+}

@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import AuthButton from "@/components/auth/AuthButton";
-import TaskFilterForm from "@/components/tasks/TaskFilterForm";
-import TaskList from "@/components/tasks/TaskList";
+import TaskBoard from "@/components/tasks/TaskBoard";
 import { getCurrentUser } from "@/lib/auth";
 import { getPublicTaskPage, parseTaskQuery } from "@/lib/tasks";
 
@@ -23,6 +22,7 @@ function createTaskListKey(query: ReturnType<typeof parseTaskQuery>) {
 export default async function TasksPage({ searchParams }: TasksPageProps) {
   const params = await searchParams;
   const query = parseTaskQuery(params);
+  const taskListKey = createTaskListKey(query);
 
   const user = await getCurrentUser();
 
@@ -44,21 +44,12 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
           <AuthButton isLoggedIn={Boolean(user)} />
         </div>
 
-        <TaskFilterForm query={query} />
-
-        <div className="mb-4 text-sm text-[#a3a3a3]">
-          총{" "}
-          <span className="font-semibold text-white">
-            {totalCount ?? tasks.length}
-          </span>
-          개의 작업
-        </div>
-
-        <TaskList
-          key={createTaskListKey(query)}
-          initialTasks={tasks}
-          initialNextCursor={nextCursor}
+        <TaskBoard
+          key={taskListKey}
           query={query}
+          tasks={tasks}
+          nextCursor={nextCursor}
+          totalCount={totalCount}
         />
       </section>
 

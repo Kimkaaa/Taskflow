@@ -2,8 +2,13 @@
 
 import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
-import type { Task, TaskPriority, TaskStatus } from "@/types/task";
-import type { TaskQuery } from "@/lib/tasks";
+import type { Task, TaskQuery } from "@/types/task";
+import {
+  priorityBadgeStyles,
+  priorityLabels,
+  statusBadgeStyles,
+  statusLabels,
+} from "@/lib/taskMeta";
 
 type TaskListProps = {
   initialTasks: Task[];
@@ -14,30 +19,6 @@ type TaskListProps = {
 type TaskPageResponse = {
   tasks: Task[];
   nextCursor: string | null;
-};
-
-const statusLabels: Record<TaskStatus, string> = {
-  TODO: "예정",
-  IN_PROGRESS: "진행",
-  DONE: "완료",
-};
-
-const priorityLabels: Record<TaskPriority, string> = {
-  HIGH: "상",
-  MEDIUM: "중",
-  LOW: "하",
-};
-
-const statusBadgeStyles: Record<TaskStatus, string> = {
-  TODO: "bg-blue-400/15 text-blue-300",
-  IN_PROGRESS: "bg-emerald-400/15 text-emerald-300",
-  DONE: "bg-zinc-700 text-zinc-300",
-};
-
-const priorityBadgeStyles: Record<TaskPriority, string> = {
-  HIGH: "bg-red-400/15 text-red-300",
-  MEDIUM: "bg-amber-400/15 text-amber-300",
-  LOW: "bg-zinc-700 text-zinc-300",
 };
 
 const badgeBaseClass =

@@ -2,6 +2,16 @@ export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
 
 export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
 
+export type TaskSortOption = "dueAsc" | "priorityDesc";
+
+export type TaskQuery = {
+  keyword?: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  sort?: TaskSortOption;
+  tag?: string;
+};
+
 export type TaskTodo = {
   id: string;
   taskId: string;
