@@ -140,9 +140,8 @@ function SortableTodoItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-1 ${
-        isDragging ? "relative z-10 opacity-80" : ""
-      }`}
+      className={`flex items-center gap-1 ${isDragging ? "relative z-10 opacity-80" : ""
+        }`}
     >
       <button
         type="button"
@@ -198,7 +197,7 @@ function SortableTodoItem({
         <button
           type="button"
           onClick={() => onRemove(todo.id)}
-          className="shrink-0 text-[#737373] transition hover:text-red-300"
+          className="shrink-0 cursor-pointer text-[#737373] transition hover:text-red-300"
           aria-label="체크리스트 항목 삭제"
           title="삭제"
         >
@@ -253,9 +252,9 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
       currentTodos.map((todo) =>
         todo.id === todoId
           ? {
-              ...todo,
-              content,
-            }
+            ...todo,
+            content,
+          }
           : todo,
       ),
     );
@@ -266,9 +265,9 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
       currentTodos.map((todo) =>
         todo.id === todoId
           ? {
-              ...todo,
-              isDone: !todo.isDone,
-            }
+            ...todo,
+            isDone: !todo.isDone,
+          }
           : todo,
       ),
     );
@@ -403,6 +402,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
         </div>
 
         <DndContext
+          id="task-todo-dnd"
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleTodoDragEnd}
