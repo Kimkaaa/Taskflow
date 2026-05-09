@@ -11,14 +11,6 @@ const pretendard = localFont({
 export const metadata: Metadata = {
   title: "TaskFlow",
   description: "진행 중인 일을 정리하는 개인 작업 관리 도구",
-  icons: {
-    icon: [
-      {
-        url: "/favicon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-  },
 };
 
 export default function RootLayout({
