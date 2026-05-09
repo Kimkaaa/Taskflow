@@ -130,7 +130,7 @@ export default function TaskList({
                     aria-label="비공개 작업"
                     title="비공개 작업"
                   >
-                    <Lock className="h-[14px] w-[14px] scale-x-90" aria-hidden="true" />
+                    <Lock className="h-3.5 w-3.5 scale-x-90" aria-hidden="true" />
                   </span>
                 ) : null}
               </div>
