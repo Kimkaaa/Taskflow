@@ -161,16 +161,28 @@ export async function updateTask(
   redirect(`/tasks/${taskId}`);
 }
 
-export async function deleteTask(taskId: string) {
-  await requireTaskOwner(taskId);
+export async function deleteTask(
+  taskId: string,
+  _prevState: TaskActionState,
+  _formData: FormData,
+): Promise<TaskActionState> {
+  const user = await requireUser();
 
-  await prisma.task.delete({
+  const result = await prisma.task.deleteMany({
     where: {
       id: taskId,
+      userId: user.id,
     },
   });
 
+  if (result.count === 0) {
+    return {
+      error: "이미 삭제되었거나 삭제 권한이 없습니다.",
+    };
+  }
+
   revalidatePath("/tasks");
+  revalidatePath(`/tasks/${taskId}`);
   redirect("/tasks");
 }
 

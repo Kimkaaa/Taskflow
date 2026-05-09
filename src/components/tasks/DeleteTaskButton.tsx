@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useId, useState } from "react";
+import { useRouter } from "next/navigation";
 import { LoaderCircle, Trash2, X } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import { deleteTask } from "@/app/actions/tasks";
+import { initialTaskActionState } from "@/types/taskAction";
 
 type DeleteTaskButtonProps = {
   taskId: string;
@@ -13,11 +15,13 @@ const deleteTriggerButtonClass =
   "inline-flex cursor-pointer items-center gap-2 rounded-full border border-app-base bg-app-surface px-4 py-2 text-sm font-medium text-red-300";
 
 const dialogActionButtonBaseClass =
-  "inline-flex h-9 w-14 cursor-pointer items-center justify-center rounded-xl text-sm font-semibold";
+  "inline-flex h-9 cursor-pointer items-center justify-center rounded-xl px-3 text-sm font-semibold";
 
-const cancelDialogButtonClass = `${dialogActionButtonBaseClass} text-app-soft`;
+const cancelDialogButtonClass = `${dialogActionButtonBaseClass} w-14 text-app-soft`;
 
-const deleteDialogButtonClass = `${dialogActionButtonBaseClass} bg-red-500/15 text-red-300 disabled:cursor-wait disabled:opacity-80`;
+const listDialogButtonClass = `${dialogActionButtonBaseClass} text-app-soft`;
+
+const deleteDialogButtonClass = `${dialogActionButtonBaseClass} w-14 bg-red-500/15 text-red-300 disabled:cursor-wait disabled:opacity-80`;
 
 function DeleteSubmitButton() {
   const { pending } = useFormStatus();
@@ -40,9 +44,27 @@ function DeleteSubmitButton() {
 }
 
 export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
+  const router = useRouter();
+  const titleId = useId();
   const [isOpen, setIsOpen] = useState(false);
 
   const deleteTaskWithId = deleteTask.bind(null, taskId);
+  const [state, formAction] = useActionState(
+    deleteTaskWithId,
+    initialTaskActionState,
+  );
+
+  const errorMessage = state.error;
+  const hasDeleteError = Boolean(errorMessage);
+
+  const handleClose = () => {
+    if (hasDeleteError) {
+      router.replace("/tasks");
+      return;
+    }
+
+    setIsOpen(false);
+  };
 
   return (
     <>
@@ -59,53 +81,69 @@ export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6"
           role="presentation"
-          onClick={() => setIsOpen(false)}
+          onClick={handleClose}
         >
           <div
             role="dialog"
             aria-modal="true"
-            aria-labelledby="delete-task-title"
+            aria-labelledby={titleId}
             className="w-full max-w-sm rounded-2xl border border-app-base bg-app-surface p-6 shadow-xl"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h2
-                  id="delete-task-title"
-                  className="text-lg font-semibold text-white"
-                >
-                  작업을 삭제할까요?
+                <h2 id={titleId} className="text-lg font-semibold text-white">
+                  {hasDeleteError
+                    ? "작업을 삭제할 수 없습니다."
+                    : "작업을 삭제할까요?"}
                 </h2>
 
-                <p className="mt-2 text-sm leading-6 text-app-muted">
-                  삭제한 작업은 되돌릴 수 없습니다.
+                <p
+                  className="mt-2 text-sm leading-6 text-app-muted"
+                  role={hasDeleteError ? "alert" : undefined}
+                >
+                  {hasDeleteError
+                    ? errorMessage
+                    : "삭제한 작업은 되돌릴 수 없습니다."}
                 </p>
               </div>
 
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
                 className="cursor-pointer text-app-muted"
-                aria-label="닫기"
-                title="닫기"
+                aria-label={hasDeleteError ? "작업 목록으로 이동" : "닫기"}
+                title={hasDeleteError ? "작업 목록으로 이동" : "닫기"}
               >
                 <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className={cancelDialogButtonClass}
-              >
-                취소
-              </button>
+            {hasDeleteError ? (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className={listDialogButtonClass}
+                >
+                  목록으로 이동
+                </button>
+              </div>
+            ) : (
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className={cancelDialogButtonClass}
+                >
+                  취소
+                </button>
 
-              <form action={deleteTaskWithId}>
-                <DeleteSubmitButton />
-              </form>
-            </div>
+                <form action={formAction}>
+                  <DeleteSubmitButton />
+                </form>
+              </div>
+            )}
           </div>
         </div>
       ) : null}
