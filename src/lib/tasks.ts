@@ -179,76 +179,110 @@ function getTaskOrderBy(
   ];
 }
 
-function buildTaskWhere(query: TaskQuery = {}): Prisma.TaskWhereInput {
+function buildTaskVisibilityWhere(viewerId?: string): Prisma.TaskWhereInput {
+  if (!viewerId) {
+    return {
+      isPublic: true,
+    };
+  }
+
+  return {
+    OR: [
+      {
+        isPublic: true,
+      },
+      {
+        userId: viewerId,
+      },
+    ],
+  };
+}
+
+function buildTaskWhere(
+  query: TaskQuery = {},
+  viewerId?: string,
+): Prisma.TaskWhereInput {
   const keyword = query.keyword?.trim() ?? "";
   const tag = query.tag?.trim() ?? "";
 
-  const where: Prisma.TaskWhereInput = {
-    isPublic: true,
-  };
+  const andConditions: Prisma.TaskWhereInput[] = [
+    buildTaskVisibilityWhere(viewerId),
+  ];
 
   if (query.status) {
-    where.status = query.status;
+    andConditions.push({
+      status: query.status,
+    });
   } else {
-    where.status = {
-      not: "DONE",
-    };
+    andConditions.push({
+      status: {
+        not: "DONE",
+      },
+    });
   }
 
   if (query.priority) {
-    where.priority = query.priority;
+    andConditions.push({
+      priority: query.priority,
+    });
   }
 
   if (tag) {
-    where.taskTags = {
-      some: {
-        tag: {
-          name: tag,
+    andConditions.push({
+      taskTags: {
+        some: {
+          tag: {
+            name: tag,
+          },
         },
       },
-    };
+    });
   }
 
   if (keyword) {
-    where.OR = [
-      {
-        title: {
-          contains: keyword,
-          mode: "insensitive",
+    andConditions.push({
+      OR: [
+        {
+          title: {
+            contains: keyword,
+            mode: "insensitive",
+          },
         },
-      },
-      {
-        description: {
-          contains: keyword,
-          mode: "insensitive",
+        {
+          description: {
+            contains: keyword,
+            mode: "insensitive",
+          },
         },
-      },
-      {
-        taskTags: {
-          some: {
-            tag: {
-              name: {
+        {
+          taskTags: {
+            some: {
+              tag: {
+                name: {
+                  contains: keyword,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+        },
+        {
+          todos: {
+            some: {
+              content: {
                 contains: keyword,
                 mode: "insensitive",
               },
             },
           },
         },
-      },
-      {
-        todos: {
-          some: {
-            content: {
-              contains: keyword,
-              mode: "insensitive",
-            },
-          },
-        },
-      },
-    ];
+      ],
+    });
   }
 
-  return where;
+  return {
+    AND: andConditions,
+  };
 }
 
 async function findTaskListRows({
@@ -313,16 +347,17 @@ export function parseTaskQuery(
   };
 }
 
-export async function getPublicTaskPage(
+export async function getTaskPage(
   query: TaskQuery = {},
   options: {
     cursor?: string;
     limit?: number;
     includeTotalCount?: boolean;
+    viewerId?: string;
   } = {},
 ) {
   const limit = options.limit ?? TASK_PAGE_SIZE;
-  const where = buildTaskWhere(query);
+  const where = buildTaskWhere(query, options.viewerId);
 
   const rowsPromise = findTaskListRows({
     where,
@@ -354,17 +389,19 @@ export async function getPublicTaskPage(
   });
 }
 
-export async function getPublicTasks(query: TaskQuery = {}) {
-  const result = await getPublicTaskPage(query);
+export async function getTasks(query: TaskQuery = {}, viewerId?: string) {
+  const result = await getTaskPage(query, {
+    viewerId,
+  });
 
   return result.tasks;
 }
 
-export async function getTaskById(id: string) {
+export async function getTaskById(id: string, viewerId?: string) {
   const row = await prisma.task.findFirst({
     where: {
       id,
-      isPublic: true,
+      AND: [buildTaskVisibilityWhere(viewerId)],
     },
     include: taskDetailInclude,
   });

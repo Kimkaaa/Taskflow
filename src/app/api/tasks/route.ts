@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPublicTaskPage, parseTaskQuery } from "@/lib/tasks";
+import { getCurrentUser } from "@/lib/auth";
+import { getTaskPage, parseTaskQuery } from "@/lib/tasks";
 
 export const dynamic = "force-dynamic";
 
@@ -15,9 +16,11 @@ export async function GET(request: NextRequest) {
   });
 
   const cursor = searchParams.get("cursor") ?? undefined;
+  const user = await getCurrentUser();
 
-  const taskPage = await getPublicTaskPage(query, {
+  const taskPage = await getTaskPage(query, {
     cursor,
+    viewerId: user?.id,
   });
 
   return NextResponse.json(taskPage);

@@ -3,7 +3,7 @@ import AuthButton from "@/components/auth/AuthButton";
 import CreateTaskButton from "@/components/tasks/CreateTaskButton";
 import TaskBoard from "@/components/tasks/TaskBoard";
 import { getCurrentUser } from "@/lib/auth";
-import { getPublicTaskPage, parseTaskQuery } from "@/lib/tasks";
+import { getTaskPage, parseTaskQuery } from "@/lib/tasks";
 
 type TasksPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -27,8 +27,9 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
   const user = await getCurrentUser();
   const createTaskHref = user ? "/tasks/new" : "/login?next=/tasks/new";
 
-  const { tasks, nextCursor, totalCount } = await getPublicTaskPage(query, {
+  const { tasks, nextCursor, totalCount } = await getTaskPage(query, {
     includeTotalCount: true,
+    viewerId: user?.id,
   });
 
   return (

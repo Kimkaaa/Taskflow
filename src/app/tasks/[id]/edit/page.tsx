@@ -21,7 +21,7 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
     redirect(`/login?next=/tasks/${id}/edit`);
   }
 
-  const task = await getTaskById(id);
+  const task = await getTaskById(id, user.id);
 
   if (!task) {
     notFound();

@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
+import { Lock } from "lucide-react";
 import type { Task, TaskQuery } from "@/types/task";
 import {
   priorityBadgeStyles,
@@ -120,9 +121,9 @@ export default function TaskList({
             href={`/tasks/${task.id}`}
             className="block rounded-2xl border border-[#3a3a3a] bg-[#242424] p-6 shadow-sm transition hover:-translate-y-0.5 hover:bg-[#2b2b2b] hover:shadow-md"
           >
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <div className="mb-3 flex flex-wrap items-center gap-2">
+            <div>
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2">
                   <span
                     className={`${badgeBaseClass} ${statusBadgeStyles[task.status]}`}
                   >
@@ -140,14 +141,24 @@ export default function TaskList({
                   </span>
                 </div>
 
-                <h2 className="text-xl font-bold text-white">{task.title}</h2>
-
-                {task.description ? (
-                  <p className="mt-2 text-sm leading-6 text-[#d1d5db]">
-                    {task.description}
-                  </p>
+                {!task.isPublic ? (
+                  <span
+                    className="mt-1 shrink-0 text-[#a3a3a3]"
+                    aria-label="비공개 작업"
+                    title="비공개 작업"
+                  >
+                    <Lock className="h-[14px] w-[14px] scale-x-90" aria-hidden="true" />
+                  </span>
                 ) : null}
               </div>
+
+              <h2 className="text-xl font-bold text-white">{task.title}</h2>
+
+              {task.description ? (
+                <p className="mt-2 text-sm leading-6 text-[#d1d5db]">
+                  {task.description}
+                </p>
+              ) : null}
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2">
@@ -170,7 +181,7 @@ export default function TaskList({
             type="button"
             onClick={loadMoreTasks}
             disabled={isLoading}
-            className="rounded-full border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full cursor-pointer border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading ? "불러오는 중..." : "더 보기"}
           </button>

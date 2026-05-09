@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Pencil } from "lucide-react";
+import { ChevronLeft, Lock, Pencil } from "lucide-react";
 import TaskTodoList from "@/components/tasks/TaskTodoList";
 import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
 import { getCurrentUser } from "@/lib/auth";
@@ -23,13 +23,12 @@ const badgeBaseClass =
 
 export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   const { id } = await params;
-  const task = await getTaskById(id);
+  const user = await getCurrentUser();
+  const task = await getTaskById(id, user?.id);
 
   if (!task) {
     notFound();
   }
-
-  const user = await getCurrentUser();
 
   const canEdit = Boolean(user && task.userId === user.id);
 
@@ -62,22 +61,34 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
         </div>
 
         <article className="rounded-2xl border border-[#3a3a3a] bg-[#242424] p-6 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <span
-              className={`${badgeBaseClass} ${statusBadgeStyles[task.status]}`}
-            >
-              {statusLabels[task.status]}
-            </span>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={`${badgeBaseClass} ${statusBadgeStyles[task.status]}`}
+              >
+                {statusLabels[task.status]}
+              </span>
 
-            <span
-              className={`${badgeBaseClass} ${priorityBadgeStyles[task.priority]}`}
-            >
-              {priorityLabels[task.priority]}
-            </span>
+              <span
+                className={`${badgeBaseClass} ${priorityBadgeStyles[task.priority]}`}
+              >
+                {priorityLabels[task.priority]}
+              </span>
 
-            <span className="text-xs font-medium text-[#a3a3a3]">
-              {task.dueDate ? `마감일 ${task.dueDate}` : "마감일 없음"}
-            </span>
+              <span className="text-xs font-medium text-[#a3a3a3]">
+                {task.dueDate ? `마감일 ${task.dueDate}` : "마감일 없음"}
+              </span>
+            </div>
+
+            {!task.isPublic ? (
+              <span
+                className="mt-1 shrink-0 text-[#a3a3a3]"
+                aria-label="비공개 작업"
+                title="비공개 작업"
+              >
+                <Lock className="h-[14px] w-[14px] scale-x-90" aria-hidden="true" />
+              </span>
+            ) : null}
           </div>
 
           <h1 className="text-2xl font-bold tracking-tight text-white">
