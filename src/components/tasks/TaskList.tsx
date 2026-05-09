@@ -3,13 +3,8 @@
 import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { Lock } from "lucide-react";
+import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
 import type { Task, TaskQuery } from "@/types/task";
-import {
-  priorityBadgeStyles,
-  priorityLabels,
-  statusBadgeStyles,
-  statusLabels,
-} from "@/constants/taskMeta";
 
 type TaskListProps = {
   initialTasks: Task[];
@@ -21,9 +16,6 @@ type TaskPageResponse = {
   tasks: Task[];
   nextCursor: string | null;
 };
-
-const badgeBaseClass =
-  "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium";
 
 function createTaskApiUrl(query: TaskQuery, cursor: string) {
   const params = new URLSearchParams();
@@ -124,17 +116,8 @@ export default function TaskList({
             <div>
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className={`${badgeBaseClass} ${statusBadgeStyles[task.status]}`}
-                  >
-                    {statusLabels[task.status]}
-                  </span>
-
-                  <span
-                    className={`${badgeBaseClass} ${priorityBadgeStyles[task.priority]}`}
-                  >
-                    {priorityLabels[task.priority]}
-                  </span>
+                  <TaskStatusBadge status={task.status} />
+                  <TaskPriorityBadge priority={task.priority} />
 
                   <span className="text-xs font-medium text-app-muted">
                     {task.dueDate ? `마감일 ${task.dueDate}` : "마감일 없음"}
@@ -181,7 +164,7 @@ export default function TaskList({
             type="button"
             onClick={loadMoreTasks}
             disabled={isLoading}
-            className="rounded-full cursor-pointer border border-app-base bg-app-surface px-4 py-2 text-sm font-medium text-app-soft transition hover:bg-app-surface-hover disabled:cursor-not-allowed disabled:opacity-60"
+            className="cursor-pointer rounded-full border border-app-base bg-app-surface px-4 py-2 text-sm font-medium text-app-soft transition hover:bg-app-surface-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading ? "불러오는 중..." : "더 보기"}
           </button>

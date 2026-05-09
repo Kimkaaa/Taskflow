@@ -1,25 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, Lock, Pencil } from "lucide-react";
-import TaskTodoList from "@/components/tasks/TaskTodoList";
 import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
+import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
+import TaskTodoList from "@/components/tasks/TaskTodoList";
 import { getCurrentUser } from "@/lib/auth";
 import { getTaskById } from "@/lib/tasks";
-import {
-  priorityBadgeStyles,
-  priorityLabels,
-  statusBadgeStyles,
-  statusLabels,
-} from "@/constants/taskMeta";
 
 type TaskDetailPageProps = {
   params: Promise<{
     id: string;
   }>;
 };
-
-const badgeBaseClass =
-  "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium";
 
 export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   const { id } = await params;
@@ -63,17 +55,8 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
         <article className="rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span
-                className={`${badgeBaseClass} ${statusBadgeStyles[task.status]}`}
-              >
-                {statusLabels[task.status]}
-              </span>
-
-              <span
-                className={`${badgeBaseClass} ${priorityBadgeStyles[task.priority]}`}
-              >
-                {priorityLabels[task.priority]}
-              </span>
+              <TaskStatusBadge status={task.status} />
+              <TaskPriorityBadge priority={task.priority} />
 
               <span className="text-xs font-medium text-app-muted">
                 {task.dueDate ? `마감일 ${task.dueDate}` : "마감일 없음"}
