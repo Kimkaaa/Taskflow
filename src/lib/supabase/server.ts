@@ -19,7 +19,7 @@ export async function createClient() {
             });
           } catch {
             // Server Component에서 호출될 경우 cookie set이 불가능할 수 있음.
-            // 세션 갱신은 proxy/middleware 단계에서 처리할 예정.
+            // 세션 갱신은 proxy 단계에서 처리함.
           }
         },
       },
