@@ -38,7 +38,7 @@ export default function TaskBoard({
     <>
       <TaskFilterForm query={optimisticQuery} onNavigate={handleNavigate} />
 
-      <div className="mb-4 text-sm text-[#a3a3a3]">
+      <div className="mb-4 text-sm text-app-muted">
         총{" "}
         <span className="font-semibold text-white">
           {totalCount ?? tasks.length}

@@ -61,7 +61,7 @@ export default function TaskTodoList({
       <div className="mb-3 flex items-center justify-between gap-4">
         <h2 className="text-sm font-semibold text-white">체크리스트</h2>
 
-        <span className="text-xs font-medium text-[#a3a3a3]">
+        <span className="text-xs font-medium text-app-muted">
           {completedTodoCount}/{items.length}
         </span>
       </div>
@@ -74,7 +74,7 @@ export default function TaskTodoList({
             return (
               <li
                 key={todo.id}
-                className="flex items-start gap-3 rounded-xl border border-[#3a3a3a] bg-[#191919] px-4 py-3 text-sm text-[#d1d5db]"
+                className="flex items-start gap-3 rounded-xl border border-app-base bg-app-bg px-4 py-3 text-sm text-app-soft"
               >
                 {canEdit ? (
                   <button
@@ -95,7 +95,7 @@ export default function TaskTodoList({
                       />
                     ) : (
                       <Square
-                        className="h-4 w-4 text-[#a3a3a3]"
+                        className="h-4 w-4 text-app-muted"
                         aria-hidden="true"
                       />
                     )}
@@ -109,7 +109,7 @@ export default function TaskTodoList({
                       />
                     ) : (
                       <Square
-                        className="h-4 w-4 text-[#a3a3a3]"
+                        className="h-4 w-4 text-app-muted"
                         aria-hidden="true"
                       />
                     )}
@@ -118,14 +118,14 @@ export default function TaskTodoList({
 
                 <span
                   className={
-                    todo.isDone ? "text-[#a3a3a3] line-through" : ""
+                    todo.isDone ? "text-app-muted line-through" : ""
                   }
                 >
                   {todo.content}
                 </span>
 
                 {isUpdating ? (
-                  <span className="ml-auto shrink-0 text-xs text-[#737373]">
+                  <span className="ml-auto shrink-0 text-xs text-app-disabled">
                     저장 중
                   </span>
                 ) : null}
@@ -134,7 +134,7 @@ export default function TaskTodoList({
           })}
         </ul>
       ) : (
-        <p className="rounded-xl border border-dashed border-[#3a3a3a] bg-[#191919] px-4 py-5 text-sm text-[#a3a3a3]">
+        <p className="rounded-xl border border-dashed border-app-base bg-app-bg px-4 py-5 text-sm text-app-muted">
           등록된 체크리스트가 없습니다.
         </p>
       )}

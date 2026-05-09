@@ -33,14 +33,14 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   const canEdit = Boolean(user && task.userId === user.id);
 
   return (
-    <main className="min-h-screen bg-[#191919] px-6 py-8 text-white">
+    <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
       <section className="mx-auto max-w-3xl">
         <div className="mb-6 flex items-center justify-between gap-4">
           <Link
             href="/tasks"
             aria-label="목록으로 돌아가기"
             title="목록으로 돌아가기"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#d1d5db]"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-app-soft"
           >
             <ChevronLeft className="h-6 w-6" aria-hidden="true" />
           </Link>
@@ -49,7 +49,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
             <div className="flex items-center gap-2">
               <Link
                 href={`/tasks/${task.id}/edit`}
-                className="inline-flex items-center gap-2 rounded-full border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-[#d1d5db]"
+                className="inline-flex items-center gap-2 rounded-full border border-app-base bg-app-surface px-4 py-2 text-sm font-medium text-app-soft"
               >
                 <Pencil className="h-4 w-4" aria-hidden="true" />
                 수정
@@ -60,7 +60,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
           ) : null}
         </div>
 
-        <article className="rounded-2xl border border-[#3a3a3a] bg-[#242424] p-6 shadow-sm">
+        <article className="rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <span
@@ -75,14 +75,14 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
                 {priorityLabels[task.priority]}
               </span>
 
-              <span className="text-xs font-medium text-[#a3a3a3]">
+              <span className="text-xs font-medium text-app-muted">
                 {task.dueDate ? `마감일 ${task.dueDate}` : "마감일 없음"}
               </span>
             </div>
 
             {!task.isPublic ? (
               <span
-                className="mt-1 shrink-0 text-[#a3a3a3]"
+                className="mt-1 shrink-0 text-app-muted"
                 aria-label="비공개 작업"
                 title="비공개 작업"
               >
@@ -99,7 +99,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
             <section className="mt-8">
               <h2 className="text-sm font-semibold text-white">메모</h2>
 
-              <p className="mt-3 text-sm leading-6 text-[#d1d5db]">
+              <p className="mt-3 text-sm leading-6 text-app-soft">
                 {task.description}
               </p>
             </section>
@@ -116,7 +116,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
                   <Link
                     key={tag}
                     href={`/tasks?tag=${encodeURIComponent(tag)}`}
-                    className="rounded-md border border-[#3a3a3a] bg-[#191919] px-2 py-1 text-xs text-[#a3a3a3] transition hover:border-[#555555] hover:text-white"
+                    className="rounded-md border border-app-base bg-app-bg px-2 py-1 text-xs text-app-muted transition hover:border-app-strong hover:text-white"
                   >
                     #{tag}
                   </Link>

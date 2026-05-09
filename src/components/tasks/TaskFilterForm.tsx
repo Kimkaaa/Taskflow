@@ -32,12 +32,12 @@ const chipBaseClass =
   "inline-flex h-9 cursor-pointer items-center justify-center rounded-full border px-3 text-sm font-medium transition";
 
 const resetButtonClass =
-  "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-[#3a3a3a] bg-[#191919] text-[#d1d5db] transition";
+  "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-app-base bg-app-bg text-app-soft transition";
 
 function getChipClass(isActive: boolean) {
   return isActive
-    ? `${chipBaseClass} border-[#555555] bg-[#3a3a3a] text-white`
-    : `${chipBaseClass} border-[#3a3a3a] bg-[#191919] text-[#d1d5db]`;
+    ? `${chipBaseClass} border-app-strong bg-app-base text-white`
+    : `${chipBaseClass} border-app-base bg-app-bg text-app-soft`;
 }
 
 function createNextQuery(
@@ -124,11 +124,11 @@ export default function TaskFilterForm({
   };
 
   return (
-    <section className="mb-5 rounded-2xl border border-[#3a3a3a] bg-[#242424] p-4 shadow-sm">
+    <section className="mb-5 rounded-2xl border border-app-base bg-app-surface p-4 shadow-sm">
       <form onSubmit={handleSearchSubmit} className="flex gap-2">
         <label className="relative flex-1">
           <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a3a3a3]"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-app-muted"
             aria-hidden="true"
           />
 
@@ -139,7 +139,7 @@ export default function TaskFilterForm({
             value={keywordValue}
             onChange={(event) => setKeywordValue(event.target.value)}
             placeholder="검색"
-            className="task-search-input h-10 w-full rounded-xl border border-[#3a3a3a] bg-[#191919] pl-9 pr-1 text-sm text-white outline-none transition placeholder:text-[#a3a3a3] focus:border-[#6b7280] focus:bg-[#191919]"
+            className="task-search-input h-10 w-full rounded-xl border border-app-base bg-app-bg pl-9 pr-1 text-sm text-white outline-none transition placeholder:text-app-muted focus:border-app-focus focus:bg-app-bg"
           />
         </label>
 
@@ -156,7 +156,7 @@ export default function TaskFilterForm({
 
       {query.tag ? (
         <div className="mt-3 flex flex-wrap gap-2">
-          <span className="rounded-md border border-[#3a3a3a] bg-[#191919] px-2 py-1 text-xs text-[#a3a3a3]">
+          <span className="rounded-md border border-app-base bg-app-bg px-2 py-1 text-xs text-app-muted">
             #{query.tag}
           </span>
         </div>
@@ -184,7 +184,7 @@ export default function TaskFilterForm({
           })}
         </div>
 
-        <span className="hidden h-5 w-px bg-[#3a3a3a] sm:block" />
+        <span className="hidden h-5 w-px bg-app-base sm:block" />
 
         <div className="flex shrink-0 items-center gap-2">
           {priorityOptions.map((priority) => {
@@ -207,7 +207,7 @@ export default function TaskFilterForm({
           })}
         </div>
 
-        <span className="hidden h-5 w-px bg-[#3a3a3a] sm:block" />
+        <span className="hidden h-5 w-px bg-app-base sm:block" />
 
         <div className="flex shrink-0 items-center gap-2">
           <button

@@ -34,20 +34,20 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
   const updateTaskWithId = updateTask.bind(null, task.id);
 
   return (
-    <main className="min-h-screen bg-[#191919] px-6 py-8 text-white">
+    <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
       <section className="mx-auto max-w-3xl">
         <div className="mb-6">
           <Link
             href={`/tasks/${task.id}`}
             aria-label="작업 상세로 돌아가기"
             title="작업 상세로 돌아가기"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#d1d5db]"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-app-soft"
           >
             <ChevronLeft className="h-6 w-6" aria-hidden="true" />
           </Link>
         </div>
 
-        <div className="rounded-2xl border border-[#3a3a3a] bg-[#242424] p-6 shadow-sm">
+        <div className="rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm">
           <TaskForm task={task} action={updateTaskWithId} submitLabel="수정" />
         </div>
       </section>

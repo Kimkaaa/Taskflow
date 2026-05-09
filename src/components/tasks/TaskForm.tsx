@@ -74,13 +74,13 @@ const priorityLabels: Record<TaskPriority, string> = {
 };
 
 const inputClass =
-  "w-full rounded-xl border border-[#3a3a3a] bg-[#191919] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#a3a3a3] focus:border-[#6b7280]";
+  "w-full rounded-xl border border-app-base bg-app-bg px-4 py-3 text-sm text-white outline-none transition placeholder:text-app-muted focus:border-app-focus";
 
 const chipBaseClass =
   "inline-flex h-9 cursor-pointer items-center justify-center rounded-full border px-3 text-sm font-medium transition";
 
 const submitButtonClass =
-  "inline-flex h-11 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#3a3a3a]/80 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-80";
+  "inline-flex h-11 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-80";
 
 function getDefaultStatus(task?: Task): TaskStatus {
   return task?.status ?? "TODO";
@@ -153,7 +153,7 @@ function SortableTodoItem({
     >
       <button
         type="button"
-        className="flex h-10 w-4 shrink-0 cursor-grab items-center justify-center text-[#737373] transition hover:text-[#d1d5db] active:cursor-grabbing"
+        className="flex h-10 w-4 shrink-0 cursor-grab items-center justify-center text-app-disabled transition hover:text-app-soft active:cursor-grabbing"
         aria-label="체크리스트 순서 변경"
         title="순서 변경"
         {...attributes}
@@ -162,7 +162,7 @@ function SortableTodoItem({
         <GripVertical className="h-4 w-4" aria-hidden="true" />
       </button>
 
-      <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[#3a3a3a] bg-[#191919] px-3 py-2">
+      <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-app-base bg-app-bg px-3 py-2">
         <input
           type="hidden"
           name="todoId"
@@ -178,7 +178,7 @@ function SortableTodoItem({
         <button
           type="button"
           onClick={() => onDoneChange(todo.id)}
-          className="shrink-0 text-[#a3a3a3] transition hover:text-white"
+          className="shrink-0 text-app-muted transition hover:text-white"
           aria-label={
             todo.isDone ? "체크리스트 미완료로 변경" : "체크리스트 완료로 변경"
           }
@@ -199,14 +199,14 @@ function SortableTodoItem({
           value={todo.content}
           onChange={(event) => onContentChange(todo.id, event.target.value)}
           placeholder="체크리스트"
-          className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-white outline-none placeholder:text-[#737373]"
+          className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-white outline-none placeholder:text-app-disabled"
           maxLength={TASK_FORM_LIMITS.TODO_MAX_LENGTH}
         />
 
         <button
           type="button"
           onClick={() => onRemove(todo.id)}
-          className="shrink-0 cursor-pointer text-[#737373] transition hover:text-red-300"
+          className="shrink-0 cursor-pointer text-app-disabled transition hover:text-red-300"
           aria-label="체크리스트 항목 삭제"
           title="삭제"
         >
@@ -364,7 +364,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
               />
 
               <span
-                className={`${chipBaseClass} border-[#3a3a3a] bg-[#191919] text-[#d1d5db] peer-checked:border-[#555555] peer-checked:bg-[#3a3a3a] peer-checked:text-white`}
+                className={`${chipBaseClass} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
               >
                 {statusLabels[status]}
               </span>
@@ -386,7 +386,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
               />
 
               <span
-                className={`${chipBaseClass} border-[#3a3a3a] bg-[#191919] text-[#d1d5db] peer-checked:border-[#555555] peer-checked:bg-[#3a3a3a] peer-checked:text-white`}
+                className={`${chipBaseClass} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
               >
                 {priorityLabels[priority]}
               </span>
@@ -417,7 +417,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
             type="button"
             onClick={handleAddTodo}
             disabled={isTodoAddDisabled}
-            className="inline-flex h-9 cursor-pointer shrink-0 items-center gap-1 rounded-full border border-[#3a3a3a] bg-[#242424] px-3 text-xs font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#242424] disabled:hover:text-[#d1d5db]"
+            className="inline-flex h-9 cursor-pointer shrink-0 items-center gap-1 rounded-full border border-app-base bg-app-surface px-3 text-xs font-medium text-app-soft transition hover:bg-app-surface-hover hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-app-surface disabled:hover:text-app-soft"
             aria-label={
               isTodoAddDisabled
                 ? `체크리스트는 최대 ${TASK_FORM_LIMITS.TODO_MAX_COUNT}개까지 추가할 수 있습니다.`
@@ -466,7 +466,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
       ) : null}
 
       <div className="flex items-center justify-between gap-4">
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-[#d1d5db]">
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-app-soft">
           <input
             type="checkbox"
             name="isPublic"
@@ -480,7 +480,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
           <button
             type="reset"
             onClick={handleResetTodos}
-            className="inline-flex h-11 w-11 cursor-pointer items-center justify-center text-[#a3a3a3] transition hover:text-white"
+            className="inline-flex h-11 w-11 cursor-pointer items-center justify-center text-app-muted transition hover:text-white"
             aria-label="초기화"
             title="초기화"
           >

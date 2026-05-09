@@ -33,7 +33,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
   });
 
   return (
-    <main className="min-h-screen bg-[#191919] px-6 py-8 text-white">
+    <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
       <section className="mx-auto max-w-5xl">
         <div className="mb-6 flex items-center justify-between gap-4">
           <Link

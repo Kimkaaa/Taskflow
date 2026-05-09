@@ -103,9 +103,9 @@ export default function TaskList({
 
   if (tasks.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-[#3a3a3a] bg-[#242424] p-10 text-center">
+      <div className="rounded-2xl border border-dashed border-app-base bg-app-surface p-10 text-center">
         <p className="font-semibold text-white">조건에 맞는 작업이 없습니다.</p>
-        <p className="mt-2 text-sm text-[#a3a3a3]">
+        <p className="mt-2 text-sm text-app-muted">
           검색어나 필터 조건을 변경해보세요.
         </p>
       </div>
@@ -119,7 +119,7 @@ export default function TaskList({
           <Link
             key={task.id}
             href={`/tasks/${task.id}`}
-            className="block rounded-2xl border border-[#3a3a3a] bg-[#242424] p-6 shadow-sm transition hover:-translate-y-0.5 hover:bg-[#2b2b2b] hover:shadow-md"
+            className="block rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm transition hover:-translate-y-0.5 hover:bg-app-surface-hover hover:shadow-md"
           >
             <div>
               <div className="mb-3 flex items-start justify-between gap-3">
@@ -136,14 +136,14 @@ export default function TaskList({
                     {priorityLabels[task.priority]}
                   </span>
 
-                  <span className="text-xs font-medium text-[#a3a3a3]">
+                  <span className="text-xs font-medium text-app-muted">
                     {task.dueDate ? `마감일 ${task.dueDate}` : "마감일 없음"}
                   </span>
                 </div>
 
                 {!task.isPublic ? (
                   <span
-                    className="mt-1 shrink-0 text-[#a3a3a3]"
+                    className="mt-1 shrink-0 text-app-muted"
                     aria-label="비공개 작업"
                     title="비공개 작업"
                   >
@@ -155,7 +155,7 @@ export default function TaskList({
               <h2 className="text-xl font-bold text-white">{task.title}</h2>
 
               {task.description ? (
-                <p className="mt-2 text-sm leading-6 text-[#d1d5db]">
+                <p className="mt-2 text-sm leading-6 text-app-soft">
                   {task.description}
                 </p>
               ) : null}
@@ -165,7 +165,7 @@ export default function TaskList({
               {task.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-md border border-[#3a3a3a] bg-[#191919] px-2 py-1 text-xs text-[#a3a3a3]"
+                  className="rounded-md border border-app-base bg-app-bg px-2 py-1 text-xs text-app-muted"
                 >
                   #{tag}
                 </span>
@@ -181,12 +181,12 @@ export default function TaskList({
             type="button"
             onClick={loadMoreTasks}
             disabled={isLoading}
-            className="rounded-full cursor-pointer border border-[#3a3a3a] bg-[#242424] px-4 py-2 text-sm font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full cursor-pointer border border-app-base bg-app-surface px-4 py-2 text-sm font-medium text-app-soft transition hover:bg-app-surface-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading ? "불러오는 중..." : "더 보기"}
           </button>
         ) : (
-          <p className="text-sm text-[#737373]">모든 작업을 불러왔습니다.</p>
+          <p className="text-sm text-app-disabled">모든 작업을 불러왔습니다.</p>
         )}
       </div>
 

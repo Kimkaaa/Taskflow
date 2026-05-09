@@ -8,7 +8,7 @@ type AuthButtonProps = {
 };
 
 const baseButtonClass =
-  "inline-flex h-[38px] w-[83px] cursor-pointer items-center justify-center rounded-full border border-[#3a3a3a] bg-[#242424] text-sm font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] hover:text-white disabled:cursor-wait disabled:opacity-80";
+  "inline-flex h-[38px] w-[83px] cursor-pointer items-center justify-center rounded-full border border-app-base bg-app-surface text-sm font-medium text-app-soft transition hover:bg-app-surface-hover hover:text-white disabled:cursor-wait disabled:opacity-80";
 
 export default function AuthButton({ isLoggedIn }: AuthButtonProps) {
   const [isPending, setIsPending] = useState(false);
