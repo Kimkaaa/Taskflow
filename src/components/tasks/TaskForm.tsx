@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
   DndContext,
@@ -29,10 +29,18 @@ import {
   Square,
   Trash2,
 } from "lucide-react";
+import { TASK_FORM_LIMITS } from "@/constants/taskFormLimits";
 import type { Task, TaskPriority, TaskStatus, TaskTodo } from "@/types/task";
+import {
+  initialTaskActionState,
+  type TaskActionState,
+} from "@/types/taskAction";
 
 type TaskFormProps = {
-  action: (formData: FormData) => void | Promise<void>;
+  action: (
+    prevState: TaskActionState,
+    formData: FormData,
+  ) => TaskActionState | Promise<TaskActionState>;
   task?: Task;
   submitLabel: string;
 };
@@ -192,6 +200,7 @@ function SortableTodoItem({
           onChange={(event) => onContentChange(todo.id, event.target.value)}
           placeholder="체크리스트"
           className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-white outline-none placeholder:text-[#737373]"
+          maxLength={TASK_FORM_LIMITS.TODO_MAX_LENGTH}
         />
 
         <button
@@ -235,6 +244,8 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
   const defaultStatus = getDefaultStatus(task);
   const defaultPriority = getDefaultPriority(task);
   const [todos, setTodos] = useState(() => getInitialTodos(task));
+  const [isErrorHidden, setIsErrorHidden] = useState(false);
+  const [state, formAction] = useActionState(action, initialTaskActionState);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -287,6 +298,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
 
   const handleResetTodos = () => {
     setTodos(getInitialTodos(task));
+    setIsErrorHidden(true);
   };
 
   const handleTodoDragEnd = (event: DragEndEvent) => {
@@ -308,14 +320,23 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
     });
   };
 
+  const isTodoAddDisabled = todos.length >= TASK_FORM_LIMITS.TODO_MAX_COUNT;
+
   return (
-    <form action={action} className="space-y-4">
+    <form
+      action={formAction}
+      onSubmit={() => {
+        setIsErrorHidden(false);
+      }}
+      className="space-y-4"
+    >
       <input
         name="title"
         type="text"
         defaultValue={task?.title ?? ""}
         placeholder="제목"
         className={inputClass}
+        maxLength={TASK_FORM_LIMITS.TITLE_MAX_LENGTH}
         required
       />
 
@@ -323,8 +344,9 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
         name="description"
         type="text"
         defaultValue={task?.description ?? ""}
-        placeholder="설명"
+        placeholder="메모"
         className={inputClass}
+        maxLength={TASK_FORM_LIMITS.DESCRIPTION_MAX_LENGTH}
       />
 
       <div className="grid items-center gap-3 min-[600px]:grid-cols-[max-content_max-content_180px] min-[600px]:justify-between">
@@ -394,7 +416,18 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
           <button
             type="button"
             onClick={handleAddTodo}
-            className="inline-flex h-9 cursor-pointer shrink-0 items-center gap-1 rounded-full border border-[#3a3a3a] bg-[#242424] px-3 text-xs font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] hover:text-white"
+            disabled={isTodoAddDisabled}
+            className="inline-flex h-9 cursor-pointer shrink-0 items-center gap-1 rounded-full border border-[#3a3a3a] bg-[#242424] px-3 text-xs font-medium text-[#d1d5db] transition hover:bg-[#2b2b2b] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#242424] disabled:hover:text-[#d1d5db]"
+            aria-label={
+              isTodoAddDisabled
+                ? `체크리스트는 최대 ${TASK_FORM_LIMITS.TODO_MAX_COUNT}개까지 추가할 수 있습니다.`
+                : "체크리스트 추가"
+            }
+            title={
+              isTodoAddDisabled
+                ? `체크리스트는 최대 ${TASK_FORM_LIMITS.TODO_MAX_COUNT}개까지 추가할 수 있습니다.`
+                : "체크리스트 추가"
+            }
           >
             <Plus className="h-3.5 w-3.5" aria-hidden="true" />
             추가
@@ -425,6 +458,12 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
           </SortableContext>
         </DndContext>
       </div>
+
+      {state.error && !isErrorHidden ? (
+        <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          {state.error}
+        </p>
+      ) : null}
 
       <div className="flex items-center justify-between gap-4">
         <label className="flex cursor-pointer items-center gap-2 text-sm text-[#d1d5db]">

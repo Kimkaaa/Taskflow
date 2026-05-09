@@ -1,3 +1,4 @@
+import { TASK_FORM_LIMITS } from "@/constants/taskFormLimits";
 import type { TaskPriority, TaskStatus } from "@/types/task";
 
 export type TaskFormTodoInput = {
@@ -66,16 +67,65 @@ function parseTodos(formData: FormData): TaskFormTodoInput[] {
     .filter((todo) => todo.content);
 }
 
+function validateTags(tags: string[]) {
+  if (tags.length > TASK_FORM_LIMITS.TAG_MAX_COUNT) {
+    throw new Error(
+      `태그는 최대 ${TASK_FORM_LIMITS.TAG_MAX_COUNT}개까지 입력할 수 있습니다.`,
+    );
+  }
+
+  const hasTooLongTag = tags.some(
+    (tag) => tag.length > TASK_FORM_LIMITS.TAG_MAX_LENGTH,
+  );
+
+  if (hasTooLongTag) {
+    throw new Error(
+      `태그는 개별 ${TASK_FORM_LIMITS.TAG_MAX_LENGTH}자 이하로 입력해주세요.`,
+    );
+  }
+}
+
+function validateTodos(todos: TaskFormTodoInput[]) {
+  if (todos.length > TASK_FORM_LIMITS.TODO_MAX_COUNT) {
+    throw new Error(
+      `체크리스트는 최대 ${TASK_FORM_LIMITS.TODO_MAX_COUNT}개까지 입력할 수 있습니다.`,
+    );
+  }
+
+  const hasTooLongTodo = todos.some(
+    (todo) => todo.content.length > TASK_FORM_LIMITS.TODO_MAX_LENGTH,
+  );
+
+  if (hasTooLongTodo) {
+    throw new Error(
+      `체크리스트는 항목당 ${TASK_FORM_LIMITS.TODO_MAX_LENGTH}자 이하로 입력해주세요.`,
+    );
+  }
+}
+
 export function parseTaskFormData(formData: FormData): TaskFormInput {
   const title = getStringValue(formData, "title");
   const description = getStringValue(formData, "description");
   const status = getStringValue(formData, "status");
   const priority = getStringValue(formData, "priority");
   const dueDate = getStringValue(formData, "dueDate");
-  const tags = getStringValue(formData, "tags");
+  const tags = parseTags(getStringValue(formData, "tags"));
+  const todos = parseTodos(formData);
 
   if (!title) {
     throw new Error("작업 제목을 입력해주세요.");
+  }
+
+  if (title.length > TASK_FORM_LIMITS.TITLE_MAX_LENGTH) {
+    throw new Error(
+      `작업 제목은 ${TASK_FORM_LIMITS.TITLE_MAX_LENGTH}자 이하로 입력해주세요.`,
+    );
+  }
+
+  if (description.length > TASK_FORM_LIMITS.DESCRIPTION_MAX_LENGTH) {
+    throw new Error(
+      `메모는 ${TASK_FORM_LIMITS.DESCRIPTION_MAX_LENGTH}자 이하로 입력해주세요.`,
+    );
   }
 
   if (!isTaskStatus(status)) {
@@ -86,14 +136,17 @@ export function parseTaskFormData(formData: FormData): TaskFormInput {
     throw new Error("올바르지 않은 중요도입니다.");
   }
 
+  validateTags(tags);
+  validateTodos(todos);
+
   return {
     title,
     description,
     status,
     priority,
     dueDate: dueDate || null,
-    tags: parseTags(tags),
-    todos: parseTodos(formData),
+    tags,
+    todos,
     isPublic: formData.get("isPublic") === "on",
   };
 }

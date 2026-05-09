@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { parseTaskFormData } from "@/lib/taskForm";
 import { requireTaskOwner, requireUser } from "@/lib/auth";
+import type { TaskActionState } from "@/types/taskAction";
 
 type TagWriteClient = Pick<typeof prisma, "tag">;
 
@@ -18,6 +19,14 @@ function toDate(value: string | null) {
 
 function removeDuplicateTags(tags: string[]) {
   return Array.from(new Set(tags));
+}
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "작업을 저장하지 못했습니다.";
 }
 
 async function getOrCreateTags(tags: string[], tx: TagWriteClient) {
@@ -50,9 +59,21 @@ async function getOrCreateTags(tags: string[], tx: TagWriteClient) {
   return result;
 }
 
-export async function createTask(formData: FormData) {
+export async function createTask(
+  _prevState: TaskActionState,
+  formData: FormData,
+): Promise<TaskActionState> {
   const user = await requireUser();
-  const input = parseTaskFormData(formData);
+
+  let input;
+
+  try {
+    input = parseTaskFormData(formData);
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
 
   const task = await prisma.$transaction(async (tx) => {
     const tags = await getOrCreateTags(input.tags, tx);
@@ -86,10 +107,22 @@ export async function createTask(formData: FormData) {
   redirect(`/tasks/${task.id}`);
 }
 
-export async function updateTask(taskId: string, formData: FormData) {
+export async function updateTask(
+  taskId: string,
+  _prevState: TaskActionState,
+  formData: FormData,
+): Promise<TaskActionState> {
   await requireTaskOwner(taskId);
 
-  const input = parseTaskFormData(formData);
+  let input;
+
+  try {
+    input = parseTaskFormData(formData);
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
 
   await prisma.$transaction(async (tx) => {
     const tags = await getOrCreateTags(input.tags, tx);
