@@ -9,13 +9,6 @@ import type {
   TaskTodo,
 } from "@/types/task";
 
-export {
-  priorityBadgeStyles,
-  priorityLabels,
-  statusBadgeStyles,
-  statusLabels,
-} from "@/lib/taskMeta";
-
 const TASK_PAGE_SIZE = 3;
 
 const taskStatuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];

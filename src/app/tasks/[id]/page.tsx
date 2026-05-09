@@ -4,13 +4,13 @@ import { ChevronLeft, Lock, Pencil } from "lucide-react";
 import TaskTodoList from "@/components/tasks/TaskTodoList";
 import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
 import { getCurrentUser } from "@/lib/auth";
+import { getTaskById } from "@/lib/tasks";
 import {
-  getTaskById,
   priorityBadgeStyles,
   priorityLabels,
   statusBadgeStyles,
   statusLabels,
-} from "@/lib/tasks";
+} from "@/constants/taskMeta";
 
 type TaskDetailPageProps = {
   params: Promise<{

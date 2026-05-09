@@ -13,7 +13,7 @@ import {
   priorityOptions,
   statusLabels,
   statusOptions,
-} from "@/lib/taskMeta";
+} from "@/constants/taskMeta";
 
 type TaskFilterFormProps = {
   query: TaskQuery;

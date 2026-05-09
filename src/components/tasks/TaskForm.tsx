@@ -30,6 +30,12 @@ import {
   Trash2,
 } from "lucide-react";
 import { TASK_FORM_LIMITS } from "@/constants/taskFormLimits";
+import {
+  priorityLabels,
+  priorityOptions,
+  statusLabels,
+  statusOptions,
+} from "@/constants/taskMeta";
 import type { Task, TaskPriority, TaskStatus, TaskTodo } from "@/types/task";
 import {
   initialTaskActionState,
@@ -56,21 +62,6 @@ type SortableTodoItemProps = {
   onContentChange: (todoId: string, content: string) => void;
   onDoneChange: (todoId: string) => void;
   onRemove: (todoId: string) => void;
-};
-
-const statusOptions: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
-const priorityOptions: TaskPriority[] = ["HIGH", "MEDIUM", "LOW"];
-
-const statusLabels: Record<TaskStatus, string> = {
-  TODO: "예정",
-  IN_PROGRESS: "진행",
-  DONE: "완료",
-};
-
-const priorityLabels: Record<TaskPriority, string> = {
-  HIGH: "상",
-  MEDIUM: "중",
-  LOW: "하",
 };
 
 const inputClass =
@@ -471,7 +462,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
             type="checkbox"
             name="isPublic"
             defaultChecked={task?.isPublic ?? true}
-            className="h-4 w-4 cursor-pointer accent-[#3a3a3a]"
+            className="h-4 w-4 cursor-pointer accent-app-base"
           />
           공개
         </label>

@@ -9,7 +9,7 @@ import {
   priorityLabels,
   statusBadgeStyles,
   statusLabels,
-} from "@/lib/taskMeta";
+} from "@/constants/taskMeta";
 
 type TaskListProps = {
   initialTasks: Task[];
