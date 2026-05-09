@@ -236,7 +236,10 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
   const defaultPriority = getDefaultPriority(task);
   const [todos, setTodos] = useState(() => getInitialTodos(task));
   const [isErrorHidden, setIsErrorHidden] = useState(false);
-  const [state, formAction] = useActionState(action, initialTaskActionState);
+  const [state, formAction, isPending] = useActionState(
+    action,
+    initialTaskActionState,
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -312,6 +315,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
   };
 
   const isTodoAddDisabled = todos.length >= TASK_FORM_LIMITS.TODO_MAX_COUNT;
+  const shouldShowError = Boolean(state.error && !isErrorHidden && !isPending);
 
   return (
     <form
@@ -450,7 +454,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
         </DndContext>
       </div>
 
-      {state.error && !isErrorHidden ? (
+      {shouldShowError ? (
         <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
           {state.error}
         </p>
