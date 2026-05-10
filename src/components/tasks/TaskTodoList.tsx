@@ -4,6 +4,11 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CheckSquare, LoaderCircle, Square } from "lucide-react";
 import { completeTask, updateTaskTodoDone } from "@/app/actions/tasks";
+import {
+  dialogCancelButtonClass,
+  dialogConfirmButtonClass,
+  dialogListButtonClass,
+} from "@/constants/taskClassNames";
 import type { TaskStatus, TaskTodo } from "@/types/task";
 
 type TaskTodoListProps = {
@@ -12,15 +17,6 @@ type TaskTodoListProps = {
   todos: TaskTodo[];
   canEdit: boolean;
 };
-
-const dialogActionButtonBaseClass =
-  "inline-flex h-9 cursor-pointer items-center justify-center rounded-xl px-3 text-sm font-semibold disabled:cursor-wait disabled:opacity-80";
-
-const cancelDialogButtonClass = `${dialogActionButtonBaseClass} w-14 text-app-soft`;
-
-const confirmDialogButtonClass = `${dialogActionButtonBaseClass} w-14 bg-app-base/80 text-white`;
-
-const listDialogButtonClass = `${dialogActionButtonBaseClass} text-app-soft`;
 
 export default function TaskTodoList({
   taskId,
@@ -241,7 +237,7 @@ export default function TaskTodoList({
                 <button
                   type="button"
                   onClick={handleCloseCompleteDialog}
-                  className={listDialogButtonClass}
+                  className={dialogListButtonClass}
                 >
                   목록으로 이동
                 </button>
@@ -252,7 +248,7 @@ export default function TaskTodoList({
                   type="button"
                   onClick={handleCloseCompleteDialog}
                   disabled={isCompletePending}
-                  className={cancelDialogButtonClass}
+                  className={dialogCancelButtonClass}
                 >
                   취소
                 </button>
@@ -261,7 +257,7 @@ export default function TaskTodoList({
                   type="button"
                   onClick={handleCompleteTask}
                   disabled={isCompletePending}
-                  className={confirmDialogButtonClass}
+                  className={dialogConfirmButtonClass}
                   aria-label={isCompletePending ? "완료 처리 중" : "확인"}
                   title={isCompletePending ? "완료 처리 중" : "확인"}
                 >

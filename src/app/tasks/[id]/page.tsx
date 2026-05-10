@@ -4,6 +4,7 @@ import { ChevronLeft, Lock, Pencil } from "lucide-react";
 import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
 import TaskTodoList from "@/components/tasks/TaskTodoList";
+import { taskEditActionButtonClass } from "@/constants/taskClassNames";
 import { getCurrentUser } from "@/lib/auth";
 import { getTaskById } from "@/lib/tasks";
 
@@ -41,7 +42,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
             <div className="flex items-center gap-2">
               <Link
                 href={`/tasks/${task.id}/edit`}
-                className="inline-flex items-center gap-2 rounded-full border border-app-base bg-app-surface px-4 py-2 text-sm font-medium text-app-soft"
+                className={taskEditActionButtonClass}
               >
                 <Pencil className="h-4 w-4" aria-hidden="true" />
                 수정
