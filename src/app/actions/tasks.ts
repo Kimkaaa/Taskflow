@@ -186,6 +186,22 @@ export async function deleteTask(
   redirect("/tasks");
 }
 
+export async function completeTask(taskId: string) {
+  await requireTaskOwner(taskId);
+
+  await prisma.task.update({
+    where: {
+      id: taskId,
+    },
+    data: {
+      status: "DONE",
+    },
+  });
+
+  revalidatePath("/tasks");
+  revalidatePath(`/tasks/${taskId}`);
+}
+
 export async function updateTaskTodoDone(
   taskId: string,
   todoId: string,

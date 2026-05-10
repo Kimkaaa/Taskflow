@@ -88,7 +88,12 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
             </section>
           ) : null}
 
-          <TaskTodoList taskId={task.id} todos={task.todos} canEdit={canEdit} />
+          <TaskTodoList
+            taskId={task.id}
+            taskStatus={task.status}
+            todos={task.todos}
+            canEdit={canEdit}
+          />
 
           {task.tags.length > 0 ? (
             <section className="mt-8">
