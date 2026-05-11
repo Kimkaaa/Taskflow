@@ -13,7 +13,12 @@ const TASK_PAGE_SIZE = 3;
 
 const taskStatuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
 const taskPriorities: TaskPriority[] = ["LOW", "MEDIUM", "HIGH"];
-const taskSortOptions: TaskSortOption[] = ["dueAsc", "priorityDesc"];
+const taskSortOptions: TaskSortOption[] = [
+  "dueAsc",
+  "dueDesc",
+  "priorityDesc",
+  "priorityAsc",
+];
 
 const taskListSelect = {
   id: true,
@@ -128,18 +133,56 @@ function toTask(row: TaskDetailRow): Task {
   };
 }
 
-function getPriorityOrderBy(): Prisma.TaskOrderByWithRelationInput {
+function getPriorityOrderBy(
+  sort: Prisma.SortOrder,
+): Prisma.TaskOrderByWithRelationInput {
   return {
-    priority: "desc",
+    priority: sort,
   };
 }
 
 function getTaskOrderBy(
   sort?: TaskSortOption,
 ): Prisma.TaskOrderByWithRelationInput[] {
+  if (sort === "dueDesc") {
+    return [
+      {
+        dueDate: {
+          sort: "desc",
+          nulls: "last",
+        },
+      },
+      getPriorityOrderBy("desc"),
+      {
+        createdAt: "desc",
+      },
+      {
+        id: "asc",
+      },
+    ];
+  }
+
   if (sort === "priorityDesc") {
     return [
-      getPriorityOrderBy(),
+      getPriorityOrderBy("desc"),
+      {
+        dueDate: {
+          sort: "asc",
+          nulls: "last",
+        },
+      },
+      {
+        createdAt: "desc",
+      },
+      {
+        id: "asc",
+      },
+    ];
+  }
+
+  if (sort === "priorityAsc") {
+    return [
+      getPriorityOrderBy("asc"),
       {
         dueDate: {
           sort: "asc",
@@ -162,7 +205,7 @@ function getTaskOrderBy(
         nulls: "last",
       },
     },
-    getPriorityOrderBy(),
+    getPriorityOrderBy("desc"),
     {
       createdAt: "desc",
     },
@@ -202,11 +245,13 @@ function buildTaskWhere(
     buildTaskVisibilityWhere(viewerId),
   ];
 
+  const hasSearchCondition = Boolean(keyword || tag);
+
   if (query.status) {
     andConditions.push({
       status: query.status,
     });
-  } else {
+  } else if (!hasSearchCondition) {
     andConditions.push({
       status: {
         not: "DONE",

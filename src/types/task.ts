@@ -2,7 +2,11 @@ export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
 
 export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
 
-export type TaskSortOption = "dueAsc" | "priorityDesc";
+export type TaskSortOption =
+  | "dueAsc"
+  | "dueDesc"
+  | "priorityDesc"
+  | "priorityAsc";
 
 export type TaskQuery = {
   keyword?: string;

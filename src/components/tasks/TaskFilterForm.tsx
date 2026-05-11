@@ -109,6 +109,22 @@ function createTaskListHref(query: TaskQuery) {
   return queryString ? `/tasks?${queryString}` : "/tasks";
 }
 
+function getNextDueSort(sort?: TaskSortOption) {
+  return sort === "dueAsc" ? "dueDesc" : "dueAsc";
+}
+
+function getNextPrioritySort(sort?: TaskSortOption) {
+  return sort === "priorityDesc" ? "priorityAsc" : "priorityDesc";
+}
+
+function isDueSort(sort?: TaskSortOption) {
+  return sort === "dueAsc" || sort === "dueDesc";
+}
+
+function isPrioritySort(sort?: TaskSortOption) {
+  return sort === "priorityDesc" || sort === "priorityAsc";
+}
+
 export default function TaskFilterForm({
   query,
   onNavigate,
@@ -171,6 +187,7 @@ export default function TaskFilterForm({
             value={keywordValue}
             onChange={(event) => setKeywordValue(event.target.value)}
             placeholder="검색"
+            aria-label="작업 검색"
             className="task-search-input h-10 w-full rounded-xl border border-app-base bg-app-bg pl-9 pr-1 text-sm text-white outline-none transition placeholder:text-app-muted focus:border-app-focus focus:bg-app-bg"
           />
         </label>
@@ -244,24 +261,26 @@ export default function TaskFilterForm({
             type="button"
             onClick={() => {
               navigateWithUpdates({
-                sort: query.sort === "dueAsc" ? null : "dueAsc",
+                sort: getNextPrioritySort(query.sort),
               });
             }}
-            className={getChipClass(query.sort === "dueAsc")}
+            className={getChipClass(isPrioritySort(query.sort))}
+            title={query.sort === "priorityAsc" ? "중요도 낮은 순" : "중요도 높은 순"}
           >
-            마감일
+            중요도
           </button>
 
           <button
             type="button"
             onClick={() => {
               navigateWithUpdates({
-                sort: query.sort === "priorityDesc" ? null : "priorityDesc",
+                sort: getNextDueSort(query.sort),
               });
             }}
-            className={getChipClass(query.sort === "priorityDesc")}
+            className={getChipClass(isDueSort(query.sort))}
+            title={query.sort === "dueDesc" ? "마감일 먼 순" : "마감일 가까운 순"}
           >
-            중요도
+            마감일
           </button>
         </div>
       </div>
