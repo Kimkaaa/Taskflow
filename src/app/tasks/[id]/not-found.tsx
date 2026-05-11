@@ -1,10 +1,11 @@
 import Link from "next/link";
 import BackLink from "@/components/common/BackLink";
+import { taskPageSectionClass } from "@/constants/taskClassNames";
 
 export default function TaskNotFound() {
   return (
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
-      <section className="mx-auto max-w-3xl">
+      <section className={taskPageSectionClass}>
         <div className="mb-6">
           <BackLink href="/tasks" label="작업 목록으로 돌아가기" />
         </div>

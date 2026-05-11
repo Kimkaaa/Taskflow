@@ -1,3 +1,6 @@
+// 화면 레이아웃
+export const taskPageSectionClass = "mx-auto max-w-2xl";
+
 // 뒤로가기
 export const backNavigationClass =
   "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-app-soft";

@@ -5,7 +5,11 @@ import BackButton from "@/components/common/BackButton";
 import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
 import TaskTodoList from "@/components/tasks/TaskTodoList";
-import { taskEditActionButtonClass, taskTagLinkClass } from "@/constants/taskClassNames";
+import {
+  taskEditActionButtonClass,
+  taskPageSectionClass,
+  taskTagLinkClass,
+} from "@/constants/taskClassNames";
 import { getCurrentUser } from "@/lib/auth";
 import { getTaskById } from "@/lib/tasks";
 
@@ -28,7 +32,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
 
   return (
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
-      <section className="mx-auto max-w-3xl">
+      <section className={taskPageSectionClass}>
         <div className="mb-6 flex items-center justify-between gap-4">
           <BackButton label="목록으로 돌아가기" />
 

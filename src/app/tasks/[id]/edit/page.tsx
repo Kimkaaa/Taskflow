@@ -1,9 +1,10 @@
 import { notFound, redirect } from "next/navigation";
 import BackLink from "@/components/common/BackLink";
-import { updateTask } from "@/app/actions/tasks";
 import TaskForm from "@/components/tasks/TaskForm";
-import { getTaskById } from "@/lib/tasks";
+import { taskPageSectionClass } from "@/constants/taskClassNames";
+import { updateTask } from "@/app/actions/tasks";
 import { getCurrentUser } from "@/lib/auth";
+import { getTaskById } from "@/lib/tasks";
 
 type EditTaskPageProps = {
   params: Promise<{
@@ -34,7 +35,7 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
 
   return (
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
-      <section className="mx-auto max-w-3xl">
+      <section className={taskPageSectionClass}>
         <div className="mb-6">
           <BackLink href={`/tasks/${task.id}`} label="작업 상세로 돌아가기" />
         </div>
