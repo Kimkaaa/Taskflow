@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Lock, Pencil } from "lucide-react";
+import { Lock, Pencil } from "lucide-react";
+import BackLink from "@/components/common/BackLink";
 import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
 import TaskTodoList from "@/components/tasks/TaskTodoList";
@@ -29,14 +30,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
       <section className="mx-auto max-w-3xl">
         <div className="mb-6 flex items-center justify-between gap-4">
-          <Link
-            href="/tasks"
-            aria-label="목록으로 돌아가기"
-            title="목록으로 돌아가기"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-app-soft"
-          >
-            <ChevronLeft className="h-6 w-6" aria-hidden="true" />
-          </Link>
+          <BackLink href="/tasks" label="목록으로 돌아가기" />
 
           {canEdit ? (
             <div className="flex items-center gap-2">
