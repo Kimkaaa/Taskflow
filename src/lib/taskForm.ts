@@ -67,6 +67,33 @@ function parseTodos(formData: FormData): TaskFormTodoInput[] {
     .filter((todo) => todo.content);
 }
 
+function validateDueDate(value: string) {
+  if (!value) {
+    return;
+  }
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+
+  if (!match) {
+    throw new Error("마감일 형식이 올바르지 않습니다.");
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  const isValidDate =
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day;
+
+  if (!isValidDate) {
+    throw new Error("마감일 형식이 올바르지 않습니다.");
+  }
+}
+
 function validateTags(tags: string[]) {
   if (tags.length > TASK_FORM_LIMITS.TAG_MAX_COUNT) {
     throw new Error(
@@ -136,6 +163,7 @@ export function parseTaskFormData(formData: FormData): TaskFormInput {
     throw new Error("올바르지 않은 중요도입니다.");
   }
 
+  validateDueDate(dueDate);
   validateTags(tags);
   validateTodos(todos);
 
