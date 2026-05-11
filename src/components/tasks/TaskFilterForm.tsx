@@ -14,6 +14,7 @@ import {
   statusLabels,
   statusOptions,
 } from "@/constants/taskMeta";
+import { taskTagClass } from "@/constants/taskClassNames";
 
 type TaskFilterFormProps = {
   query: TaskQuery;
@@ -156,9 +157,7 @@ export default function TaskFilterForm({
 
       {query.tag ? (
         <div className="mt-3 flex flex-wrap gap-2">
-          <span className="rounded-md border border-app-base bg-app-bg px-2 py-1 text-xs text-app-muted">
-            #{query.tag}
-          </span>
+          <span className={taskTagClass}>#{query.tag}</span>
         </div>
       ) : null}
 

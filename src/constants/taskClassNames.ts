@@ -1,3 +1,10 @@
+// 태그
+export const taskTagClass =
+  "rounded-md border border-app-base bg-app-bg px-2 py-1 text-xs text-app-muted";
+
+export const taskTagLinkClass = `${taskTagClass} transition hover:border-app-strong hover:text-white`;
+
+// 작업 액션 버튼
 export const taskActionButtonBaseClass =
   "inline-flex cursor-pointer items-center gap-2 rounded-full border border-app-base bg-app-surface px-4 py-2 text-sm font-medium";
 
@@ -5,6 +12,7 @@ export const taskEditActionButtonClass = `${taskActionButtonBaseClass} text-app-
 
 export const taskDeleteActionButtonClass = `${taskActionButtonBaseClass} text-red-300`;
 
+// 다이얼로그 버튼
 export const dialogActionButtonBaseClass =
   "inline-flex h-9 cursor-pointer items-center justify-center rounded-xl px-3 text-sm font-semibold disabled:cursor-wait disabled:opacity-80";
 

@@ -181,7 +181,7 @@ export default function TaskTodoList({
                 </span>
 
                 {isUpdating ? (
-                  <span className="ml-auto shrink-0 text-xs text-app-disabled">
+                  <span className="ml-auto shrink-0 self-center text-xs text-app-disabled">
                     저장 중
                   </span>
                 ) : null}

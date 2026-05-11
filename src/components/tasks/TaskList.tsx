@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { Lock } from "lucide-react";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
+import { taskTagClass } from "@/constants/taskClassNames";
 import type { Task, TaskQuery } from "@/types/task";
 
 type TaskListProps = {
@@ -146,10 +147,7 @@ export default function TaskList({
 
             <div className="mt-5 flex flex-wrap gap-2">
               {task.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-md border border-app-base bg-app-bg px-2 py-1 text-xs text-app-muted"
-                >
+                <span key={tag} className={taskTagClass}>
                   #{tag}
                 </span>
               ))}

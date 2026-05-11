@@ -4,7 +4,7 @@ import { ChevronLeft, Lock, Pencil } from "lucide-react";
 import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
 import TaskTodoList from "@/components/tasks/TaskTodoList";
-import { taskEditActionButtonClass } from "@/constants/taskClassNames";
+import { taskEditActionButtonClass, taskTagLinkClass } from "@/constants/taskClassNames";
 import { getCurrentUser } from "@/lib/auth";
 import { getTaskById } from "@/lib/tasks";
 
@@ -105,7 +105,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
                   <Link
                     key={tag}
                     href={`/tasks?tag=${encodeURIComponent(tag)}`}
-                    className="rounded-md border border-app-base bg-app-bg px-2 py-1 text-xs text-app-muted transition hover:border-app-strong hover:text-white"
+                    className={taskTagLinkClass}
                   >
                     #{tag}
                   </Link>

@@ -46,6 +46,8 @@ type TaskFormProps = {
 const inputClass =
   "w-full rounded-xl border border-app-base bg-app-bg px-4 py-3 text-sm text-white outline-none transition placeholder:text-app-muted focus:border-app-focus";
 
+const dateInputClass = `${inputClass} min-w-0 appearance-none`;
+
 const chipBaseClass =
   "inline-flex h-9 cursor-pointer items-center justify-center rounded-full border px-3 text-sm font-medium transition";
 
@@ -273,7 +275,7 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
           name="dueDate"
           type="date"
           defaultValue={task?.dueDate ?? ""}
-          className={inputClass}
+          className={dateInputClass}
           aria-label="마감일"
         />
       </div>
