@@ -225,7 +225,10 @@ function buildTaskWhere(
       taskTags: {
         some: {
           tag: {
-            name: tag,
+            name: {
+              equals: tag,
+              mode: "insensitive",
+            },
           },
         },
       },

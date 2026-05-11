@@ -22,7 +22,7 @@ type TaskFilterFormProps = {
 };
 
 type TaskQueryUpdates = Partial<{
-  keyword: string;
+  keyword: string | null;
   status: TaskStatus | null;
   priority: TaskPriority | null;
   sort: TaskSortOption | null;
@@ -41,12 +41,30 @@ function getChipClass(isActive: boolean) {
     : `${chipBaseClass} border-app-base bg-app-bg text-app-soft`;
 }
 
+function parseHashTagSearch(value: string) {
+  const keyword = value.trim();
+
+  if (!keyword.startsWith("#")) {
+    return null;
+  }
+
+  const tag = keyword.slice(1);
+
+  if (!tag || tag.includes("#") || /\s/.test(tag)) {
+    return null;
+  }
+
+  return tag;
+}
+
 function createNextQuery(
   query: TaskQuery,
   updates: TaskQueryUpdates,
 ): TaskQuery {
   const keyword =
-    updates.keyword !== undefined ? updates.keyword.trim() : query.keyword;
+    updates.keyword !== undefined
+      ? updates.keyword?.trim() || null
+      : query.keyword;
   const status = updates.status !== undefined ? updates.status : query.status;
   const priority =
     updates.priority !== undefined ? updates.priority : query.priority;
@@ -113,6 +131,19 @@ export default function TaskFilterForm({
 
   const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const tag = parseHashTagSearch(keywordValue);
+
+    if (tag) {
+      setKeywordValue("");
+
+      navigateWithUpdates({
+        keyword: null,
+        tag,
+      });
+
+      return;
+    }
 
     navigateWithUpdates({
       keyword: keywordValue,
