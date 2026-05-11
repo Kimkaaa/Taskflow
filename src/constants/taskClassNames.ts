@@ -1,3 +1,7 @@
+// 뒤로가기
+export const backNavigationClass =
+  "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-app-soft";
+
 // 태그
 export const taskTagClass =
   "rounded-md border border-app-base bg-app-bg px-2 py-1 text-xs text-app-muted";
