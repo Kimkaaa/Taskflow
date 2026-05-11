@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { parseTaskFormData } from "@/lib/taskForm";
 import { requireTaskOwner, requireUser } from "@/lib/auth";
@@ -104,7 +104,7 @@ export async function createTask(
   });
 
   revalidatePath("/tasks");
-  redirect(`/tasks/${task.id}`);
+  redirect(`/tasks/${task.id}`, RedirectType.replace);
 }
 
 export async function updateTask(
@@ -158,7 +158,7 @@ export async function updateTask(
 
   revalidatePath("/tasks");
   revalidatePath(`/tasks/${taskId}`);
-  redirect(`/tasks/${taskId}`);
+  redirect(`/tasks/${taskId}`, RedirectType.replace);
 }
 
 export async function deleteTask(
@@ -183,7 +183,7 @@ export async function deleteTask(
 
   revalidatePath("/tasks");
   revalidatePath(`/tasks/${taskId}`);
-  redirect("/tasks");
+  redirect("/tasks", RedirectType.replace);
 }
 
 export async function completeTask(taskId: string) {

@@ -37,7 +37,7 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
       <section className={taskPageSectionClass}>
         <div className="mb-6">
-          <BackLink href={`/tasks/${task.id}`} label="작업 상세로 돌아가기" />
+          <BackLink href={`/tasks/${task.id}`} label="작업 상세로 돌아가기" replace />
         </div>
 
         <div className="rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm">

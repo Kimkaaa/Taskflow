@@ -40,6 +40,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
             <div className="flex items-center gap-2">
               <Link
                 href={`/tasks/${task.id}/edit`}
+                replace
                 className={taskEditActionButtonClass}
               >
                 <Pencil className="h-4 w-4" aria-hidden="true" />
