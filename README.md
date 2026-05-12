@@ -58,7 +58,7 @@ Next.js와 TypeScript로 구현했으며, Supabase를 통해 인증과 데이터
 
 검색, 태그, 필터링, 정렬 조건에 따라 작업을 확인할 수 있습니다.
 
-<img src="./docs/images/task-list.png" alt="작업 목록" width="450" />
+<img src="./docs/images/task-list.png" alt="작업 목록" width="500" />
 
 <br>
 
@@ -66,7 +66,7 @@ Next.js와 TypeScript로 구현했으며, Supabase를 통해 인증과 데이터
 
 작업 기본 정보와 체크리스트, 태그를 수정할 수 있습니다.
 
-<img src="./docs/images/task-edit.gif" alt="작업 수정" width="450" />
+<img src="./docs/images/task-edit.gif" alt="작업 수정" width="500" />
 
 <br>
 
@@ -74,7 +74,7 @@ Next.js와 TypeScript로 구현했으며, Supabase를 통해 인증과 데이터
 
 작업 내용과 체크리스트 진행 상태를 확인하고, 항목별 완료 상태를 변경할 수 있습니다.
 
-<img src="./docs/images/task-detail.gif" alt="작업 상세" width="450" />
+<img src="./docs/images/task-detail.gif" alt="작업 상세" width="500" />
 
 <br>
 <br>
