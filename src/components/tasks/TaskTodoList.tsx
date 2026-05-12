@@ -144,7 +144,7 @@ export default function TaskTodoList({
                         ? "체크리스트 미완료로 변경"
                         : "체크리스트 완료로 변경"
                     }
-                    className="mt-0.5 shrink-0 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-0.5 shrink-0 disabled:cursor-not-allowed"
                   >
                     {todo.isDone ? (
                       <CheckSquare
