@@ -1,5 +1,15 @@
 const DEFAULT_NEXT_PATH = "/tasks";
 
+function isAllowedNextPath(pathname: string) {
+  return (
+    pathname === "/tasks" ||
+    pathname.startsWith("/tasks/") ||
+    pathname === "/groups" ||
+    pathname.startsWith("/groups/") ||
+    pathname.startsWith("/invite/")
+  );
+}
+
 export function getSafeNextPath(value: string | null) {
   const next = value?.trim();
 
@@ -14,10 +24,7 @@ export function getSafeNextPath(value: string | null) {
   try {
     const url = new URL(next, "http://app.local");
 
-    const isTaskPath =
-      url.pathname === "/tasks" || url.pathname.startsWith("/tasks/");
-
-    if (!isTaskPath) {
+    if (!isAllowedNextPath(url.pathname)) {
       return DEFAULT_NEXT_PATH;
     }
 

@@ -44,6 +44,25 @@ export type GroupOption = {
   name: string;
 };
 
+export type ActiveGroupInvite = {
+  token: string;
+  invitePath: string;
+  expiresAt: string;
+  createdAt: string;
+};
+
+export type GroupInviteDetail = {
+  token: string;
+  group: {
+    id: string;
+    name: string;
+    memberCount: number;
+  };
+  expiresAt: string;
+  isAvailable: boolean;
+  isAlreadyMember: boolean;
+};
+
 function formatDate(value: Date) {
   return value.toISOString().slice(0, 10);
 }
@@ -206,6 +225,7 @@ export type GroupSettingsDetail = {
   isOwner: boolean;
   createdAt: string;
   members: GroupMemberSummary[];
+  activeInvite: ActiveGroupInvite | null;
 };
 
 export async function getGroupSettingsDetail(
@@ -226,6 +246,13 @@ export async function getGroupSettingsDetail(
       name: true,
       ownerId: true,
       createdAt: true,
+      invite: {
+        select: {
+          token: true,
+          expiresAt: true,
+          createdAt: true,
+        },
+      },
       members: {
         orderBy: {
           joinedAt: "asc",
@@ -248,6 +275,9 @@ export async function getGroupSettingsDetail(
     return null;
   }
 
+  const activeInvite =
+    group.invite && group.invite.expiresAt > new Date() ? group.invite : null;
+
   return {
     id: group.id,
     name: group.name,
@@ -261,5 +291,66 @@ export async function getGroupSettingsDetail(
       isOwner: member.userId === group.ownerId,
       joinedAt: formatDate(member.joinedAt),
     })),
+    activeInvite: activeInvite
+      ? {
+          token: activeInvite.token,
+          invitePath: `/invite/${activeInvite.token}`,
+          expiresAt: formatDate(activeInvite.expiresAt),
+          createdAt: formatDate(activeInvite.createdAt),
+        }
+      : null,
+  };
+}
+
+export async function getGroupInviteDetail(
+  token: string,
+  userId: string,
+): Promise<GroupInviteDetail | null> {
+  const invite = await prisma.groupInvite.findUnique({
+    where: {
+      token,
+    },
+    select: {
+      token: true,
+      expiresAt: true,
+      group: {
+        select: {
+          id: true,
+          name: true,
+          _count: {
+            select: {
+              members: true,
+            },
+          },
+          members: {
+            where: {
+              userId,
+            },
+            select: {
+              id: true,
+            },
+            take: 1,
+          },
+        },
+      },
+    },
+  });
+
+  if (!invite) {
+    return null;
+  }
+
+  const isExpired = invite.expiresAt <= new Date();
+
+  return {
+    token: invite.token,
+    group: {
+      id: invite.group.id,
+      name: invite.group.name,
+      memberCount: invite.group._count.members,
+    },
+    expiresAt: formatDate(invite.expiresAt),
+    isAvailable: !isExpired,
+    isAlreadyMember: invite.group.members.length > 0,
   };
 }

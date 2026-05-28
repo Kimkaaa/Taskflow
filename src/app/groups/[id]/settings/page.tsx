@@ -3,8 +3,11 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import GroupDangerForm from "@/components/groups/GroupDangerForm";
 import GroupForm from "@/components/groups/GroupForm";
+import GroupInviteSection from "@/components/groups/GroupInviteSection";
 import {
   deleteGroup,
+  deleteGroupInvite,
+  generateGroupInvite,
   leaveGroup,
   updateGroupName,
 } from "@/app/actions/groups";
@@ -31,6 +34,8 @@ export default async function GroupSettingsPage({
   const updateGroupNameWithId = updateGroupName.bind(null, group.id);
   const deleteGroupWithId = deleteGroup.bind(null, group.id);
   const leaveGroupWithId = leaveGroup.bind(null, group.id);
+  const generateGroupInviteWithId = generateGroupInvite.bind(null, group.id);
+  const deleteGroupInviteWithId = deleteGroupInvite.bind(null, group.id);
 
   return (
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
@@ -105,6 +110,14 @@ export default async function GroupSettingsPage({
               ))}
             </div>
           </section>
+
+          {group.isOwner ? (
+            <GroupInviteSection
+              activeInvite={group.activeInvite}
+              generateAction={generateGroupInviteWithId}
+              deleteAction={deleteGroupInviteWithId}
+            />
+          ) : null}
 
           <section className="rounded-2xl border border-red-500/30 bg-red-500/5 p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-red-200">위험 구역</h2>
