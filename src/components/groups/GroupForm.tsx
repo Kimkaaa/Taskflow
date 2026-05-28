@@ -13,12 +13,14 @@ type GroupFormProps = {
     prevState: GroupActionState,
     formData: FormData,
   ) => GroupActionState | Promise<GroupActionState>;
+  defaultName?: string;
+  submitLabel?: string;
 };
 
 const inputClass =
   "w-full rounded-xl border border-app-base bg-app-bg px-4 py-3 text-sm text-white outline-none transition placeholder:text-app-muted focus:border-app-focus";
 
-function SubmitButton() {
+function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
 
   return (
@@ -32,14 +34,18 @@ function SubmitButton() {
       ) : (
         <>
           <Plus className="h-4 w-4" aria-hidden="true" />
-          생성
+          {label}
         </>
       )}
     </button>
   );
 }
 
-export default function GroupForm({ action }: GroupFormProps) {
+export default function GroupForm({
+  action,
+  defaultName = "",
+  submitLabel = "생성",
+}: GroupFormProps) {
   const [state, formAction, isPending] = useActionState(
     action,
     initialGroupActionState,
@@ -52,6 +58,7 @@ export default function GroupForm({ action }: GroupFormProps) {
       <input
         name="name"
         type="text"
+        defaultValue={defaultName}
         placeholder="그룹명"
         className={inputClass}
         maxLength={30}
@@ -65,7 +72,7 @@ export default function GroupForm({ action }: GroupFormProps) {
       ) : null}
 
       <div className="flex justify-end">
-        <SubmitButton />
+        <SubmitButton label={submitLabel} />
       </div>
     </form>
   );

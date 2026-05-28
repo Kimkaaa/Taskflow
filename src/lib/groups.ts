@@ -198,3 +198,68 @@ export async function getMyGroupOptions(userId: string): Promise<GroupOption[]> 
     name: membership.group.name,
   }));
 }
+
+export type GroupSettingsDetail = {
+  id: string;
+  name: string;
+  ownerId: string;
+  isOwner: boolean;
+  createdAt: string;
+  members: GroupMemberSummary[];
+};
+
+export async function getGroupSettingsDetail(
+  groupId: string,
+  userId: string,
+): Promise<GroupSettingsDetail | null> {
+  const group = await prisma.group.findFirst({
+    where: {
+      id: groupId,
+      members: {
+        some: {
+          userId,
+        },
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      ownerId: true,
+      createdAt: true,
+      members: {
+        orderBy: {
+          joinedAt: "asc",
+        },
+        select: {
+          id: true,
+          userId: true,
+          joinedAt: true,
+          user: {
+            select: {
+              nickname: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!group) {
+    return null;
+  }
+
+  return {
+    id: group.id,
+    name: group.name,
+    ownerId: group.ownerId,
+    isOwner: group.ownerId === userId,
+    createdAt: formatDate(group.createdAt),
+    members: group.members.map((member) => ({
+      id: member.id,
+      userId: member.userId,
+      nickname: member.user.nickname,
+      isOwner: member.userId === group.ownerId,
+      joinedAt: formatDate(member.joinedAt),
+    })),
+  };
+}
