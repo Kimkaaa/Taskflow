@@ -2,22 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect, RedirectType } from "next/navigation";
+import { routes } from "@/constants/routes";
 import { prisma } from "@/lib/prisma";
-import { requireAppUser } from "@/lib/auth";
+import { requireAppUser, requireGroupOwner } from "@/lib/auth";
+import { parseGroupName, validateGroupName } from "@/lib/groupForm";
+import {
+  createGroupInviteExpiresAt,
+  createGroupInviteToken,
+  isGroupInviteExpired,
+} from "@/lib/groupInvite";
 import type { GroupActionState } from "@/types/groupAction";
-import { randomBytes } from "node:crypto";
-
-const GROUP_NAME_MAX_LENGTH = 30;
-
-const INVITE_EXPIRES_IN_DAYS = 7;
-
-function createInviteToken() {
-  return randomBytes(24).toString("base64url");
-}
-
-function createInviteExpiresAt() {
-  return new Date(Date.now() + INVITE_EXPIRES_IN_DAYS * 24 * 60 * 60 * 1000);
-}
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error) {
@@ -27,42 +21,18 @@ function getErrorMessage(error: unknown) {
   return "그룹을 저장하지 못했습니다.";
 }
 
-function parseGroupName(formData: FormData) {
-  const value = formData.get("name");
-
-  if (typeof value !== "string") {
-    return "";
-  }
-
-  return value.trim();
+function revalidateGroupsPath() {
+  revalidatePath(routes.groups);
 }
 
-function validateGroupName(name: string) {
-  if (!name) {
-    throw new Error("그룹명을 입력해주세요.");
-  }
-
-  if (name.length > GROUP_NAME_MAX_LENGTH) {
-    throw new Error(`그룹명은 ${GROUP_NAME_MAX_LENGTH}자 이하로 입력해주세요.`);
-  }
+function revalidateGroupPaths(groupId: string) {
+  revalidatePath(routes.groups);
+  revalidatePath(routes.groupDetail(groupId));
+  revalidatePath(routes.groupSettings(groupId));
 }
 
-async function requireGroupOwner(groupId: string, userId: string) {
-  const group = await prisma.group.findFirst({
-    where: {
-      id: groupId,
-      ownerId: userId,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!group) {
-    throw new Error("그룹을 관리할 권한이 없습니다.");
-  }
-
-  return group;
+function revalidateGroupSettingsPath(groupId: string) {
+  revalidatePath(routes.groupSettings(groupId));
 }
 
 export async function createGroup(
@@ -96,8 +66,8 @@ export async function createGroup(
     };
   }
 
-  revalidatePath("/groups");
-  redirect("/groups", RedirectType.replace);
+  revalidateGroupsPath();
+  redirect(routes.groups, RedirectType.replace);
 }
 
 export async function updateGroupName(
@@ -126,10 +96,8 @@ export async function updateGroupName(
     };
   }
 
-  revalidatePath("/groups");
-  revalidatePath(`/groups/${groupId}`);
-  revalidatePath(`/groups/${groupId}/settings`);
-  redirect(`/groups/${groupId}/settings`, RedirectType.replace);
+  revalidateGroupPaths(groupId);
+  redirect(routes.groupSettings(groupId), RedirectType.replace);
 }
 
 export async function deleteGroup(
@@ -166,9 +134,8 @@ export async function deleteGroup(
     };
   }
 
-  revalidatePath("/groups");
-  revalidatePath(`/groups/${groupId}`);
-  redirect("/groups", RedirectType.replace);
+  revalidateGroupPaths(groupId);
+  redirect(routes.groups, RedirectType.replace);
 }
 
 export async function leaveGroup(
@@ -230,9 +197,8 @@ export async function leaveGroup(
     };
   }
 
-  revalidatePath("/groups");
-  revalidatePath(`/groups/${groupId}`);
-  redirect("/groups", RedirectType.replace);
+  revalidateGroupPaths(groupId);
+  redirect(routes.groups, RedirectType.replace);
 }
 
 export async function generateGroupInvite(
@@ -245,8 +211,8 @@ export async function generateGroupInvite(
   try {
     await requireGroupOwner(groupId, user.id);
 
-    const token = createInviteToken();
-    const expiresAt = createInviteExpiresAt();
+    const token = createGroupInviteToken();
+    const expiresAt = createGroupInviteExpiresAt();
 
     await prisma.$transaction(async (tx) => {
       await tx.groupInvite.deleteMany({
@@ -269,8 +235,8 @@ export async function generateGroupInvite(
     };
   }
 
-  revalidatePath(`/groups/${groupId}/settings`);
-  redirect(`/groups/${groupId}/settings`, RedirectType.replace);
+  revalidateGroupSettingsPath(groupId);
+  redirect(routes.groupSettings(groupId), RedirectType.replace);
 }
 
 export async function deleteGroupInvite(
@@ -294,8 +260,8 @@ export async function deleteGroupInvite(
     };
   }
 
-  revalidatePath(`/groups/${groupId}/settings`);
-  redirect(`/groups/${groupId}/settings`, RedirectType.replace);
+  revalidateGroupSettingsPath(groupId);
+  redirect(routes.groupSettings(groupId), RedirectType.replace);
 }
 
 export async function acceptGroupInvite(
@@ -321,7 +287,7 @@ export async function acceptGroupInvite(
       throw new Error("초대 링크를 찾을 수 없습니다.");
     }
 
-    if (invite.expiresAt <= new Date()) {
+    if (isGroupInviteExpired(invite.expiresAt)) {
       throw new Error("만료된 초대 링크입니다.");
     }
 
@@ -352,8 +318,6 @@ export async function acceptGroupInvite(
     };
   }
 
-  revalidatePath("/groups");
-  revalidatePath(`/groups/${groupId}`);
-  revalidatePath(`/groups/${groupId}/settings`);
-  redirect(`/groups/${groupId}`, RedirectType.replace);
+  revalidateGroupPaths(groupId);
+  redirect(routes.groupDetail(groupId), RedirectType.replace);
 }

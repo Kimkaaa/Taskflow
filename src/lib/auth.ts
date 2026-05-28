@@ -75,3 +75,21 @@ export async function requireTaskOwner(taskId: string) {
     task,
   };
 }
+
+export async function requireGroupOwner(groupId: string, userId: string) {
+  const group = await prisma.group.findFirst({
+    where: {
+      id: groupId,
+      ownerId: userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!group) {
+    throw new Error("그룹을 관리할 권한이 없습니다.");
+  }
+
+  return group;
+}

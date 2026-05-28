@@ -1,4 +1,6 @@
+import { routes } from "@/constants/routes";
 import { prisma } from "@/lib/prisma";
+import { isGroupInviteExpired } from "@/lib/groupInvite";
 import type { TaskPriority, TaskStatus } from "@/types/task";
 
 export type GroupSummary = {
@@ -49,6 +51,16 @@ export type ActiveGroupInvite = {
   invitePath: string;
   expiresAt: string;
   createdAt: string;
+};
+
+export type GroupSettingsDetail = {
+  id: string;
+  name: string;
+  ownerId: string;
+  isOwner: boolean;
+  createdAt: string;
+  members: GroupMemberSummary[];
+  activeInvite: ActiveGroupInvite | null;
 };
 
 export type GroupInviteDetail = {
@@ -194,7 +206,9 @@ export async function getGroupDetail(
   };
 }
 
-export async function getMyGroupOptions(userId: string): Promise<GroupOption[]> {
+export async function getMyGroupOptions(
+  userId: string,
+): Promise<GroupOption[]> {
   const memberships = await prisma.groupMember.findMany({
     where: {
       userId,
@@ -217,16 +231,6 @@ export async function getMyGroupOptions(userId: string): Promise<GroupOption[]> 
     name: membership.group.name,
   }));
 }
-
-export type GroupSettingsDetail = {
-  id: string;
-  name: string;
-  ownerId: string;
-  isOwner: boolean;
-  createdAt: string;
-  members: GroupMemberSummary[];
-  activeInvite: ActiveGroupInvite | null;
-};
 
 export async function getGroupSettingsDetail(
   groupId: string,
@@ -276,7 +280,9 @@ export async function getGroupSettingsDetail(
   }
 
   const activeInvite =
-    group.invite && group.invite.expiresAt > new Date() ? group.invite : null;
+    group.invite && !isGroupInviteExpired(group.invite.expiresAt)
+      ? group.invite
+      : null;
 
   return {
     id: group.id,
@@ -294,7 +300,7 @@ export async function getGroupSettingsDetail(
     activeInvite: activeInvite
       ? {
           token: activeInvite.token,
-          invitePath: `/invite/${activeInvite.token}`,
+          invitePath: routes.invite(activeInvite.token),
           expiresAt: formatDate(activeInvite.expiresAt),
           createdAt: formatDate(activeInvite.createdAt),
         }
@@ -340,7 +346,7 @@ export async function getGroupInviteDetail(
     return null;
   }
 
-  const isExpired = invite.expiresAt <= new Date();
+  const isExpired = isGroupInviteExpired(invite.expiresAt);
 
   return {
     token: invite.token,

@@ -1,12 +1,14 @@
-const DEFAULT_NEXT_PATH = "/tasks";
+import { routePrefixes, routes } from "@/constants/routes";
+
+const DEFAULT_NEXT_PATH = routes.tasks;
 
 function isAllowedNextPath(pathname: string) {
   return (
-    pathname === "/tasks" ||
-    pathname.startsWith("/tasks/") ||
-    pathname === "/groups" ||
-    pathname.startsWith("/groups/") ||
-    pathname.startsWith("/invite/")
+    pathname === routes.tasks ||
+    pathname.startsWith(routePrefixes.tasks) ||
+    pathname === routes.groups ||
+    pathname.startsWith(routePrefixes.groups) ||
+    pathname.startsWith(routePrefixes.invite)
   );
 }
 

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import InviteAcceptForm from "@/components/groups/InviteAcceptForm";
 import { acceptGroupInvite } from "@/app/actions/groups";
+import { routes } from "@/constants/routes";
 import { getCurrentUser, requireAppUser } from "@/lib/auth";
 import { getGroupInviteDetail } from "@/lib/groups";
 
@@ -17,7 +18,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
-    redirect(`/login?next=${encodeURIComponent(`/invite/${token}`)}`);
+    redirect(`/login?next=${encodeURIComponent(routes.invite(token))}`);
   }
 
   const user = await requireAppUser();
@@ -30,7 +31,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
       <section className="mx-auto max-w-2xl">
         <div className="mb-6">
           <Link
-            href="/groups"
+            href={routes.groups}
             className="inline-flex items-center gap-2 text-sm font-medium text-app-muted transition hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />

@@ -1,0 +1,4 @@
+export const GROUP_NAME_MAX_LENGTH = 30;
+
+export const GROUP_INVITE_EXPIRES_IN_DAYS = 7;
+export const GROUP_INVITE_TOKEN_BYTES = 24;
