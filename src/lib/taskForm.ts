@@ -1,5 +1,5 @@
 import { TASK_FORM_LIMITS } from "@/constants/taskFormLimits";
-import type { TaskPriority, TaskStatus } from "@/types/task";
+import type { TaskPriority, TaskStatus, TaskVisibility } from "@/types/task";
 
 export type TaskFormTodoInput = {
   id: string | null;
@@ -15,11 +15,13 @@ export type TaskFormInput = {
   dueDate: string | null;
   tags: string[];
   todos: TaskFormTodoInput[];
-  isPublic: boolean;
+  visibility: TaskVisibility;
+  groupId: string | null;
 };
 
 const taskStatuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
 const taskPriorities: TaskPriority[] = ["LOW", "MEDIUM", "HIGH"];
+const taskVisibilities: TaskVisibility[] = ["PRIVATE", "GROUP", "PUBLIC"];
 
 function getStringValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -44,6 +46,10 @@ function isTaskStatus(value: string): value is TaskStatus {
 
 function isTaskPriority(value: string): value is TaskPriority {
   return taskPriorities.includes(value as TaskPriority);
+}
+
+function isTaskVisibility(value: string): value is TaskVisibility {
+  return taskVisibilities.includes(value as TaskVisibility);
 }
 
 function parseTags(value: string) {
@@ -130,6 +136,16 @@ function validateTodos(todos: TaskFormTodoInput[]) {
   }
 }
 
+function validateVisibility(visibility: TaskVisibility, groupId: string | null) {
+  if (visibility === "GROUP" && !groupId) {
+    throw new Error("그룹에 공유하려면 그룹을 선택해주세요.");
+  }
+
+  if (visibility !== "GROUP" && groupId) {
+    throw new Error("그룹 작업이 아닌 경우 그룹을 선택할 수 없습니다.");
+  }
+}
+
 export function parseTaskFormData(formData: FormData): TaskFormInput {
   const title = getStringValue(formData, "title");
   const description = getStringValue(formData, "description");
@@ -138,6 +154,8 @@ export function parseTaskFormData(formData: FormData): TaskFormInput {
   const dueDate = getStringValue(formData, "dueDate");
   const tags = parseTags(getStringValue(formData, "tags"));
   const todos = parseTodos(formData);
+  const visibilityValue = getStringValue(formData, "visibility") || "PRIVATE";
+  const groupIdValue = getStringValue(formData, "groupId") || null;
 
   if (!title) {
     throw new Error("작업 제목을 입력해주세요.");
@@ -163,9 +181,14 @@ export function parseTaskFormData(formData: FormData): TaskFormInput {
     throw new Error("올바르지 않은 중요도입니다.");
   }
 
+  if (!isTaskVisibility(visibilityValue)) {
+    throw new Error("올바르지 않은 공개 범위입니다.");
+  }
+
   validateDueDate(dueDate);
   validateTags(tags);
   validateTodos(todos);
+  validateVisibility(visibilityValue, groupIdValue);
 
   return {
     title,
@@ -175,6 +198,7 @@ export function parseTaskFormData(formData: FormData): TaskFormInput {
     dueDate: dueDate || null,
     tags,
     todos,
-    isPublic: formData.get("isPublic") === "on",
+    visibility: visibilityValue,
+    groupId: visibilityValue === "GROUP" ? groupIdValue : null,
   };
 }

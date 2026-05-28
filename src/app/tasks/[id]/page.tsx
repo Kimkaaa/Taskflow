@@ -63,7 +63,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
               </span>
             </div>
 
-            {!task.isPublic ? (
+            {task.visibility === "PRIVATE" ? (
               <span
                 className="mt-1 shrink-0 text-app-muted"
                 aria-label="비공개 작업"

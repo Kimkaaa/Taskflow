@@ -28,7 +28,13 @@ import {
 import SortableTodoItem, {
   type EditableTodo,
 } from "@/components/tasks/SortableTodoItem";
-import type { Task, TaskPriority, TaskStatus, TaskTodo } from "@/types/task";
+import type {
+  Task,
+  TaskPriority,
+  TaskStatus,
+  TaskTodo,
+  TaskVisibility,
+} from "@/types/task";
 import {
   initialTaskActionState,
   type TaskActionState,
@@ -54,12 +60,24 @@ const chipBaseClass =
 const submitButtonClass =
   "inline-flex h-11 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-80";
 
+const visibilityOptions: TaskVisibility[] = ["PRIVATE", "PUBLIC"];
+
+const visibilityLabels: Record<TaskVisibility, string> = {
+  PRIVATE: "나만 보기",
+  GROUP: "그룹에 공유",
+  PUBLIC: "전체 공개",
+};
+
 function getDefaultStatus(task?: Task): TaskStatus {
   return task?.status ?? "TODO";
 }
 
 function getDefaultPriority(task?: Task): TaskPriority {
   return task?.priority ?? "HIGH";
+}
+
+function getDefaultVisibility(task?: Task): TaskVisibility {
+  return task?.visibility ?? "PRIVATE";
 }
 
 function toEditableTodo(todo: TaskTodo): EditableTodo {
@@ -116,6 +134,7 @@ function SubmitButton({ label }: { label: string }) {
 export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
   const defaultStatus = getDefaultStatus(task);
   const defaultPriority = getDefaultPriority(task);
+  const defaultVisibility = getDefaultVisibility(task);
   const [todos, setTodos] = useState(() => getInitialTodos(task));
   const [isErrorHidden, setIsErrorHidden] = useState(false);
   const [state, formAction, isPending] = useActionState(
@@ -343,15 +362,27 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
       ) : null}
 
       <div className="flex items-center justify-between gap-4">
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-app-soft">
-          <input
-            type="checkbox"
-            name="isPublic"
-            defaultChecked={task?.isPublic ?? true}
-            className="h-4 w-4 cursor-pointer accent-app-base"
-          />
-          공개
-        </label>
+        <fieldset className="flex flex-wrap items-center gap-2">
+          <legend className="sr-only">공개 범위</legend>
+
+          {visibilityOptions.map((visibility) => (
+            <label key={visibility}>
+              <input
+                type="radio"
+                name="visibility"
+                value={visibility}
+                defaultChecked={defaultVisibility === visibility}
+                className="peer sr-only"
+              />
+
+              <span
+                className={`${chipBaseClass} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
+              >
+                {visibilityLabels[visibility]}
+              </span>
+            </label>
+          ))}
+        </fieldset>
 
         <div className="flex items-center gap-2">
           <button

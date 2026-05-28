@@ -2,12 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect, RedirectType } from "next/navigation";
+import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { parseTaskFormData } from "@/lib/taskForm";
-import { requireTaskOwner, requireUser } from "@/lib/auth";
+import { requireAppUser, requireTaskOwner } from "@/lib/auth";
 import type { TaskActionState } from "@/types/taskAction";
 
-type TagWriteClient = Pick<typeof prisma, "tag">;
+type ActionTransaction = Prisma.TransactionClient;
 
 function toDate(value: string | null) {
   if (!value) {
@@ -29,41 +30,82 @@ function getErrorMessage(error: unknown) {
   return "작업을 저장하지 못했습니다.";
 }
 
-async function getOrCreateTags(tags: string[], tx: TagWriteClient) {
+async function getOrCreateTags(tags: string[], tx: ActionTransaction) {
   const uniqueTags = removeDuplicateTags(tags);
-  const result = [];
 
-  for (const name of uniqueTags) {
-    const existingTag = await tx.tag.findFirst({
-      where: {
-        userId: null,
-        name,
-      },
-    });
+  return Promise.all(
+    uniqueTags.map((name) =>
+      tx.tag.upsert({
+        where: {
+          name,
+        },
+        update: {},
+        create: {
+          name,
+        },
+      }),
+    ),
+  );
+}
 
-    if (existingTag) {
-      result.push(existingTag);
-      continue;
+async function validateGroupVisibility(
+  visibility: "PRIVATE" | "GROUP" | "PUBLIC",
+  groupId: string | null,
+  userId: string,
+  tx: ActionTransaction,
+) {
+  if (visibility === "GROUP") {
+    if (!groupId) {
+      throw new Error("그룹에 공유하려면 그룹을 선택해주세요.");
     }
 
-    const createdTag = await tx.tag.create({
-      data: {
-        userId: null,
-        name,
+    const member = await tx.groupMember.findUnique({
+      where: {
+        groupId_userId: {
+          groupId,
+          userId,
+        },
+      },
+      select: {
+        id: true,
       },
     });
 
-    result.push(createdTag);
+    if (!member) {
+      throw new Error("선택한 그룹에 접근할 권한이 없습니다.");
+    }
+
+    return;
   }
 
-  return result;
+  if (groupId) {
+    throw new Error("그룹 작업이 아닌 경우 그룹을 선택할 수 없습니다.");
+  }
+}
+
+function getCompletedAt(
+  nextStatus: "TODO" | "IN_PROGRESS" | "DONE",
+  current?: {
+    status: "TODO" | "IN_PROGRESS" | "DONE";
+    completedAt: Date | null;
+  },
+) {
+  if (nextStatus !== "DONE") {
+    return null;
+  }
+
+  if (current?.status === "DONE") {
+    return current.completedAt ?? new Date();
+  }
+
+  return new Date();
 }
 
 export async function createTask(
   _prevState: TaskActionState,
   formData: FormData,
 ): Promise<TaskActionState> {
-  const user = await requireUser();
+  const user = await requireAppUser();
 
   let input;
 
@@ -76,17 +118,26 @@ export async function createTask(
   }
 
   const task = await prisma.$transaction(async (tx) => {
+    await validateGroupVisibility(
+      input.visibility,
+      input.groupId,
+      user.id,
+      tx,
+    );
+
     const tags = await getOrCreateTags(input.tags, tx);
 
     return tx.task.create({
       data: {
         userId: user.id,
+        groupId: input.groupId,
+        visibility: input.visibility,
         title: input.title,
         description: input.description,
         status: input.status,
         priority: input.priority,
         dueDate: toDate(input.dueDate),
-        isPublic: input.isPublic,
+        completedAt: getCompletedAt(input.status),
         todos: {
           create: input.todos.map((todo, index) => ({
             content: todo.content,
@@ -112,7 +163,7 @@ export async function updateTask(
   _prevState: TaskActionState,
   formData: FormData,
 ): Promise<TaskActionState> {
-  await requireTaskOwner(taskId);
+  const { user, task: currentTask } = await requireTaskOwner(taskId);
 
   let input;
 
@@ -125,6 +176,13 @@ export async function updateTask(
   }
 
   await prisma.$transaction(async (tx) => {
+    await validateGroupVisibility(
+      input.visibility,
+      input.groupId,
+      user.id,
+      tx,
+    );
+
     const tags = await getOrCreateTags(input.tags, tx);
 
     await tx.task.update({
@@ -132,12 +190,14 @@ export async function updateTask(
         id: taskId,
       },
       data: {
+        groupId: input.groupId,
+        visibility: input.visibility,
         title: input.title,
         description: input.description,
         status: input.status,
         priority: input.priority,
         dueDate: toDate(input.dueDate),
-        isPublic: input.isPublic,
+        completedAt: getCompletedAt(input.status, currentTask),
         todos: {
           deleteMany: {},
           create: input.todos.map((todo, index) => ({
@@ -166,7 +226,7 @@ export async function deleteTask(
   _prevState: TaskActionState,
   _formData: FormData,
 ): Promise<TaskActionState> {
-  const user = await requireUser();
+  const user = await requireAppUser();
 
   const result = await prisma.task.deleteMany({
     where: {
@@ -195,6 +255,7 @@ export async function completeTask(taskId: string) {
     },
     data: {
       status: "DONE",
+      completedAt: new Date(),
     },
   });
 

@@ -2,6 +2,8 @@ export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
 
 export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
 
+export type TaskVisibility = "PRIVATE" | "GROUP" | "PUBLIC";
+
 export type TaskSortOption =
   | "dueAsc"
   | "dueDesc"
@@ -28,15 +30,17 @@ export type TaskTodo = {
 
 export type Task = {
   id: string;
-  userId: string | null;
+  userId: string;
+  groupId: string | null;
+  visibility: TaskVisibility;
   title: string;
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
   dueDate: string | null;
+  completedAt: string | null;
   tags: string[];
   todos: TaskTodo[];
-  isPublic: boolean;
   createdAt: string;
   updatedAt: string;
 };

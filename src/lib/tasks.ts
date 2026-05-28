@@ -7,6 +7,7 @@ import type {
   TaskSortOption,
   TaskStatus,
   TaskTodo,
+  TaskVisibility,
 } from "@/types/task";
 
 const TASK_PAGE_SIZE = 3;
@@ -20,15 +21,23 @@ const taskSortOptions: TaskSortOption[] = [
   "priorityAsc",
 ];
 
+export const visibilityLabels: Record<TaskVisibility, string> = {
+  PRIVATE: "나만 보기",
+  GROUP: "그룹에 공유",
+  PUBLIC: "전체 공개",
+};
+
 const taskListSelect = {
   id: true,
   userId: true,
+  groupId: true,
+  visibility: true,
   title: true,
   description: true,
   status: true,
   priority: true,
   dueDate: true,
-  isPublic: true,
+  completedAt: true,
   createdAt: true,
   updatedAt: true,
   taskTags: {
@@ -103,14 +112,16 @@ function toTaskSummary(row: TaskListRow): Task {
   return {
     id: row.id,
     userId: row.userId,
+    groupId: row.groupId,
+    visibility: row.visibility,
     title: row.title,
     description: row.description,
     status: row.status,
     priority: row.priority,
     dueDate: row.dueDate ? formatDate(row.dueDate) : null,
+    completedAt: row.completedAt ? formatDate(row.completedAt) : null,
     tags: row.taskTags.map((taskTag) => taskTag.tag.name),
     todos: [],
-    isPublic: row.isPublic,
     createdAt: formatDate(row.createdAt),
     updatedAt: formatDate(row.updatedAt),
   };
@@ -120,14 +131,16 @@ function toTask(row: TaskDetailRow): Task {
   return {
     id: row.id,
     userId: row.userId,
+    groupId: row.groupId,
+    visibility: row.visibility,
     title: row.title,
     description: row.description,
     status: row.status,
     priority: row.priority,
     dueDate: row.dueDate ? formatDate(row.dueDate) : null,
+    completedAt: row.completedAt ? formatDate(row.completedAt) : null,
     tags: row.taskTags.map((taskTag) => taskTag.tag.name),
     todos: row.todos.map(toTaskTodo),
-    isPublic: row.isPublic,
     createdAt: formatDate(row.createdAt),
     updatedAt: formatDate(row.updatedAt),
   };
@@ -218,14 +231,14 @@ function getTaskOrderBy(
 function buildTaskVisibilityWhere(viewerId?: string): Prisma.TaskWhereInput {
   if (!viewerId) {
     return {
-      isPublic: true,
+      visibility: "PUBLIC",
     };
   }
 
   return {
     OR: [
       {
-        isPublic: true,
+        visibility: "PUBLIC",
       },
       {
         userId: viewerId,
