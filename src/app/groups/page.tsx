@@ -13,9 +13,7 @@ export default async function GroupsPage() {
         <div className="mb-6 flex items-center justify-between gap-4">
           <div>
             <p className="text-sm font-medium text-app-muted">Groups</p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight">
-              내 그룹
-            </h1>
+            <h1 className="mt-2 text-2xl font-bold tracking-tight">내 그룹</h1>
           </div>
 
           <Link
@@ -29,7 +27,9 @@ export default async function GroupsPage() {
 
         {groups.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-app-base bg-app-surface p-10 text-center">
-            <p className="font-semibold text-white">아직 속한 그룹이 없습니다.</p>
+            <p className="font-semibold text-white">
+              아직 속한 그룹이 없습니다.
+            </p>
             <p className="mt-2 text-sm text-app-muted">
               그룹을 만들어 함께 작업을 공유해보세요.
             </p>
@@ -37,9 +37,10 @@ export default async function GroupsPage() {
         ) : (
           <div className="grid gap-4">
             {groups.map((group) => (
-              <article
+              <Link
                 key={group.id}
-                className="rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm"
+                href={`/groups/${group.id}`}
+                className="block rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm transition hover:-translate-y-0.5 hover:bg-app-surface-hover hover:shadow-md"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -69,7 +70,7 @@ export default async function GroupsPage() {
                     <p className="mt-1">작업 {group.taskCount}개</p>
                   </div>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}
