@@ -40,6 +40,11 @@ import {
   type TaskActionState,
 } from "@/types/taskAction";
 
+type TaskFormGroupOption = {
+  id: string;
+  name: string;
+};
+
 type TaskFormProps = {
   action: (
     prevState: TaskActionState,
@@ -47,6 +52,8 @@ type TaskFormProps = {
   ) => TaskActionState | Promise<TaskActionState>;
   task?: Task;
   submitLabel: string;
+  groups?: TaskFormGroupOption[];
+  defaultGroupId?: string | null;
 };
 
 const inputClass =
@@ -60,13 +67,15 @@ const chipBaseClass =
 const submitButtonClass =
   "inline-flex h-11 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-80";
 
-const visibilityOptions: TaskVisibility[] = ["PRIVATE", "PUBLIC"];
-
 const visibilityLabels: Record<TaskVisibility, string> = {
   PRIVATE: "나만 보기",
   GROUP: "그룹에 공유",
   PUBLIC: "전체 공개",
 };
+
+function getVisibilityOptions(hasGroups: boolean): TaskVisibility[] {
+  return hasGroups ? ["PRIVATE", "GROUP", "PUBLIC"] : ["PRIVATE", "PUBLIC"];
+}
 
 function getDefaultStatus(task?: Task): TaskStatus {
   return task?.status ?? "TODO";
@@ -76,8 +85,18 @@ function getDefaultPriority(task?: Task): TaskPriority {
   return task?.priority ?? "HIGH";
 }
 
-function getDefaultVisibility(task?: Task): TaskVisibility {
-  return task?.visibility ?? "PRIVATE";
+function getDefaultVisibility({
+  task,
+  defaultGroupId,
+}: {
+  task?: Task;
+  defaultGroupId?: string | null;
+}): TaskVisibility {
+  if (task) {
+    return task.visibility;
+  }
+
+  return defaultGroupId ? "GROUP" : "PRIVATE";
 }
 
 function toEditableTodo(todo: TaskTodo): EditableTodo {
@@ -131,11 +150,22 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
-export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
+export default function TaskForm({
+  action,
+  task,
+  submitLabel,
+  groups = [],
+  defaultGroupId = null,
+}: TaskFormProps) {
   const defaultStatus = getDefaultStatus(task);
   const defaultPriority = getDefaultPriority(task);
-  const defaultVisibility = getDefaultVisibility(task);
+  const defaultVisibility = getDefaultVisibility({ task, defaultGroupId });
+  const defaultSelectedGroupId = task?.groupId ?? defaultGroupId ?? "";
+  const visibilityOptions = getVisibilityOptions(groups.length > 0);
+
   const [todos, setTodos] = useState(() => getInitialTodos(task));
+  const [selectedVisibility, setSelectedVisibility] =
+    useState<TaskVisibility>(defaultVisibility);
   const [isErrorHidden, setIsErrorHidden] = useState(false);
   const [state, formAction, isPending] = useActionState(
     action,
@@ -191,8 +221,9 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
     });
   };
 
-  const handleResetTodos = () => {
+  const handleResetForm = () => {
     setTodos(getInitialTodos(task));
+    setSelectedVisibility(defaultVisibility);
     setIsErrorHidden(true);
   };
 
@@ -361,33 +392,55 @@ export default function TaskForm({ action, task, submitLabel }: TaskFormProps) {
         </p>
       ) : null}
 
-      <div className="flex items-center justify-between gap-4">
-        <fieldset className="flex flex-wrap items-center gap-2">
-          <legend className="sr-only">공개 범위</legend>
+      <div className="flex items-end justify-between gap-4">
+        <div className="space-y-3">
+          <fieldset className="flex flex-wrap items-center gap-2">
+            <legend className="sr-only">공개 범위</legend>
 
-          {visibilityOptions.map((visibility) => (
-            <label key={visibility}>
-              <input
-                type="radio"
-                name="visibility"
-                value={visibility}
-                defaultChecked={defaultVisibility === visibility}
-                className="peer sr-only"
-              />
+            {visibilityOptions.map((visibility) => (
+              <label key={visibility}>
+                <input
+                  type="radio"
+                  name="visibility"
+                  value={visibility}
+                  defaultChecked={defaultVisibility === visibility}
+                  onChange={() => {
+                    setSelectedVisibility(visibility);
+                  }}
+                  className="peer sr-only"
+                />
 
-              <span
-                className={`${chipBaseClass} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
-              >
-                {visibilityLabels[visibility]}
-              </span>
-            </label>
-          ))}
-        </fieldset>
+                <span
+                  className={`${chipBaseClass} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
+                >
+                  {visibilityLabels[visibility]}
+                </span>
+              </label>
+            ))}
+          </fieldset>
+
+          {selectedVisibility === "GROUP" ? (
+            <select
+              name="groupId"
+              defaultValue={defaultSelectedGroupId}
+              className={inputClass}
+              required
+            >
+              <option value="">그룹 선택</option>
+
+              {groups.map((group) => (
+                <option key={group.id} value={group.id}>
+                  {group.name}
+                </option>
+              ))}
+            </select>
+          ) : null}
+        </div>
 
         <div className="flex items-center gap-2">
           <button
             type="reset"
-            onClick={handleResetTodos}
+            onClick={handleResetForm}
             className="inline-flex h-11 w-11 cursor-pointer items-center justify-center text-app-muted transition hover:text-white"
             aria-label="초기화"
             title="초기화"

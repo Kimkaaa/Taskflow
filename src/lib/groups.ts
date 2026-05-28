@@ -39,6 +39,11 @@ export type GroupDetail = {
   tasks: GroupTaskSummary[];
 };
 
+export type GroupOption = {
+  id: string;
+  name: string;
+};
+
 function formatDate(value: Date) {
   return value.toISOString().slice(0, 10);
 }
@@ -168,4 +173,28 @@ export async function getGroupDetail(
       createdAt: formatDate(task.createdAt),
     })),
   };
+}
+
+export async function getMyGroupOptions(userId: string): Promise<GroupOption[]> {
+  const memberships = await prisma.groupMember.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      joinedAt: "desc",
+    },
+    select: {
+      group: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  return memberships.map((membership) => ({
+    id: membership.group.id,
+    name: membership.group.name,
+  }));
 }
