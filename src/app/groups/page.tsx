@@ -9,19 +9,16 @@ export default async function GroupsPage() {
 
   return (
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
-      <section className="mx-auto max-w-4xl">
+      <section className="mx-auto max-w-2xl">
         <div className="mb-6 flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium text-app-muted">Groups</p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight">내 그룹</h1>
-          </div>
+          <h1 className="text-2xl font-bold tracking-tight">내 그룹</h1>
 
           <Link
             href="/groups/new"
-            className="inline-flex h-11 items-center gap-2 rounded-xl bg-app-base/80 px-4 text-sm font-semibold text-white transition hover:bg-app-base"
+            className="inline-flex h-10 w-20 items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white"
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
-            그룹 생성
+            생성
           </Link>
         </div>
 
@@ -42,7 +39,7 @@ export default async function GroupsPage() {
                 href={`/groups/${group.id}`}
                 className="block rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm transition hover:-translate-y-0.5 hover:bg-app-surface-hover hover:shadow-md"
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center justify-between gap-4">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="text-xl font-bold text-white">

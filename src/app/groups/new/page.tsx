@@ -16,12 +16,9 @@ export default function NewGroupPage() {
             그룹 목록으로 돌아가기
           </Link>
 
-          <div className="mt-6">
-            <p className="text-sm font-medium text-app-muted">New Group</p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight">
-              그룹 생성
-            </h1>
-          </div>
+          <h1 className="mt-6 text-2xl font-bold tracking-tight">
+            그룹 생성
+          </h1>
         </div>
 
         <div className="rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm">
