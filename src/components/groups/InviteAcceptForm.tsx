@@ -23,14 +23,14 @@ function SubmitButton({ isAlreadyMember }: { isAlreadyMember: boolean }) {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-app-base/80 px-5 text-sm font-semibold text-white transition hover:bg-app-base disabled:cursor-wait disabled:opacity-80"
+      className="inline-flex h-10 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white disabled:cursor-wait"
     >
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
       ) : (
         <>
           <UserPlus className="h-4 w-4" aria-hidden="true" />
-          {isAlreadyMember ? "그룹으로 이동" : "그룹 참여"}
+          {isAlreadyMember ? "이동" : "참여"}
         </>
       )}
     </button>

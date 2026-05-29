@@ -38,12 +38,9 @@ export default async function InvitePage({ params }: InvitePageProps) {
             그룹 목록으로 돌아가기
           </Link>
 
-          <div className="mt-6">
-            <p className="text-sm font-medium text-app-muted">Group Invite</p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight">
-              그룹 초대
-            </h1>
-          </div>
+          <h1 className="mt-6 text-2xl font-bold tracking-tight">
+            그룹 초대
+          </h1>
         </div>
 
         <section className="rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm">
@@ -54,8 +51,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
               </h2>
 
               <p className="mt-3 text-sm leading-6 text-app-muted">
-                링크가 잘못되었거나 취소 또는 재발급되어 더 이상 사용할 수 없는
-                초대 링크입니다.
+                잘못되었거나 삭제된 링크입니다.
               </p>
             </>
           ) : !invite.isAvailable ? (
@@ -65,8 +61,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
               </h2>
 
               <p className="mt-3 text-sm leading-6 text-app-muted">
-                초대 링크가 만료되었습니다. 그룹 리더에게 새 초대 링크를
-                요청해주세요.
+                그룹 리더에게 새 링크를 요청해주세요.
               </p>
             </>
           ) : (
@@ -76,21 +71,18 @@ export default async function InvitePage({ params }: InvitePageProps) {
               </h2>
 
               <p className="mt-3 text-sm leading-6 text-app-muted">
-                이 그룹에 참여하면 그룹에 공유된 작업을 확인할 수 있습니다.
+                {invite.isAlreadyMember
+                  ? "이미 참여 중인 그룹입니다."
+                  : "참여하면 그룹 작업을 확인할 수 있습니다."}
               </p>
 
-              <div className="mt-5 rounded-xl border border-app-base bg-app-bg px-4 py-3 text-sm text-app-soft">
-                <p>현재 멤버 {invite.group.memberCount}명</p>
-                <p className="mt-1">초대 만료일 {invite.expiresAt}</p>
+              {!invite.isAlreadyMember ? (
+                <div className="mt-5 rounded-xl border border-app-base bg-app-bg px-4 py-3 text-sm text-app-soft">
+                  <p>만료일 {invite.expiresAt}</p>
+                </div>
+              ) : null}
 
-                {invite.isAlreadyMember ? (
-                  <p className="mt-1 text-app-muted">
-                    이미 참여 중인 그룹입니다.
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="mt-6">
+              <div className={invite.isAlreadyMember ? "mt-5" : "mt-6"}>
                 <InviteAcceptForm
                   action={acceptGroupInviteWithToken}
                   isAlreadyMember={invite.isAlreadyMember}
