@@ -37,9 +37,22 @@ export default async function GroupSettingsPage({
   const generateGroupInviteWithId = generateGroupInvite.bind(null, group.id);
   const deleteGroupInviteWithId = deleteGroupInvite.bind(null, group.id);
 
+  const dangerTitle = group.isOwner ? "그룹 삭제" : "그룹 나가기";
+
+  const dangerDescription = group.isOwner
+    ? "그룹을 삭제하면 멤버 정보와 초대 링크가 삭제되고, 공유된 작업은 개인 작업으로 전환됩니다."
+    : "그룹을 나가면 그룹 작업을 더 이상 볼 수 없고, 내가 공유한 작업은 개인 작업으로 전환됩니다.";
+
+  const dangerAction = group.isOwner ? deleteGroupWithId : leaveGroupWithId;
+  const dangerLabel = group.isOwner ? "삭제" : "나가기";
+
+  const dangerConfirmMessage = group.isOwner
+    ? "그룹을 삭제할까요? 그룹 작업은 개인 작업으로 전환됩니다."
+    : "그룹을 나갈까요? 내가 공유한 그룹 작업은 개인 작업으로 전환됩니다.";
+
   return (
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
-      <section className="mx-auto max-w-4xl">
+      <section className="mx-auto max-w-2xl">
         <div className="mb-6">
           <Link
             href={`/groups/${group.id}`}
@@ -49,12 +62,9 @@ export default async function GroupSettingsPage({
             그룹 상세로 돌아가기
           </Link>
 
-          <div className="mt-6">
-            <p className="text-sm font-medium text-app-muted">Group Settings</p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight">
-              그룹 관리
-            </h1>
-          </div>
+          <h1 className="mt-6 text-2xl font-bold tracking-tight">
+            그룹 관리
+          </h1>
         </div>
 
         <div className="grid gap-6">
@@ -120,40 +130,19 @@ export default async function GroupSettingsPage({
           ) : null}
 
           <section className="rounded-2xl border border-red-500/30 bg-red-500/5 p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-red-200">위험 구역</h2>
+            <h2 className="text-sm font-semibold text-red-200">{dangerTitle}</h2>
 
-            {group.isOwner ? (
-              <>
-                <p className="mt-2 text-sm leading-6 text-red-200/80">
-                  그룹을 삭제하면 그룹 멤버와 초대 링크가 삭제됩니다. 그룹에
-                  공유된 작업은 삭제되지 않고 각 작성자의 개인 작업으로
-                  전환됩니다.
-                </p>
+            <p className="mt-2 text-sm leading-6 text-red-200/80">
+              {dangerDescription}
+            </p>
 
-                <div className="mt-5">
-                  <GroupDangerForm
-                    action={deleteGroupWithId}
-                    label="그룹 삭제"
-                    confirmMessage="그룹을 삭제할까요? 그룹 작업은 개인 작업으로 전환됩니다."
-                  />
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="mt-2 text-sm leading-6 text-red-200/80">
-                  그룹을 나가면 이 그룹의 작업 목록을 더 이상 볼 수 없습니다.
-                  내가 이 그룹에 공유한 작업은 개인 작업으로 전환됩니다.
-                </p>
-
-                <div className="mt-5">
-                  <GroupDangerForm
-                    action={leaveGroupWithId}
-                    label="그룹 나가기"
-                    confirmMessage="그룹을 나갈까요? 내가 공유한 그룹 작업은 개인 작업으로 전환됩니다."
-                  />
-                </div>
-              </>
-            )}
+            <div className="mt-5">
+              <GroupDangerForm
+                action={dangerAction}
+                label={dangerLabel}
+                confirmMessage={dangerConfirmMessage}
+              />
+            </div>
           </section>
         </div>
       </section>

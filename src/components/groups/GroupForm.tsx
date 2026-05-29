@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import { LoaderCircle, Plus } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import {
   initialGroupActionState,
   type GroupActionState,
@@ -27,15 +27,12 @@ function SubmitButton({ label }: { label: string }) {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-app-base/80 px-4 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-80"
+      className="inline-flex h-10 w-20 cursor-pointer items-center justify-center rounded-xl bg-app-base/80 text-sm font-semibold text-white disabled:cursor-wait"
     >
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
       ) : (
-        <>
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          {label}
-        </>
+          label
       )}
     </button>
   );
