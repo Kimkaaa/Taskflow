@@ -25,7 +25,7 @@ export default async function GroupDetailPage({
 
   return (
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
-      <section className="mx-auto max-w-5xl">
+      <section className="mx-auto max-w-2xl">
         <div className="mb-6 flex items-center justify-between gap-4">
           <Link
             href="/groups"
@@ -38,10 +38,10 @@ export default async function GroupDetailPage({
           {group.isOwner ? (
             <Link
               href={`/groups/${group.id}/settings`}
-              className="inline-flex h-10 items-center gap-2 rounded-xl border border-app-base bg-app-surface px-3 text-sm font-medium text-app-soft transition hover:bg-app-surface-hover hover:text-white"
+              className="inline-flex h-10 w-20 items-center justify-center gap-2 rounded-xl border border-app-base bg-app-surface text-sm font-medium text-app-soft"
             >
               <Settings className="h-4 w-4" aria-hidden="true" />
-              그룹 관리
+              관리
             </Link>
           ) : null}
         </div>
@@ -69,8 +69,8 @@ export default async function GroupDetailPage({
           </p>
         </header>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[260px_1fr]">
-          <aside className="rounded-2xl border border-app-base bg-app-surface p-5 shadow-sm">
+        <div className="mt-6 grid gap-6">
+          <section className="rounded-2xl border border-app-base bg-app-surface p-5 shadow-sm">
             <h2 className="text-sm font-semibold text-white">멤버</h2>
 
             <div className="mt-4 space-y-3">
@@ -99,7 +99,7 @@ export default async function GroupDetailPage({
                 </div>
               ))}
             </div>
-          </aside>
+          </section>
 
           <section className="rounded-2xl border border-app-base bg-app-surface p-5 shadow-sm">
             <div className="flex items-center justify-between gap-4">
