@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import GroupDangerForm from "@/components/groups/GroupDangerForm";
 import GroupForm from "@/components/groups/GroupForm";
 import GroupInviteSection from "@/components/groups/GroupInviteSection";
@@ -13,6 +11,8 @@ import {
 } from "@/app/actions/groups";
 import { requireAppUser } from "@/lib/auth";
 import { getGroupSettingsDetail } from "@/lib/groups";
+import BackLink from "@/components/common/BackLink";
+import { routes } from "@/constants/routes";
 
 type GroupSettingsPageProps = {
   params: Promise<{
@@ -53,16 +53,10 @@ export default async function GroupSettingsPage({
   return (
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
       <section className="mx-auto max-w-2xl">
-        <div className="mb-6">
-          <Link
-            href={`/groups/${group.id}`}
-            className="inline-flex items-center gap-2 text-sm font-medium text-app-muted transition hover:text-white"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            그룹 상세로 돌아가기
-          </Link>
+        <div className="mb-6 flex items-center gap-2">
+          <BackLink href={routes.groupDetail(group.id)} label="그룹 상세로 돌아가기" />
 
-          <h1 className="mt-6 text-2xl font-bold tracking-tight">
+          <h1 className="text-lg font-bold tracking-tight">
             그룹 관리
           </h1>
         </div>

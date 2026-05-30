@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
-// import { taskTagClass } from "@/constants/taskClassNames";
 import { requireAppUser } from "@/lib/auth";
 import { getGroupDetail } from "@/lib/groups";
+import BackLink from "@/components/common/BackLink";
+import { routes } from "@/constants/routes";
 
 type GroupDetailPageProps = {
   params: Promise<{
@@ -27,13 +28,7 @@ export default async function GroupDetailPage({
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
       <section className="mx-auto max-w-2xl">
         <div className="mb-6 flex items-center justify-between gap-4">
-          <Link
-            href="/groups"
-            className="inline-flex items-center gap-2 text-sm font-medium text-app-muted transition hover:text-white"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            그룹 목록으로 돌아가기
-          </Link>
+          <BackLink href={routes.groups} label="그룹 목록으로 돌아가기" />
 
           {group.isOwner ? (
             <Link
@@ -48,7 +43,7 @@ export default async function GroupDetailPage({
 
         <header className="rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-white">
+            <h1 className="text-lg font-bold text-white">
               {group.name}
             </h1>
 

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireAppUser } from "@/lib/auth";
 import { getMyGroups } from "@/lib/groups";
+import BackLink from "@/components/common/BackLink";
+import { routes } from "@/constants/routes";
 
 export default async function GroupsPage() {
   const user = await requireAppUser();
@@ -11,10 +13,14 @@ export default async function GroupsPage() {
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
       <section className="mx-auto max-w-2xl">
         <div className="mb-6 flex items-center justify-between gap-4">
-          <h1 className="text-2xl font-bold tracking-tight">내 그룹</h1>
+          <div className="flex items-center gap-2">
+            <BackLink href={routes.tasks} label="작업 목록으로 돌아가기" />
+
+            <h1 className="text-lg font-bold tracking-tight">내 그룹</h1>
+          </div>
 
           <Link
-            href="/groups/new"
+            href={routes.groupsNew}
             className="inline-flex h-10 w-20 items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white"
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
@@ -42,7 +48,7 @@ export default async function GroupsPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-xl font-bold text-white">
+                      <h2 className="text-lg font-bold text-white">
                         {group.name}
                       </h2>
 
@@ -57,15 +63,22 @@ export default async function GroupsPage() {
                       )}
                     </div>
 
-                    <p className="mt-2 text-sm text-app-muted">
+                    <p className="mt-3 text-sm text-app-muted">
                       참여일 {group.joinedAt}
                     </p>
                   </div>
 
-                  <div className="shrink-0 text-right text-sm text-app-soft">
-                    <p>멤버 {group.memberCount}명</p>
-                    <p className="mt-1">작업 {group.taskCount}개</p>
-                  </div>
+                  <dl className="grid shrink-0 grid-cols-[auto_auto] gap-x-3 gap-y-2 text-sm text-app-soft">
+                    <dt className="text-app-muted">멤버</dt>
+                    <dd className="min-w-10 text-right tabular-nums">
+                      {group.memberCount}명
+                    </dd>
+
+                    <dt className="text-app-muted">작업</dt>
+                    <dd className="min-w-10 text-right tabular-nums">
+                      {group.taskCount}개
+                    </dd>
+                  </dl>
                 </div>
               </Link>
             ))}
