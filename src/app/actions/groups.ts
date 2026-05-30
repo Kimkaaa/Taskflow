@@ -5,7 +5,10 @@ import { redirect, RedirectType } from "next/navigation";
 import { routes } from "@/constants/routes";
 import { prisma } from "@/lib/prisma";
 import { requireAppUser, requireGroupOwner } from "@/lib/auth";
-import { parseGroupName, validateGroupName } from "@/lib/groupForm";
+import {
+  parseGroupFormData,
+  validateGroupFormInput,
+} from "@/lib/groupForm";
 import {
   createGroupInviteExpiresAt,
   createGroupInviteToken,
@@ -40,15 +43,16 @@ export async function createGroup(
   formData: FormData,
 ): Promise<GroupActionState> {
   const user = await requireAppUser();
-  const name = parseGroupName(formData);
+  const input = parseGroupFormData(formData);
 
   try {
-    validateGroupName(name);
+    validateGroupFormInput(input);
 
     await prisma.$transaction(async (tx) => {
       const group = await tx.group.create({
         data: {
-          name,
+          name: input.name,
+          description: input.description,
           ownerId: user.id,
         },
       });
@@ -70,16 +74,16 @@ export async function createGroup(
   redirect(routes.groups, RedirectType.replace);
 }
 
-export async function updateGroupName(
+export async function updateGroupInfo(
   groupId: string,
   _prevState: GroupActionState,
   formData: FormData,
 ): Promise<GroupActionState> {
   const user = await requireAppUser();
-  const name = parseGroupName(formData);
+  const input = parseGroupFormData(formData);
 
   try {
-    validateGroupName(name);
+    validateGroupFormInput(input);
     await requireGroupOwner(groupId, user.id);
 
     await prisma.group.update({
@@ -87,7 +91,8 @@ export async function updateGroupName(
         id: groupId,
       },
       data: {
-        name,
+        name: input.name,
+        description: input.description,
       },
     });
   } catch (error) {

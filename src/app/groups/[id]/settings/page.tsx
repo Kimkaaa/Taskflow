@@ -7,7 +7,7 @@ import {
   deleteGroupInvite,
   generateGroupInvite,
   leaveGroup,
-  updateGroupName,
+  updateGroupInfo,
 } from "@/app/actions/groups";
 import { requireAppUser } from "@/lib/auth";
 import { getGroupSettingsDetail } from "@/lib/groups";
@@ -31,7 +31,7 @@ export default async function GroupSettingsPage({
     notFound();
   }
 
-  const updateGroupNameWithId = updateGroupName.bind(null, group.id);
+  const updateGroupInfoWithId = updateGroupInfo.bind(null, group.id);
   const deleteGroupWithId = deleteGroup.bind(null, group.id);
   const leaveGroupWithId = leaveGroup.bind(null, group.id);
   const generateGroupInviteWithId = generateGroupInvite.bind(null, group.id);
@@ -72,14 +72,15 @@ export default async function GroupSettingsPage({
             {group.isOwner ? (
               <div className="mt-5">
                 <GroupForm
-                  action={updateGroupNameWithId}
+                  action={updateGroupInfoWithId}
                   defaultName={group.name}
+                  defaultDescription={group.description}
                   submitLabel="저장"
                 />
               </div>
             ) : (
               <p className="mt-5 text-sm text-app-soft">
-                그룹명은 리더만 수정할 수 있습니다.
+                그룹 정보는 리더만 수정할 수 있습니다.
               </p>
             )}
           </section>

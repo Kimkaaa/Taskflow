@@ -58,6 +58,12 @@ export default async function GroupDetailPage({
             )}
           </div>
 
+          {group.description ? (
+            <p className="mt-3 text-sm leading-6 text-app-soft">
+              {group.description}
+            </p>
+          ) : null}
+
           <p className="mt-3 text-sm text-app-muted">
             생성일 {group.createdAt} · 멤버 {group.members.length}명 · 그룹 작업{" "}
             {group.tasks.length}개

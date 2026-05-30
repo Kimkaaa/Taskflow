@@ -34,6 +34,7 @@ export type GroupTaskSummary = {
 export type GroupDetail = {
   id: string;
   name: string;
+  description: string;
   ownerId: string;
   isOwner: boolean;
   createdAt: string;
@@ -56,6 +57,7 @@ export type ActiveGroupInvite = {
 export type GroupSettingsDetail = {
   id: string;
   name: string;
+  description: string;
   ownerId: string;
   isOwner: boolean;
   createdAt: string;
@@ -132,6 +134,7 @@ export async function getGroupDetail(
     select: {
       id: true,
       name: true,
+      description: true,
       ownerId: true,
       createdAt: true,
       members: {
@@ -184,6 +187,7 @@ export async function getGroupDetail(
   return {
     id: group.id,
     name: group.name,
+    description: group.description,
     ownerId: group.ownerId,
     isOwner: group.ownerId === userId,
     createdAt: formatDate(group.createdAt),
@@ -248,6 +252,7 @@ export async function getGroupSettingsDetail(
     select: {
       id: true,
       name: true,
+      description: true,
       ownerId: true,
       createdAt: true,
       invite: {
@@ -287,6 +292,7 @@ export async function getGroupSettingsDetail(
   return {
     id: group.id,
     name: group.name,
+    description: group.description,
     ownerId: group.ownerId,
     isOwner: group.ownerId === userId,
     createdAt: formatDate(group.createdAt),

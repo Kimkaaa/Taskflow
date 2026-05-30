@@ -7,6 +7,10 @@ import {
   initialGroupActionState,
   type GroupActionState,
 } from "@/types/groupAction";
+import {
+  GROUP_DESCRIPTION_MAX_LENGTH,
+  GROUP_NAME_MAX_LENGTH,
+} from "@/constants/group";
 
 type GroupFormProps = {
   action: (
@@ -14,6 +18,7 @@ type GroupFormProps = {
     formData: FormData,
   ) => GroupActionState | Promise<GroupActionState>;
   defaultName?: string;
+  defaultDescription?: string;
   submitLabel?: string;
 };
 
@@ -32,7 +37,7 @@ function SubmitButton({ label }: { label: string }) {
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
       ) : (
-          label
+        label
       )}
     </button>
   );
@@ -41,6 +46,7 @@ function SubmitButton({ label }: { label: string }) {
 export default function GroupForm({
   action,
   defaultName = "",
+  defaultDescription = "",
   submitLabel = "생성",
 }: GroupFormProps) {
   const [state, formAction, isPending] = useActionState(
@@ -58,8 +64,17 @@ export default function GroupForm({
         defaultValue={defaultName}
         placeholder="그룹명"
         className={inputClass}
-        maxLength={30}
+        maxLength={GROUP_NAME_MAX_LENGTH}
         required
+      />
+
+      <input
+        name="description"
+        type="text"
+        defaultValue={defaultDescription}
+        placeholder="그룹 설명"
+        className={inputClass}
+        maxLength={GROUP_DESCRIPTION_MAX_LENGTH}
       />
 
       {shouldShowError ? (
