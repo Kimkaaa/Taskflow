@@ -8,6 +8,7 @@ import {
   dialogCancelButtonClass,
   dialogDangerButtonClass,
 } from "@/constants/taskClassNames";
+import BlockingOverlay from "@/components/common/BlockingOverlay";
 import {
   initialGroupActionState,
   type GroupActionState,
@@ -22,6 +23,7 @@ type GroupDangerFormProps = {
   confirmTitle: string;
   confirmDescription: string;
   errorTitle: string;
+  pendingMessage: string;
 };
 
 function SubmitButton({ label }: { label: string }) {
@@ -50,6 +52,7 @@ export default function GroupDangerForm({
   confirmTitle,
   confirmDescription,
   errorTitle,
+  pendingMessage,
 }: GroupDangerFormProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -95,6 +98,8 @@ export default function GroupDangerForm({
           <SubmitButton label={label} />
         </form>
       </ConfirmDialog>
+
+      {isPending ? <BlockingOverlay message={pendingMessage} /> : null}
     </>
   );
 }

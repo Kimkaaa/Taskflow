@@ -54,6 +54,10 @@ export default async function GroupSettingsPage({
     ? "그룹 작업은 개인 작업으로 전환됩니다."
     : "내가 공유한 그룹 작업은 개인 작업으로 전환됩니다.";
 
+  const dangerPendingMessage = group.isOwner
+    ? "그룹을 삭제하는 중입니다."
+    : "그룹에서 나가는 중입니다.";
+
   const dangerErrorTitle = group.isOwner
     ? "그룹을 삭제할 수 없습니다."
     : "그룹을 나갈 수 없습니다.";
@@ -146,6 +150,7 @@ export default async function GroupSettingsPage({
                 confirmTitle={dangerConfirmTitle}
                 confirmDescription={dangerConfirmDescription}
                 errorTitle={dangerErrorTitle}
+                pendingMessage={dangerPendingMessage}
               />
             </div>
           </section>
