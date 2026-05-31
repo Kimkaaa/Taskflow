@@ -46,9 +46,17 @@ export default async function GroupSettingsPage({
   const dangerAction = group.isOwner ? deleteGroupWithId : leaveGroupWithId;
   const dangerLabel = group.isOwner ? "삭제" : "나가기";
 
-  const dangerConfirmMessage = group.isOwner
-    ? "그룹을 삭제할까요? 그룹 작업은 개인 작업으로 전환됩니다."
-    : "그룹을 나갈까요? 내가 공유한 그룹 작업은 개인 작업으로 전환됩니다.";
+  const dangerConfirmTitle = group.isOwner
+    ? "그룹을 삭제할까요?"
+    : "그룹을 나갈까요?";
+
+  const dangerConfirmDescription = group.isOwner
+    ? "그룹 작업은 개인 작업으로 전환됩니다."
+    : "내가 공유한 그룹 작업은 개인 작업으로 전환됩니다.";
+
+  const dangerErrorTitle = group.isOwner
+    ? "그룹을 삭제할 수 없습니다."
+    : "그룹을 나갈 수 없습니다.";
 
   return (
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
@@ -135,7 +143,9 @@ export default async function GroupSettingsPage({
               <GroupDangerForm
                 action={dangerAction}
                 label={dangerLabel}
-                confirmMessage={dangerConfirmMessage}
+                confirmTitle={dangerConfirmTitle}
+                confirmDescription={dangerConfirmDescription}
+                errorTitle={dangerErrorTitle}
               />
             </div>
           </section>
