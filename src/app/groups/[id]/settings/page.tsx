@@ -88,6 +88,7 @@ export default async function GroupSettingsPage({
                   defaultName={group.name}
                   defaultDescription={group.description}
                   submitLabel="저장"
+                  disableWhenUnchanged
                 />
               </div>
             ) : (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { LoaderCircle } from "lucide-react";
 import {
@@ -20,18 +20,25 @@ type GroupFormProps = {
   defaultName?: string;
   defaultDescription?: string;
   submitLabel?: string;
+  disableWhenUnchanged?: boolean;
 };
 
 const inputClass =
   "w-full rounded-xl border border-app-base bg-app-bg px-4 py-3 text-sm text-white outline-none transition placeholder:text-app-muted focus:border-app-focus";
 
-function SubmitButton({ label }: { label: string }) {
+function SubmitButton({
+  label,
+  disabled,
+}: {
+  label: string;
+  disabled: boolean;
+}) {
   const { pending } = useFormStatus();
 
   return (
     <button
       type="submit"
-      disabled={pending}
+      disabled={pending || disabled}
       className="inline-flex h-10 w-20 cursor-pointer items-center justify-center rounded-xl bg-app-base/80 text-sm font-semibold text-white disabled:cursor-wait"
     >
       {pending ? (
@@ -48,7 +55,11 @@ export default function GroupForm({
   defaultName = "",
   defaultDescription = "",
   submitLabel = "생성",
+  disableWhenUnchanged = false,
 }: GroupFormProps) {
+  const [name, setName] = useState(defaultName);
+  const [description, setDescription] = useState(defaultDescription);
+
   const [state, formAction, isPending] = useActionState(
     action,
     initialGroupActionState,
@@ -56,12 +67,19 @@ export default function GroupForm({
 
   const shouldShowError = Boolean(state.error && !isPending);
 
+  const isUnchanged =
+    name.trim() === defaultName.trim() &&
+    description.trim() === defaultDescription.trim();
+
+  const isSubmitDisabled = disableWhenUnchanged && isUnchanged;
+
   return (
     <form action={formAction} className="space-y-4">
       <input
         name="name"
         type="text"
-        defaultValue={defaultName}
+        value={name}
+        onChange={(event) => setName(event.target.value)}
         placeholder="그룹명"
         className={inputClass}
         maxLength={GROUP_NAME_MAX_LENGTH}
@@ -71,7 +89,8 @@ export default function GroupForm({
       <input
         name="description"
         type="text"
-        defaultValue={defaultDescription}
+        value={description}
+        onChange={(event) => setDescription(event.target.value)}
         placeholder="그룹 설명"
         className={inputClass}
         maxLength={GROUP_DESCRIPTION_MAX_LENGTH}
@@ -84,7 +103,7 @@ export default function GroupForm({
       ) : null}
 
       <div className="flex justify-end">
-        <SubmitButton label={submitLabel} />
+        <SubmitButton label={submitLabel} disabled={isSubmitDisabled} />
       </div>
     </form>
   );
