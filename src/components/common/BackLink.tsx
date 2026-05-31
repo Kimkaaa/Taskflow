@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { backNavigationClass } from "@/constants/taskClassNames";
+import { backNavigationClass } from "@/constants/classNames";
 
 type BackLinkProps = {
   href: string;

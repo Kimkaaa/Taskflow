@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { Lock } from "lucide-react";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
-import { taskTagClass } from "@/constants/taskClassNames";
+import { taskTagClass } from "@/constants/classNames";
 import type { Task, TaskQuery } from "@/types/task";
 
 type TaskListProps = {

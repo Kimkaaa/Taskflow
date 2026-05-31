@@ -10,7 +10,7 @@ import {
   dialogDangerButtonClass,
   dialogListButtonClass,
   taskDeleteActionButtonClass,
-} from "@/constants/taskClassNames";
+} from "@/constants/classNames";
 import { initialTaskActionState } from "@/types/taskAction";
 
 type DeleteTaskButtonProps = {

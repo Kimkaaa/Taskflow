@@ -8,7 +8,7 @@ import {
   dialogCancelButtonClass,
   dialogConfirmButtonClass,
   dialogListButtonClass,
-} from "@/constants/taskClassNames";
+} from "@/constants/classNames";
 import type { TaskStatus, TaskTodo } from "@/types/task";
 
 type TaskTodoListProps = {

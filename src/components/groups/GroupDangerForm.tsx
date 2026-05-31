@@ -7,7 +7,7 @@ import ConfirmDialog from "@/components/common/ConfirmDialog";
 import {
   dialogCancelButtonClass,
   dialogDangerButtonClass,
-} from "@/constants/taskClassNames";
+} from "@/constants/classNames";
 import BlockingOverlay from "@/components/common/BlockingOverlay";
 import {
   initialGroupActionState,

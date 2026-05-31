@@ -1,5 +1,6 @@
-// 화면 레이아웃
-export const taskPageSectionClass = "mx-auto max-w-2xl";
+// 공통 레이아웃
+export const pageMainClass = "min-h-screen bg-app-bg px-6 py-8 text-white";
+export const pageSectionClass = "mx-auto max-w-2xl";
 
 // 뒤로가기
 export const backNavigationClass =
@@ -21,12 +22,12 @@ export const taskDeleteActionButtonClass = `${taskActionButtonBaseClass} text-re
 
 // 다이얼로그 버튼
 export const dialogActionButtonBaseClass =
-  "inline-flex h-9 cursor-pointer items-center justify-center rounded-xl px-3 text-sm font-semibold disabled:cursor-wait disabled:opacity-80";
+  "inline-flex h-10 min-w-20 cursor-pointer items-center justify-center rounded-xl px-4 text-sm font-semibold disabled:cursor-wait";
 
-export const dialogCancelButtonClass = `${dialogActionButtonBaseClass} w-14 text-app-soft`;
+export const dialogCancelButtonClass = `${dialogActionButtonBaseClass} text-app-soft`;
 
-export const dialogConfirmButtonClass = `${dialogActionButtonBaseClass} w-14 bg-app-base/80 text-white`;
+export const dialogConfirmButtonClass = `${dialogActionButtonBaseClass} bg-app-base/80 text-white`;
 
-export const dialogListButtonClass = `${dialogActionButtonBaseClass} text-app-soft`;
+export const dialogListButtonClass = `${dialogActionButtonBaseClass} bg-app-base/80 text-white`;
 
-export const dialogDangerButtonClass = `${dialogActionButtonBaseClass} w-14 bg-red-500/15 text-red-300`;
+export const dialogDangerButtonClass = `${dialogActionButtonBaseClass} bg-red-500/15 text-red-300`;

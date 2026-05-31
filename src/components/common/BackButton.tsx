@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
-import { backNavigationClass } from "@/constants/taskClassNames";
+import { backNavigationClass } from "@/constants/classNames";
 
 type BackButtonProps = {
   label: string;

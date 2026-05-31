@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { CircleAlert, RotateCcw } from "lucide-react";
-import { taskPageSectionClass } from "@/constants/taskClassNames";
+import { pageSectionClass } from "@/constants/classNames";
 
 type TasksErrorProps = {
   error: Error & {
@@ -16,7 +16,7 @@ export default function TasksError({ error, reset }: TasksErrorProps) {
 
   return (
     <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
-      <section className={taskPageSectionClass}>
+      <section className={pageSectionClass}>
         <div className="mb-6 h-10" aria-hidden="true" />
 
         <div className="rounded-2xl border border-app-base bg-app-surface p-10 text-center shadow-sm">

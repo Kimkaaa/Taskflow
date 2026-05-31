@@ -14,7 +14,7 @@ import {
   statusLabels,
   statusOptions,
 } from "@/constants/taskMeta";
-import { taskTagClass } from "@/constants/taskClassNames";
+import { taskTagClass } from "@/constants/classNames";
 
 type TaskFilterFormProps = {
   query: TaskQuery;

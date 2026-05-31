@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import { X } from "lucide-react";
-import { dialogListButtonClass } from "@/constants/taskClassNames";
+import { dialogListButtonClass } from "@/constants/classNames";
 
 type ConfirmDialogProps = {
   open: boolean;
