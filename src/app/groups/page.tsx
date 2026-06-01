@@ -2,6 +2,13 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireAppUser } from "@/lib/auth";
 import { getMyGroups } from "@/lib/groups";
+import {
+  groupMemberBadgeClass,
+  groupOwnerBadgeClass,
+  groupPrimaryActionButtonClass,
+  pageMainClass,
+  pageSectionClass,
+} from "@/constants/classNames";
 import BackLink from "@/components/common/BackLink";
 import { routes } from "@/constants/routes";
 
@@ -10,8 +17,8 @@ export default async function GroupsPage() {
   const groups = await getMyGroups(user.id);
 
   return (
-    <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
-      <section className="mx-auto max-w-2xl">
+    <main className={pageMainClass}>
+      <section className={pageSectionClass}>
         <div className="mb-6 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <BackLink href={routes.tasks} label="작업 목록으로 돌아가기" />
@@ -19,10 +26,7 @@ export default async function GroupsPage() {
             <h1 className="text-lg font-bold tracking-tight">내 그룹</h1>
           </div>
 
-          <Link
-            href={routes.groupsNew}
-            className="inline-flex h-10 w-20 items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white"
-          >
+          <Link href={routes.groupsNew} className={groupPrimaryActionButtonClass}>
             <Plus className="h-4 w-4" aria-hidden="true" />
             생성
           </Link>
@@ -53,13 +57,9 @@ export default async function GroupsPage() {
                       </h2>
 
                       {group.isOwner ? (
-                        <span className="rounded-full bg-app-base px-2 py-1 text-xs font-medium text-white">
-                          리더
-                        </span>
+                        <span className={groupOwnerBadgeClass}>리더</span>
                       ) : (
-                        <span className="rounded-full border border-app-base px-2 py-1 text-xs font-medium text-app-soft">
-                          멤버
-                        </span>
+                        <span className={groupMemberBadgeClass}>멤버</span>
                       )}
                     </div>
 

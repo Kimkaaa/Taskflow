@@ -7,6 +7,7 @@ import ConfirmDialog from "@/components/common/ConfirmDialog";
 import {
   dialogCancelButtonClass,
   dialogDangerButtonClass,
+  groupDangerButtonClass,
 } from "@/constants/classNames";
 import BlockingOverlay from "@/components/common/BlockingOverlay";
 import {
@@ -72,7 +73,7 @@ export default function GroupDangerForm({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex h-10 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 text-sm font-semibold text-red-300"
+        className={groupDangerButtonClass}
       >
         {label}
       </button>

@@ -1,11 +1,26 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Settings } from "lucide-react";
+
+import BackLink from "@/components/common/BackLink";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
+import {
+  groupCompactPanelClass,
+  groupMemberBadgeClass,
+  groupMemberCardClass,
+  groupMemberOwnerBadgeClass,
+  groupMemberRoleTextClass,
+  groupOwnerBadgeClass,
+  groupPanelClass,
+  groupSecondaryActionButtonClass,
+  groupSmallActionLinkClass,
+  groupTaskCardLinkClass,
+  pageMainClass,
+  pageSectionClass,
+} from "@/constants/classNames";
+import { routes } from "@/constants/routes";
 import { requireAppUser } from "@/lib/auth";
 import { getGroupDetail } from "@/lib/groups";
-import BackLink from "@/components/common/BackLink";
-import { routes } from "@/constants/routes";
 
 type GroupDetailPageProps = {
   params: Promise<{
@@ -25,15 +40,15 @@ export default async function GroupDetailPage({
   }
 
   return (
-    <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
-      <section className="mx-auto max-w-2xl">
+    <main className={pageMainClass}>
+      <section className={pageSectionClass}>
         <div className="mb-6 flex items-center justify-between gap-4">
           <BackLink href={routes.groups} label="그룹 목록으로 돌아가기" />
 
           {group.isOwner ? (
             <Link
-              href={`/groups/${group.id}/settings`}
-              className="inline-flex h-10 w-20 items-center justify-center gap-2 rounded-xl border border-app-base bg-app-surface text-sm font-medium text-app-soft"
+              href={routes.groupSettings(group.id)}
+              className={groupSecondaryActionButtonClass}
             >
               <Settings className="h-4 w-4" aria-hidden="true" />
               관리
@@ -41,20 +56,16 @@ export default async function GroupDetailPage({
           ) : null}
         </div>
 
-        <header className="rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm">
+        <header className={groupPanelClass}>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-lg font-bold text-white">
               {group.name}
             </h1>
 
             {group.isOwner ? (
-              <span className="rounded-full bg-app-base px-2 py-1 text-xs font-medium text-white">
-                리더
-              </span>
+              <span className={groupOwnerBadgeClass}>리더</span>
             ) : (
-              <span className="rounded-full border border-app-base px-2 py-1 text-xs font-medium text-app-soft">
-                멤버
-              </span>
+              <span className={groupMemberBadgeClass}>멤버</span>
             )}
           </div>
 
@@ -71,26 +82,21 @@ export default async function GroupDetailPage({
         </header>
 
         <div className="mt-6 grid gap-6">
-          <section className="rounded-2xl border border-app-base bg-app-surface p-5 shadow-sm">
+          <section className={groupCompactPanelClass}>
             <h2 className="text-sm font-semibold text-white">멤버</h2>
 
             <div className="mt-4 space-y-3">
               {group.members.map((member) => (
-                <div
-                  key={member.id}
-                  className="rounded-xl border border-app-base bg-app-bg px-4 py-3"
-                >
+                <div key={member.id} className={groupMemberCardClass}>
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-medium text-white">
                       {member.nickname}
                     </p>
 
                     {member.isOwner ? (
-                      <span className="rounded-full bg-app-base px-2 py-0.5 text-xs font-medium text-white">
-                        리더
-                      </span>
+                      <span className={groupMemberOwnerBadgeClass}>리더</span>
                     ) : (
-                      <span className="text-xs text-app-muted">멤버</span>
+                      <span className={groupMemberRoleTextClass}>멤버</span>
                     )}
                   </div>
 
@@ -102,13 +108,13 @@ export default async function GroupDetailPage({
             </div>
           </section>
 
-          <section className="rounded-2xl border border-app-base bg-app-surface p-5 shadow-sm">
+          <section className={groupCompactPanelClass}>
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-sm font-semibold text-white">그룹 작업</h2>
 
               <Link
                 href={`/tasks/new?groupId=${group.id}`}
-                className="rounded-full border border-app-base bg-app-bg px-3 py-1.5 text-xs font-medium text-app-soft transition hover:bg-app-surface-hover hover:text-white"
+                className={groupSmallActionLinkClass}
               >
                 작업 추가
               </Link>
@@ -129,7 +135,7 @@ export default async function GroupDetailPage({
                   <Link
                     key={task.id}
                     href={`/tasks/${task.id}`}
-                    className="block rounded-xl border border-app-base bg-app-bg p-4 transition hover:bg-app-surface-hover"
+                    className={groupTaskCardLinkClass}
                   >
                     <div className="flex flex-wrap items-center gap-2">
                       <TaskStatusBadge status={task.status} />

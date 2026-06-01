@@ -7,6 +7,7 @@ import ConfirmDialog from "@/components/common/ConfirmDialog";
 import {
   dialogCancelButtonClass,
   dialogDangerButtonClass,
+  groupPanelClass,
 } from "@/constants/classNames";
 import {
   initialGroupActionState,
@@ -115,7 +116,7 @@ export default function GroupInviteSection({
 
   return (
     <>
-      <section className="rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm">
+      <section className={groupPanelClass}>
         <h2 className="text-sm font-semibold text-white">초대 링크</h2>
 
         <p className="mt-2 text-sm leading-6 text-app-muted">
