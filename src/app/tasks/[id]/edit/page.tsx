@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import BackLink from "@/components/common/BackLink";
 import TaskForm from "@/components/tasks/TaskForm";
-import { pageSectionClass } from "@/constants/classNames";
+import { pageClassNames, panelClassNames } from "@/constants/classNames";
 import { updateTask } from "@/app/actions/tasks";
 import { requireAppUser } from "@/lib/auth";
 import { getMyGroupOptions } from "@/lib/groups";
@@ -31,8 +31,8 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
   const updateTaskWithId = updateTask.bind(null, task.id);
 
   return (
-    <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
-      <section className={pageSectionClass}>
+    <main className={pageClassNames.main}>
+      <section className={pageClassNames.section}>
         <div className="mb-6">
           <BackLink
             href={`/tasks/${task.id}`}
@@ -41,7 +41,7 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
           />
         </div>
 
-        <div className="rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm">
+        <div className={panelClassNames.surface}>
           <TaskForm
             task={task}
             action={updateTaskWithId}

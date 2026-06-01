@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import BackLink from "@/components/common/BackLink";
 import TaskForm from "@/components/tasks/TaskForm";
-import { pageSectionClass } from "@/constants/classNames";
+import { pageClassNames, panelClassNames } from "@/constants/classNames";
 import { createTask } from "@/app/actions/tasks";
 import { requireAppUser } from "@/lib/auth";
 import { getMyGroupOptions } from "@/lib/groups";
@@ -37,13 +37,13 @@ export default async function NewTaskPage({
   }
 
   return (
-    <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
-      <section className={pageSectionClass}>
+    <main className={pageClassNames.main}>
+      <section className={pageClassNames.section}>
         <div className="mb-6">
           <BackLink href="/tasks" label="작업 목록으로 돌아가기" />
         </div>
 
-        <div className="rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm">
+        <div className={panelClassNames.surface}>
           <TaskForm
             action={createTask}
             submitLabel="등록"

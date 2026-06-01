@@ -11,6 +11,7 @@ import {
   GROUP_DESCRIPTION_MAX_LENGTH,
   GROUP_NAME_MAX_LENGTH,
 } from "@/constants/group";
+import { feedbackClassNames, formClassNames } from "@/constants/classNames";
 
 type GroupFormProps = {
   action: (
@@ -22,9 +23,6 @@ type GroupFormProps = {
   submitLabel?: string;
   disableWhenUnchanged?: boolean;
 };
-
-const inputClass =
-  "w-full rounded-xl border border-app-base bg-app-bg px-4 py-3 text-sm text-white outline-none transition placeholder:text-app-muted focus:border-app-focus";
 
 function SubmitButton({
   label,
@@ -81,7 +79,7 @@ export default function GroupForm({
         value={name}
         onChange={(event) => setName(event.target.value)}
         placeholder="그룹명"
-        className={inputClass}
+        className={formClassNames.input}
         maxLength={GROUP_NAME_MAX_LENGTH}
         required
       />
@@ -92,12 +90,12 @@ export default function GroupForm({
         value={description}
         onChange={(event) => setDescription(event.target.value)}
         placeholder="그룹 설명"
-        className={inputClass}
+        className={formClassNames.input}
         maxLength={GROUP_DESCRIPTION_MAX_LENGTH}
       />
 
       {shouldShowError ? (
-        <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <p className={feedbackClassNames.errorBox}>
           {state.error}
         </p>
       ) : null}

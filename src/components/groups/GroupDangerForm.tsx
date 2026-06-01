@@ -5,9 +5,8 @@ import { useFormStatus } from "react-dom";
 import { LoaderCircle } from "lucide-react";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import {
-  dialogCancelButtonClass,
-  dialogDangerButtonClass,
-  groupDangerButtonClass,
+  dialogClassNames,
+  buttonClassNames,
 } from "@/constants/classNames";
 import BlockingOverlay from "@/components/common/BlockingOverlay";
 import {
@@ -34,7 +33,7 @@ function SubmitButton({ label }: { label: string }) {
     <button
       type="submit"
       disabled={pending}
-      className={dialogDangerButtonClass}
+      className={dialogClassNames.dangerButton}
       aria-label={pending ? `${label} 중` : label}
       title={pending ? `${label} 중` : label}
     >
@@ -73,7 +72,7 @@ export default function GroupDangerForm({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className={groupDangerButtonClass}
+        className={buttonClassNames.fixedDanger}
       >
         {label}
       </button>
@@ -91,7 +90,7 @@ export default function GroupDangerForm({
           <button
             type="button"
             onClick={handleClose}
-            className={dialogCancelButtonClass}
+            className={dialogClassNames.cancelButton}
           >
             취소
           </button>

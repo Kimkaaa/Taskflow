@@ -14,7 +14,7 @@ import {
   statusLabels,
   statusOptions,
 } from "@/constants/taskMeta";
-import { taskTagClass } from "@/constants/classNames";
+import { taskClassNames } from "@/constants/classNames";
 
 type TaskFilterFormProps = {
   query: TaskQuery;
@@ -29,16 +29,13 @@ type TaskQueryUpdates = Partial<{
   tag: string | null;
 }>;
 
-const chipBaseClass =
-  "inline-flex h-9 cursor-pointer items-center justify-center rounded-full border px-3 text-sm font-medium transition";
-
 const resetButtonClass =
   "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-app-base bg-app-bg text-app-soft transition";
 
 function getChipClass(isActive: boolean) {
   return isActive
-    ? `${chipBaseClass} border-app-strong bg-app-base text-white`
-    : `${chipBaseClass} border-app-base bg-app-bg text-app-soft`;
+    ? `${taskClassNames.formChipBase} border-app-strong bg-app-base text-white`
+    : `${taskClassNames.formChipBase} border-app-base bg-app-bg text-app-soft`;
 }
 
 function parseHashTagSearch(value: string) {
@@ -205,7 +202,7 @@ export default function TaskFilterForm({
 
       {query.tag ? (
         <div className="mt-3 flex flex-wrap gap-2">
-          <span className={taskTagClass}>#{query.tag}</span>
+          <span className={taskClassNames.tag}>#{query.tag}</span>
         </div>
       ) : null}
 

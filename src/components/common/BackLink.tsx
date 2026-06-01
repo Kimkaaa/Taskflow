@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { backNavigationClass } from "@/constants/classNames";
+import { navigationClassNames } from "@/constants/classNames";
 
 type BackLinkProps = {
   href: string;
@@ -10,7 +10,7 @@ type BackLinkProps = {
 
 export default function BackLink({ href, label, replace = false }: BackLinkProps) {
   return (
-    <Link href={href} replace={replace} aria-label={label} title={label} className={backNavigationClass}>
+    <Link href={href} replace={replace} aria-label={label} title={label} className={navigationClassNames.back}>
       <ChevronLeft className="h-6 w-6" aria-hidden="true" />
     </Link>
   );

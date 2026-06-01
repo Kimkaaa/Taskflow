@@ -5,9 +5,9 @@ import { useFormStatus } from "react-dom";
 import { Copy, LoaderCircle, Trash2 } from "lucide-react";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import {
-  dialogCancelButtonClass,
-  dialogDangerButtonClass,
-  groupPanelClass,
+  panelClassNames,
+  dialogClassNames,
+  cardClassNames,
 } from "@/constants/classNames";
 import {
   initialGroupActionState,
@@ -56,7 +56,7 @@ function DeleteSubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className={dialogDangerButtonClass}
+      className={dialogClassNames.dangerButton}
       aria-label={pending ? "삭제 중" : "삭제"}
       title={pending ? "삭제 중" : "삭제"}
     >
@@ -116,7 +116,7 @@ export default function GroupInviteSection({
 
   return (
     <>
-      <section className={groupPanelClass}>
+      <section className={panelClassNames.surface}>
         <h2 className="text-sm font-semibold text-white">초대 링크</h2>
 
         <p className="mt-2 text-sm leading-6 text-app-muted">
@@ -125,7 +125,7 @@ export default function GroupInviteSection({
 
         {activeInvite ? (
           <div className="mt-5 space-y-3">
-            <div className="rounded-xl border border-app-base bg-app-bg px-4 py-3">
+            <div className={cardClassNames.inset}>
               <p className="break-all text-sm text-app-soft">{invitePath}</p>
 
               <p className="mt-2 text-xs text-app-muted">
@@ -192,7 +192,7 @@ export default function GroupInviteSection({
           <button
             type="button"
             onClick={() => setIsDeleteDialogOpen(false)}
-            className={dialogCancelButtonClass}
+            className={dialogClassNames.cancelButton}
           >
             취소
           </button>

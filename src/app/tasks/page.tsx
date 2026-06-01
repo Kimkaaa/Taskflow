@@ -2,7 +2,7 @@ import Link from "next/link";
 import AuthButton from "@/components/auth/AuthButton";
 import CreateTaskButton from "@/components/tasks/CreateTaskButton";
 import TaskBoard from "@/components/tasks/TaskBoard";
-import { pageSectionClass } from "@/constants/classNames";
+import { pageClassNames } from "@/constants/classNames";
 import { getCurrentUser } from "@/lib/auth";
 import { getTaskPage, parseTaskQuery } from "@/lib/tasks";
 
@@ -34,8 +34,8 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
   });
 
   return (
-    <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
-      <section className={pageSectionClass}>
+    <main className={pageClassNames.main}>
+      <section className={pageClassNames.section}>
         <div className="mb-6 flex items-center justify-between gap-4">
           <Link
             href="/tasks"

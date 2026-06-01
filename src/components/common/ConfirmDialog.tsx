@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import { X } from "lucide-react";
-import { dialogListButtonClass } from "@/constants/classNames";
+import { dialogClassNames } from "@/constants/classNames";
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -36,7 +36,7 @@ export default function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6"
+      className={dialogClassNames.overlay}
       role="presentation"
       onClick={onClose}
     >
@@ -44,7 +44,7 @@ export default function ConfirmDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="w-full max-w-sm rounded-2xl border border-app-base bg-app-surface p-6 shadow-xl"
+        className={dialogClassNames.panel}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-5 flex items-start justify-between gap-4">
@@ -77,7 +77,7 @@ export default function ConfirmDialog({
             <button
               type="button"
               onClick={onClose}
-              className={dialogListButtonClass}
+              className={dialogClassNames.listButton}
             >
               {errorActionLabel}
             </button>

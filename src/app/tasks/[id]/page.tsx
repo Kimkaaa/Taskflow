@@ -6,9 +6,9 @@ import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
 import TaskTodoList from "@/components/tasks/TaskTodoList";
 import {
-  taskEditActionButtonClass,
-  pageSectionClass,
-  taskTagLinkClass,
+  pageClassNames,
+  panelClassNames,
+  taskClassNames,
 } from "@/constants/classNames";
 import { getCurrentUser } from "@/lib/auth";
 import { getTaskById } from "@/lib/tasks";
@@ -31,8 +31,8 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   const canEdit = Boolean(user && task.userId === user.id);
 
   return (
-    <main className="min-h-screen bg-app-bg px-6 py-8 text-white">
-      <section className={pageSectionClass}>
+    <main className={pageClassNames.main}>
+      <section className={pageClassNames.section}>
         <div className="mb-6 flex items-center justify-between gap-4">
           <BackButton label="목록으로 돌아가기" />
 
@@ -41,7 +41,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
               <Link
                 href={`/tasks/${task.id}/edit`}
                 replace
-                className={taskEditActionButtonClass}
+                className={taskClassNames.editActionButton}
               >
                 <Pencil className="h-4 w-4" aria-hidden="true" />
                 수정
@@ -52,7 +52,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
           ) : null}
         </div>
 
-        <article className="rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm">
+        <article className={panelClassNames.surface}>
           <div className="mb-4 flex items-start justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <TaskStatusBadge status={task.status} />
@@ -104,7 +104,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
                   <Link
                     key={tag}
                     href={`/tasks?tag=${encodeURIComponent(tag)}`}
-                    className={taskTagLinkClass}
+                    className={taskClassNames.tagLink}
                   >
                     #{tag}
                   </Link>

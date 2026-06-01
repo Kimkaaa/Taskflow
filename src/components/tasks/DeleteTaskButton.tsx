@@ -6,10 +6,8 @@ import { LoaderCircle, Trash2, X } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import { deleteTask } from "@/app/actions/tasks";
 import {
-  dialogCancelButtonClass,
-  dialogDangerButtonClass,
-  dialogListButtonClass,
-  taskDeleteActionButtonClass,
+  dialogClassNames,
+  taskClassNames,
 } from "@/constants/classNames";
 import { initialTaskActionState } from "@/types/taskAction";
 
@@ -24,7 +22,7 @@ function DeleteSubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className={dialogDangerButtonClass}
+      className={dialogClassNames.dangerButton}
       aria-label={pending ? "삭제 중" : "삭제"}
       title={pending ? "삭제 중" : "삭제"}
     >
@@ -65,7 +63,7 @@ export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className={taskDeleteActionButtonClass}
+        className={taskClassNames.deleteActionButton}
       >
         <Trash2 className="h-4 w-4" aria-hidden="true" />
         삭제
@@ -73,7 +71,7 @@ export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
 
       {isOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6"
+          className={dialogClassNames.overlay}
           role="presentation"
           onClick={handleClose}
         >
@@ -81,7 +79,7 @@ export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            className="w-full max-w-sm rounded-2xl border border-app-base bg-app-surface p-6 shadow-xl"
+            className={dialogClassNames.panel}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
@@ -118,7 +116,7 @@ export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
                 <button
                   type="button"
                   onClick={handleClose}
-                  className={dialogListButtonClass}
+                  className={dialogClassNames.listButton}
                 >
                   목록으로 이동
                 </button>
@@ -128,7 +126,7 @@ export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
                 <button
                   type="button"
                   onClick={handleClose}
-                  className={dialogCancelButtonClass}
+                  className={dialogClassNames.cancelButton}
                 >
                   취소
                 </button>

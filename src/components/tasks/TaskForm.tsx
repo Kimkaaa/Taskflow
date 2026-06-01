@@ -39,6 +39,7 @@ import {
   initialTaskActionState,
   type TaskActionState,
 } from "@/types/taskAction";
+import { feedbackClassNames, formClassNames, taskClassNames } from "@/constants/classNames";
 
 type TaskFormGroupOption = {
   id: string;
@@ -55,17 +56,6 @@ type TaskFormProps = {
   groups?: TaskFormGroupOption[];
   defaultGroupId?: string | null;
 };
-
-const inputClass =
-  "w-full rounded-xl border border-app-base bg-app-bg px-4 py-3 text-sm text-white outline-none transition placeholder:text-app-muted focus:border-app-focus";
-
-const dateInputClass = `${inputClass} min-w-0 appearance-none`;
-
-const chipBaseClass =
-  "inline-flex h-9 cursor-pointer items-center justify-center rounded-full border px-3 text-sm font-medium transition";
-
-const submitButtonClass =
-  "inline-flex h-11 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-80";
 
 const visibilityLabels: Record<TaskVisibility, string> = {
   PRIVATE: "나만 보기",
@@ -134,7 +124,7 @@ function SubmitButton({ label }: { label: string }) {
     <button
       type="submit"
       disabled={pending}
-      className={submitButtonClass}
+      className={taskClassNames.formSubmitButton}
       aria-label={pending ? `${label} 중` : label}
       title={pending ? `${label} 중` : label}
     >
@@ -262,7 +252,7 @@ export default function TaskForm({
         type="text"
         defaultValue={task?.title ?? ""}
         placeholder="제목"
-        className={inputClass}
+        className={formClassNames.input}
         maxLength={TASK_FORM_LIMITS.TITLE_MAX_LENGTH}
         required
       />
@@ -272,7 +262,7 @@ export default function TaskForm({
         type="text"
         defaultValue={task?.description ?? ""}
         placeholder="메모"
-        className={inputClass}
+        className={formClassNames.input}
         maxLength={TASK_FORM_LIMITS.DESCRIPTION_MAX_LENGTH}
       />
 
@@ -291,7 +281,7 @@ export default function TaskForm({
               />
 
               <span
-                className={`${chipBaseClass} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
+                className={`${taskClassNames.formChipBase} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
               >
                 {statusLabels[status]}
               </span>
@@ -313,7 +303,7 @@ export default function TaskForm({
               />
 
               <span
-                className={`${chipBaseClass} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
+                className={`${taskClassNames.formChipBase} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
               >
                 {priorityLabels[priority]}
               </span>
@@ -325,7 +315,7 @@ export default function TaskForm({
           name="dueDate"
           type="date"
           defaultValue={task?.dueDate ?? ""}
-          className={dateInputClass}
+          className={formClassNames.dateInput}
           aria-label="마감일"
         />
       </div>
@@ -335,7 +325,7 @@ export default function TaskForm({
         type="text"
         defaultValue={task?.tags.join(", ") ?? ""}
         placeholder="태그 (쉼표로 구분)"
-        className={inputClass}
+        className={formClassNames.input}
       />
 
       <div className="space-y-2">
@@ -387,7 +377,7 @@ export default function TaskForm({
       </div>
 
       {shouldShowError ? (
-        <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <p className={feedbackClassNames.errorBox}>
           {state.error}
         </p>
       ) : null}
@@ -411,7 +401,7 @@ export default function TaskForm({
                 />
 
                 <span
-                  className={`${chipBaseClass} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
+                  className={`${taskClassNames.formChipBase} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
                 >
                   {visibilityLabels[visibility]}
                 </span>
@@ -423,7 +413,7 @@ export default function TaskForm({
             <select
               name="groupId"
               defaultValue={defaultSelectedGroupId}
-              className={inputClass}
+              className={formClassNames.input}
               required
             >
               <option value="">그룹 선택</option>
@@ -441,7 +431,7 @@ export default function TaskForm({
           <button
             type="reset"
             onClick={handleResetForm}
-            className="inline-flex h-11 w-11 cursor-pointer items-center justify-center text-app-muted transition hover:text-white"
+            className={taskClassNames.formResetButton}
             aria-label="초기화"
             title="초기화"
           >

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import BackLink from "@/components/common/BackLink";
 import {
-  pageMainClass,
-  pageSectionClass,
+  pageClassNames,
+  panelClassNames,
 } from "@/constants/classNames";
 
 type NotFoundMessageProps = {
@@ -23,13 +23,13 @@ export default function NotFoundMessage({
   actionLabel,
 }: NotFoundMessageProps) {
   return (
-    <main className={pageMainClass}>
-      <section className={pageSectionClass}>
+    <main className={pageClassNames.main}>
+      <section className={pageClassNames.section}>
         <div className="mb-6">
           <BackLink href={backHref} label={backLabel} />
         </div>
 
-        <div className="rounded-2xl border border-dashed border-app-base bg-app-surface p-10 text-center shadow-sm">
+        <div className={panelClassNames.dashedSurface}>
           <p className="text-lg font-semibold text-white">{title}</p>
 
           <p className="mt-2 text-sm leading-6 text-app-muted">

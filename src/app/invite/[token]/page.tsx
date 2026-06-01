@@ -5,9 +5,8 @@ import { routes } from "@/constants/routes";
 import { getCurrentUser, requireAppUser } from "@/lib/auth";
 import { getGroupInviteDetail } from "@/lib/groups";
 import {
-  groupPanelClass,
-  pageMainClass,
-  pageSectionClass,
+  pageClassNames,
+  panelClassNames,
 } from "@/constants/classNames";
 import BackLink from "@/components/common/BackLink";
 
@@ -31,8 +30,8 @@ export default async function InvitePage({ params }: InvitePageProps) {
   const acceptGroupInviteWithToken = acceptGroupInvite.bind(null, token);
 
   return (
-    <main className={pageMainClass}>
-      <section className={pageSectionClass}>
+    <main className={pageClassNames.main}>
+      <section className={pageClassNames.section}>
         <div className="mb-6 flex items-center gap-2">
           <BackLink href={routes.tasks} label="작업 목록으로 돌아가기" />
 
@@ -41,7 +40,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
           </h1>
         </div>
 
-        <section className={groupPanelClass}>
+        <section className={panelClassNames.surface}>
           {!invite ? (
             <>
               <h2 className="text-lg font-bold text-white">

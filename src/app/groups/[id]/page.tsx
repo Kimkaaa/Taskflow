@@ -5,18 +5,11 @@ import { Settings } from "lucide-react";
 import BackLink from "@/components/common/BackLink";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
 import {
-  groupCompactPanelClass,
-  groupMemberBadgeClass,
-  groupMemberCardClass,
-  groupMemberOwnerBadgeClass,
-  groupMemberRoleTextClass,
-  groupOwnerBadgeClass,
-  groupPanelClass,
-  groupSecondaryActionButtonClass,
-  groupSmallActionLinkClass,
-  groupTaskCardLinkClass,
-  pageMainClass,
-  pageSectionClass,
+  pageClassNames,
+  buttonClassNames,
+  panelClassNames,
+  groupClassNames,
+  cardClassNames,
 } from "@/constants/classNames";
 import { routes } from "@/constants/routes";
 import { requireAppUser } from "@/lib/auth";
@@ -40,15 +33,15 @@ export default async function GroupDetailPage({
   }
 
   return (
-    <main className={pageMainClass}>
-      <section className={pageSectionClass}>
+    <main className={pageClassNames.main}>
+      <section className={pageClassNames.section}>
         <div className="mb-6 flex items-center justify-between gap-4">
           <BackLink href={routes.groups} label="그룹 목록으로 돌아가기" />
 
           {group.isOwner ? (
             <Link
               href={routes.groupSettings(group.id)}
-              className={groupSecondaryActionButtonClass}
+              className={buttonClassNames.fixedSecondary}
             >
               <Settings className="h-4 w-4" aria-hidden="true" />
               관리
@@ -56,16 +49,16 @@ export default async function GroupDetailPage({
           ) : null}
         </div>
 
-        <header className={groupPanelClass}>
+        <header className={panelClassNames.surface}>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-lg font-bold text-white">
               {group.name}
             </h1>
 
             {group.isOwner ? (
-              <span className={groupOwnerBadgeClass}>리더</span>
+              <span className={groupClassNames.ownerBadge}>리더</span>
             ) : (
-              <span className={groupMemberBadgeClass}>멤버</span>
+              <span className={groupClassNames.memberBadge}>멤버</span>
             )}
           </div>
 
@@ -82,21 +75,21 @@ export default async function GroupDetailPage({
         </header>
 
         <div className="mt-6 grid gap-6">
-          <section className={groupCompactPanelClass}>
+          <section className={panelClassNames.compactSurface}>
             <h2 className="text-sm font-semibold text-white">멤버</h2>
 
             <div className="mt-4 space-y-3">
               {group.members.map((member) => (
-                <div key={member.id} className={groupMemberCardClass}>
+                <div key={member.id} className={cardClassNames.inset}>
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-medium text-white">
                       {member.nickname}
                     </p>
 
                     {member.isOwner ? (
-                      <span className={groupMemberOwnerBadgeClass}>리더</span>
+                      <span className={groupClassNames.memberOwnerBadge}>리더</span>
                     ) : (
-                      <span className={groupMemberRoleTextClass}>멤버</span>
+                      <span className={groupClassNames.memberRoleText}>멤버</span>
                     )}
                   </div>
 
@@ -108,13 +101,13 @@ export default async function GroupDetailPage({
             </div>
           </section>
 
-          <section className={groupCompactPanelClass}>
+          <section className={panelClassNames.compactSurface}>
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-sm font-semibold text-white">그룹 작업</h2>
 
               <Link
                 href={`/tasks/new?groupId=${group.id}`}
-                className={groupSmallActionLinkClass}
+                className={buttonClassNames.smallPill}
               >
                 작업 추가
               </Link>
@@ -135,7 +128,7 @@ export default async function GroupDetailPage({
                   <Link
                     key={task.id}
                     href={`/tasks/${task.id}`}
-                    className={groupTaskCardLinkClass}
+                    className={cardClassNames.insetLink}
                   >
                     <div className="flex flex-wrap items-center gap-2">
                       <TaskStatusBadge status={task.status} />

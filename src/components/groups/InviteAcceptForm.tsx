@@ -7,6 +7,7 @@ import {
   initialGroupActionState,
   type GroupActionState,
 } from "@/types/groupAction";
+import { feedbackClassNames } from "@/constants/classNames";
 
 type InviteAcceptFormProps = {
   action: (
@@ -51,7 +52,7 @@ export default function InviteAcceptForm({
   return (
     <form action={formAction} className="space-y-4">
       {shouldShowError ? (
-        <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <p className={feedbackClassNames.errorBox}>
           {state.error}
         </p>
       ) : null}

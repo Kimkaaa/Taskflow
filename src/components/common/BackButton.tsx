@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
-import { backNavigationClass } from "@/constants/classNames";
+import { navigationClassNames } from "@/constants/classNames";
 
 type BackButtonProps = {
   label: string;
@@ -17,7 +17,7 @@ export default function BackButton({ label }: BackButtonProps) {
       onClick={() => router.back()}
       aria-label={label}
       title={label}
-      className={backNavigationClass}
+      className={navigationClassNames.back}
     >
       <ChevronLeft className="h-6 w-6" aria-hidden="true" />
     </button>

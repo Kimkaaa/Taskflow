@@ -4,6 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { CheckSquare, GripVertical, Square, Trash2 } from "lucide-react";
 import { TASK_FORM_LIMITS } from "@/constants/taskFormLimits";
+import { taskClassNames } from "@/constants/classNames";
 
 export type EditableTodo = {
   id: string;
@@ -63,7 +64,7 @@ export default function SortableTodoItem({
         <GripVertical className="h-4 w-4" aria-hidden="true" />
       </button>
 
-      <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-app-base bg-app-bg px-3 py-2">
+      <div className={taskClassNames.todoItem}>
         <input
           type="hidden"
           name="todoId"
@@ -102,7 +103,7 @@ export default function SortableTodoItem({
           value={todo.content}
           onChange={(event) => onContentChange(todo.id, event.target.value)}
           placeholder="체크리스트"
-          className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-white outline-none placeholder:text-app-disabled"
+          className={taskClassNames.todoInput}
           maxLength={TASK_FORM_LIMITS.TODO_MAX_LENGTH}
         />
 

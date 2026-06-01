@@ -12,13 +12,10 @@ import {
   updateGroupInfo,
 } from "@/app/actions/groups";
 import {
-  groupDangerPanelClass,
-  groupMemberCardClass,
-  groupMemberOwnerBadgeClass,
-  groupMemberRoleTextClass,
-  groupPanelClass,
-  pageMainClass,
-  pageSectionClass,
+  pageClassNames,
+  panelClassNames,
+  cardClassNames,
+  groupClassNames,
 } from "@/constants/classNames";
 import { routes } from "@/constants/routes";
 import { requireAppUser } from "@/lib/auth";
@@ -73,8 +70,8 @@ export default async function GroupSettingsPage({
     : "그룹을 나갈 수 없습니다.";
 
   return (
-    <main className={pageMainClass}>
-      <section className={pageSectionClass}>
+    <main className={pageClassNames.main}>
+      <section className={pageClassNames.section}>
         <div className="mb-6 flex items-center gap-2">
           <BackLink href={routes.groupDetail(group.id)} label="그룹 상세로 돌아가기" />
 
@@ -84,7 +81,7 @@ export default async function GroupSettingsPage({
         </div>
 
         <div className="grid gap-6">
-          <section className={groupPanelClass}>
+          <section className={panelClassNames.surface}>
             <h2 className="text-sm font-semibold text-white">기본 정보</h2>
 
             <p className="mt-2 text-sm text-app-muted">
@@ -108,21 +105,21 @@ export default async function GroupSettingsPage({
             )}
           </section>
 
-          <section className={groupPanelClass}>
+          <section className={panelClassNames.surface}>
             <h2 className="text-sm font-semibold text-white">멤버</h2>
 
             <div className="mt-4 grid gap-3">
               {group.members.map((member) => (
-                <div key={member.id} className={groupMemberCardClass}>
+                <div key={member.id} className={cardClassNames.inset}>
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-medium text-white">
                       {member.nickname}
                     </p>
 
                     {member.isOwner ? (
-                      <span className={groupMemberOwnerBadgeClass}>리더</span>
+                      <span className={groupClassNames.memberOwnerBadge}>리더</span>
                     ) : (
-                      <span className={groupMemberRoleTextClass}>멤버</span>
+                      <span className={groupClassNames.memberRoleText}>멤버</span>
                     )}
                   </div>
 
@@ -142,7 +139,7 @@ export default async function GroupSettingsPage({
             />
           ) : null}
 
-          <section className={groupDangerPanelClass}>
+          <section className={panelClassNames.danger}>
             <h2 className="text-sm font-semibold text-red-200">{dangerTitle}</h2>
 
             <p className="mt-2 text-sm leading-6 text-red-200/80">

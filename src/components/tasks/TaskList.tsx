@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { Lock } from "lucide-react";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
-import { taskTagClass } from "@/constants/classNames";
+import { cardClassNames, taskClassNames } from "@/constants/classNames";
 import type { Task, TaskQuery } from "@/types/task";
 
 type TaskListProps = {
@@ -112,7 +112,7 @@ export default function TaskList({
           <Link
             key={task.id}
             href={`/tasks/${task.id}`}
-            className="block rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm transition hover:-translate-y-0.5 hover:bg-app-surface-hover hover:shadow-md"
+            className={cardClassNames.surfaceLink}
           >
             <div>
               <div className="mb-3 flex items-start justify-between gap-3">
@@ -147,7 +147,7 @@ export default function TaskList({
 
             <div className="mt-5 flex flex-wrap gap-2">
               {task.tags.map((tag) => (
-                <span key={tag} className={taskTagClass}>
+                <span key={tag} className={taskClassNames.tag}>
                   #{tag}
                 </span>
               ))}

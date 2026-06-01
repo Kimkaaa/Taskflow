@@ -3,11 +3,10 @@ import { Plus } from "lucide-react";
 import { requireAppUser } from "@/lib/auth";
 import { getMyGroups } from "@/lib/groups";
 import {
-  groupMemberBadgeClass,
-  groupOwnerBadgeClass,
-  groupPrimaryActionButtonClass,
-  pageMainClass,
-  pageSectionClass,
+  pageClassNames,
+  buttonClassNames,
+  cardClassNames,
+  groupClassNames,
 } from "@/constants/classNames";
 import BackLink from "@/components/common/BackLink";
 import { routes } from "@/constants/routes";
@@ -17,8 +16,8 @@ export default async function GroupsPage() {
   const groups = await getMyGroups(user.id);
 
   return (
-    <main className={pageMainClass}>
-      <section className={pageSectionClass}>
+    <main className={pageClassNames.main}>
+      <section className={pageClassNames.section}>
         <div className="mb-6 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <BackLink href={routes.tasks} label="작업 목록으로 돌아가기" />
@@ -26,7 +25,7 @@ export default async function GroupsPage() {
             <h1 className="text-lg font-bold tracking-tight">내 그룹</h1>
           </div>
 
-          <Link href={routes.groupsNew} className={groupPrimaryActionButtonClass}>
+          <Link href={routes.groupsNew} className={buttonClassNames.fixedPrimary}>
             <Plus className="h-4 w-4" aria-hidden="true" />
             생성
           </Link>
@@ -47,7 +46,7 @@ export default async function GroupsPage() {
               <Link
                 key={group.id}
                 href={`/groups/${group.id}`}
-                className="block rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm transition hover:-translate-y-0.5 hover:bg-app-surface-hover hover:shadow-md"
+                className={cardClassNames.surfaceLink}
               >
                 <div className="flex items-center justify-between gap-4">
                   <div>
@@ -57,9 +56,9 @@ export default async function GroupsPage() {
                       </h2>
 
                       {group.isOwner ? (
-                        <span className={groupOwnerBadgeClass}>리더</span>
+                        <span className={groupClassNames.ownerBadge}>리더</span>
                       ) : (
-                        <span className={groupMemberBadgeClass}>멤버</span>
+                        <span className={groupClassNames.memberBadge}>멤버</span>
                       )}
                     </div>
 

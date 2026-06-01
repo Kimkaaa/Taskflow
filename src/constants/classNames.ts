@@ -1,72 +1,112 @@
 // 공통 레이아웃
-export const pageMainClass = "min-h-screen bg-app-bg px-6 py-8 text-white";
-export const pageSectionClass = "mx-auto max-w-2xl";
+export const pageClassNames = {
+  main: "min-h-screen bg-app-bg px-6 py-8 text-white",
+  section: "mx-auto max-w-2xl",
+} as const;
+
+// 공통 패널
+export const panelClassNames = {
+  surface: "rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm",
+  compactSurface:
+    "rounded-2xl border border-app-base bg-app-surface p-5 shadow-sm",
+  danger:
+    "rounded-2xl border border-red-500/30 bg-red-500/5 p-6 shadow-sm",
+  dashedSurface:
+    "rounded-2xl border border-dashed border-app-base bg-app-surface p-10 text-center shadow-sm",
+} as const;
+
+// 공통 카드
+export const cardClassNames = {
+  inset: "rounded-xl border border-app-base bg-app-bg px-4 py-3",
+  insetLink:
+    "block rounded-xl border border-app-base bg-app-bg p-4 transition hover:bg-app-surface-hover",
+  surfaceLink:
+    "block rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm transition hover:-translate-y-0.5 hover:bg-app-surface-hover hover:shadow-md",
+} as const;
+
+// 공통 버튼
+export const buttonClassNames = {
+  fixedPrimary:
+    "inline-flex h-10 w-20 items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white",
+  fixedSecondary:
+    "inline-flex h-10 w-20 items-center justify-center gap-2 rounded-xl border border-app-base bg-app-surface text-sm font-medium text-app-soft",
+  fixedDanger:
+    "inline-flex h-10 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 text-sm font-semibold text-red-300",
+  smallPill:
+    "rounded-full border border-app-base bg-app-bg px-3 py-1.5 text-xs font-medium text-app-soft transition hover:bg-app-surface-hover hover:text-white",
+} as const;
+
+// 공통 폼
+const formInputBase =
+  "w-full rounded-xl border border-app-base bg-app-bg px-4 py-3 text-sm text-white outline-none transition placeholder:text-app-muted focus:border-app-focus";
+
+export const formClassNames = {
+  input: formInputBase,
+  dateInput: `${formInputBase} min-w-0 appearance-none`,
+} as const;
 
 // 뒤로가기
-export const backNavigationClass =
-  "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-app-soft";
+export const navigationClassNames = {
+  back: "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-app-soft",
+} as const;
 
-// 태그
-export const taskTagClass =
-  "rounded-md border border-app-base bg-app-bg px-2 py-1 text-xs text-app-muted";
+// 피드백
+export const feedbackClassNames = {
+  errorBox:
+    "rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300",
+} as const;
 
-export const taskTagLinkClass = `${taskTagClass} transition hover:border-app-strong hover:text-white`;
-
-// 작업 액션 버튼
-export const taskActionButtonBaseClass =
-  "inline-flex cursor-pointer items-center gap-2 rounded-full border border-app-base bg-app-surface px-4 py-2 text-sm font-medium";
-
-export const taskEditActionButtonClass = `${taskActionButtonBaseClass} text-app-soft`;
-
-export const taskDeleteActionButtonClass = `${taskActionButtonBaseClass} text-red-300`;
-
-// 다이얼로그 버튼
-export const dialogActionButtonBaseClass =
+// 다이얼로그
+const dialogActionButtonBase =
   "inline-flex h-10 min-w-20 cursor-pointer items-center justify-center rounded-xl px-4 text-sm font-semibold disabled:cursor-wait";
 
-export const dialogCancelButtonClass = `${dialogActionButtonBaseClass} text-app-soft`;
+export const dialogClassNames = {
+  overlay:
+    "fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6",
+  panel:
+    "w-full max-w-sm rounded-2xl border border-app-base bg-app-surface p-6 shadow-xl",
+  closeButton: "cursor-pointer text-app-muted",
+  actionButtonBase: dialogActionButtonBase,
+  cancelButton: `${dialogActionButtonBase} text-app-soft`,
+  confirmButton: `${dialogActionButtonBase} bg-app-base/80 text-white`,
+  listButton: `${dialogActionButtonBase} bg-app-base/80 text-white`,
+  dangerButton: `${dialogActionButtonBase} bg-red-500/15 text-red-300`,
+} as const;
 
-export const dialogConfirmButtonClass = `${dialogActionButtonBaseClass} bg-app-base/80 text-white`;
+// 작업
+const taskTagBase =
+  "rounded-md border border-app-base bg-app-bg px-2 py-1 text-xs text-app-muted";
 
-export const dialogListButtonClass = `${dialogActionButtonBaseClass} bg-app-base/80 text-white`;
+const taskActionButtonBase =
+  "inline-flex cursor-pointer items-center gap-2 rounded-full border border-app-base bg-app-surface px-4 py-2 text-sm font-medium";
 
-export const dialogDangerButtonClass = `${dialogActionButtonBaseClass} bg-red-500/15 text-red-300`;
+export const taskClassNames = {
+  tag: taskTagBase,
+  tagLink: `${taskTagBase} transition hover:border-app-strong hover:text-white`,
+  actionButtonBase: taskActionButtonBase,
+  editActionButton: `${taskActionButtonBase} text-app-soft`,
+  deleteActionButton: `${taskActionButtonBase} text-red-300`,
+  floatingCreateButton:
+    "fixed bottom-6 right-6 flex h-12 w-12 items-center justify-center rounded-full bg-app-base/80 text-white shadow-lg backdrop-blur transition",
+  formChipBase:
+    "inline-flex h-9 cursor-pointer items-center justify-center rounded-full border px-3 text-sm font-medium transition",
+  formSubmitButton:
+    "inline-flex h-11 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-80",
+  formResetButton:
+    "inline-flex h-11 w-11 cursor-pointer items-center justify-center text-app-muted transition hover:text-white",
+  todoInput:
+    "min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-white outline-none placeholder:text-app-disabled",
+  todoItem:
+    "flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-app-base bg-app-bg px-3 py-2",
+} as const;
 
 // 그룹
-export const groupPanelClass =
-  "rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm";
-
-export const groupCompactPanelClass =
-  "rounded-2xl border border-app-base bg-app-surface p-5 shadow-sm";
-
-export const groupDangerPanelClass =
-  "rounded-2xl border border-red-500/30 bg-red-500/5 p-6 shadow-sm";
-
-export const groupMemberCardClass =
-  "rounded-xl border border-app-base bg-app-bg px-4 py-3";
-
-export const groupOwnerBadgeClass =
-  "rounded-full bg-app-base px-2 py-1 text-xs font-medium text-white";
-
-export const groupMemberBadgeClass =
-  "rounded-full border border-app-base px-2 py-1 text-xs font-medium text-app-soft";
-
-export const groupMemberOwnerBadgeClass =
-  "rounded-full bg-app-base px-2 py-0.5 text-xs font-medium text-white";
-
-export const groupMemberRoleTextClass = "text-xs text-app-muted";
-
-export const groupPrimaryActionButtonClass =
-  "inline-flex h-10 w-20 items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white";
-
-export const groupSecondaryActionButtonClass =
-  "inline-flex h-10 w-20 items-center justify-center gap-2 rounded-xl border border-app-base bg-app-surface text-sm font-medium text-app-soft";
-
-export const groupSmallActionLinkClass =
-  "rounded-full border border-app-base bg-app-bg px-3 py-1.5 text-xs font-medium text-app-soft transition hover:bg-app-surface-hover hover:text-white";
-
-export const groupTaskCardLinkClass =
-  "block rounded-xl border border-app-base bg-app-bg p-4 transition hover:bg-app-surface-hover";
-
-export const groupDangerButtonClass =
-  "inline-flex h-10 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 text-sm font-semibold text-red-300";
+export const groupClassNames = {
+  ownerBadge:
+    "rounded-full bg-app-base px-2 py-1 text-xs font-medium text-white",
+  memberBadge:
+    "rounded-full border border-app-base px-2 py-1 text-xs font-medium text-app-soft",
+  memberOwnerBadge:
+    "rounded-full bg-app-base px-2 py-0.5 text-xs font-medium text-white",
+  memberRoleText: "text-xs text-app-muted",
+} as const;
