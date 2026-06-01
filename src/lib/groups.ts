@@ -316,7 +316,7 @@ export async function getGroupSettingsDetail(
 
 export async function getGroupInviteDetail(
   token: string,
-  userId: string,
+  userId: string | null,
 ): Promise<GroupInviteDetail | null> {
   const invite = await prisma.groupInvite.findUnique({
     where: {
@@ -334,15 +334,6 @@ export async function getGroupInviteDetail(
               members: true,
             },
           },
-          members: {
-            where: {
-              userId,
-            },
-            select: {
-              id: true,
-            },
-            take: 1,
-          },
         },
       },
     },
@@ -351,6 +342,20 @@ export async function getGroupInviteDetail(
   if (!invite) {
     return null;
   }
+
+  const member = userId
+    ? await prisma.groupMember.findUnique({
+        where: {
+          groupId_userId: {
+            groupId: invite.group.id,
+            userId,
+          },
+        },
+        select: {
+          id: true,
+        },
+      })
+    : null;
 
   const isExpired = isGroupInviteExpired(invite.expiresAt);
 
@@ -363,6 +368,6 @@ export async function getGroupInviteDetail(
     },
     expiresAt: formatDate(invite.expiresAt),
     isAvailable: !isExpired,
-    isAlreadyMember: invite.group.members.length > 0,
+    isAlreadyMember: Boolean(member),
   };
 }

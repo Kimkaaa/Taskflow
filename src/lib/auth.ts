@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { routes } from "@/constants/routes";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 
@@ -12,11 +13,11 @@ export async function getCurrentUser() {
   return user;
 }
 
-export async function requireUser() {
+export async function requireUser(nextPath?: string) {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/login");
+    redirect(routes.login(nextPath));
   }
 
   return user;
@@ -36,8 +37,8 @@ function getNickname(user: Awaited<ReturnType<typeof requireUser>>) {
   return user.email?.split("@")[0] ?? "사용자";
 }
 
-export async function requireAppUser() {
-  const user = await requireUser();
+export async function requireAppUser(nextPath?: string) {
+  const user = await requireUser(nextPath);
 
   return prisma.user.upsert({
     where: {

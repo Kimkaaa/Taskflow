@@ -1,13 +1,15 @@
-import { redirect } from "next/navigation";
+import Link from "next/link";
+
 import InviteAcceptForm from "@/components/groups/InviteAcceptForm";
 import { acceptGroupInvite } from "@/app/actions/groups";
-import { routes } from "@/constants/routes";
-import { getCurrentUser, requireAppUser } from "@/lib/auth";
-import { getGroupInviteDetail } from "@/lib/groups";
 import {
+  buttonClassNames,
   pageClassNames,
   panelClassNames,
 } from "@/constants/classNames";
+import { routes } from "@/constants/routes";
+import { getCurrentUser, requireAppUser } from "@/lib/auth";
+import { getGroupInviteDetail } from "@/lib/groups";
 import BackLink from "@/components/common/BackLink";
 
 type InvitePageProps = {
@@ -19,13 +21,8 @@ type InvitePageProps = {
 export default async function InvitePage({ params }: InvitePageProps) {
   const { token } = await params;
   const currentUser = await getCurrentUser();
-
-  if (!currentUser) {
-    redirect(`/login?next=${encodeURIComponent(routes.invite(token))}`);
-  }
-
-  const user = await requireAppUser();
-  const invite = await getGroupInviteDetail(token, user.id);
+  const user = currentUser ? await requireAppUser(routes.invite(token)) : null;
+  const invite = await getGroupInviteDetail(token, user?.id ?? null);
 
   const acceptGroupInviteWithToken = acceptGroupInvite.bind(null, token);
 
@@ -35,9 +32,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
         <div className="mb-6 flex items-center gap-2">
           <BackLink href={routes.tasks} label="작업 목록으로 돌아가기" />
 
-          <h1 className="text-lg font-bold tracking-tight">
-            그룹 초대
-          </h1>
+          <h1 className="text-lg font-bold tracking-tight">그룹 초대</h1>
         </div>
 
         <section className={panelClassNames.surface}>
@@ -60,6 +55,29 @@ export default async function InvitePage({ params }: InvitePageProps) {
               <p className="mt-3 text-sm leading-6 text-app-muted">
                 그룹 리더에게 새 링크를 요청해주세요.
               </p>
+            </>
+          ) : !user ? (
+            <>
+              <h2 className="text-lg font-bold text-white">
+                {invite.group.name}
+              </h2>
+
+              <p className="mt-3 text-sm leading-6 text-app-muted">
+                로그인 후 그룹에 참여할 수 있습니다.
+              </p>
+
+              <div className="mt-5 rounded-xl border border-app-base bg-app-bg px-4 py-3 text-sm text-app-soft">
+                <p>만료일 {invite.expiresAt}</p>
+              </div>
+
+              <div className="mt-6">
+                <Link
+                  href={routes.login(routes.invite(token))}
+                  className={buttonClassNames.fixedPrimary}
+                >
+                  로그인
+                </Link>
+              </div>
             </>
           ) : (
             <>

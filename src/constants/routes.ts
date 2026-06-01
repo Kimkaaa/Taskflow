@@ -1,4 +1,7 @@
 export const routes = {
+  login: (nextPath?: string) =>
+    nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : "/login",
+
   tasks: "/tasks",
   groups: "/groups",
   groupsNew: "/groups/new",

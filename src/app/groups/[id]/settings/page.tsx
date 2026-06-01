@@ -31,7 +31,7 @@ export default async function GroupSettingsPage({
   params,
 }: GroupSettingsPageProps) {
   const { id } = await params;
-  const user = await requireAppUser();
+  const user = await requireAppUser(routes.groupSettings(id));
   const group = await getGroupSettingsDetail(id, user.id);
 
   if (!group) {

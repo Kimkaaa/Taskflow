@@ -25,7 +25,7 @@ export default async function GroupDetailPage({
   params,
 }: GroupDetailPageProps) {
   const { id } = await params;
-  const user = await requireAppUser();
+  const user = await requireAppUser(routes.groupDetail(id));
   const group = await getGroupDetail(id, user.id);
 
   if (!group) {

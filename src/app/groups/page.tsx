@@ -12,7 +12,7 @@ import BackLink from "@/components/common/BackLink";
 import { routes } from "@/constants/routes";
 
 export default async function GroupsPage() {
-  const user = await requireAppUser();
+  const user = await requireAppUser(routes.groups);
   const groups = await getMyGroups(user.id);
 
   return (

@@ -6,8 +6,11 @@ import {
   panelClassNames,
 } from "@/constants/classNames";
 import { routes } from "@/constants/routes";
+import { requireAppUser } from "@/lib/auth";
 
-export default function NewGroupPage() {
+export default async function NewGroupPage() {
+  await requireAppUser(routes.groupsNew);
+
   return (
     <main className={pageClassNames.main}>
       <section className={pageClassNames.section}>
