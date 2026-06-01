@@ -1,9 +1,7 @@
-import Link from "next/link";
-
+import LoginLinkButton from "@/components/common/LoginLinkButton";
 import InviteAcceptForm from "@/components/groups/InviteAcceptForm";
 import { acceptGroupInvite } from "@/app/actions/groups";
 import {
-  buttonClassNames,
   pageClassNames,
   panelClassNames,
 } from "@/constants/classNames";
@@ -71,12 +69,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
               </div>
 
               <div className="mt-6">
-                <Link
-                  href={routes.login(routes.invite(token))}
-                  className={buttonClassNames.fixedPrimary}
-                >
-                  로그인
-                </Link>
+                <LoginLinkButton href={routes.login(routes.invite(token))} />
               </div>
             </>
           ) : (
