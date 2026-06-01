@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { routes } from "@/constants/routes";
 import { createClient } from "@/lib/supabase/server";
 import { getSafeNextPath } from "@/lib/safeRedirect";
 
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
   });
 
   if (error || !data.url) {
-    return NextResponse.redirect(new URL("/tasks", request.url));
+    return NextResponse.redirect(new URL(routes.tasks, request.url));
   }
 
   return NextResponse.redirect(data.url);

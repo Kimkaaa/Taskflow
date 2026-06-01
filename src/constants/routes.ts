@@ -2,6 +2,9 @@ export const routes = {
   login: (nextPath?: string) =>
     nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : "/login",
 
+  authLogin: (nextPath?: string) =>
+    nextPath ? `/auth/login?next=${encodeURIComponent(nextPath)}` : "/auth/login",
+
   tasks: "/tasks",
   tasksNew: "/tasks/new",
   taskDetail: (taskId: string) => `/tasks/${taskId}`,
