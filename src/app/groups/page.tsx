@@ -22,7 +22,7 @@ export default async function GroupsPage() {
           <div className="flex items-center gap-2">
             <BackLink href={routes.tasks} label="작업 목록으로 돌아가기" />
 
-            <h1 className="text-lg font-bold tracking-tight">내 그룹</h1>
+            <h1 className={pageClassNames.title}>내 그룹</h1>
           </div>
 
           <Link href={routes.groupsNew} className={buttonClassNames.fixedPrimary}>

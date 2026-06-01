@@ -7,7 +7,7 @@ import {
   initialGroupActionState,
   type GroupActionState,
 } from "@/types/groupAction";
-import { feedbackClassNames } from "@/constants/classNames";
+import { buttonClassNames, feedbackClassNames } from "@/constants/classNames";
 
 type InviteAcceptFormProps = {
   action: (
@@ -24,7 +24,7 @@ function SubmitButton({ isAlreadyMember }: { isAlreadyMember: boolean }) {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex h-10 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white disabled:cursor-wait"
+      className={buttonClassNames.fixedPrimaryPending}
     >
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />

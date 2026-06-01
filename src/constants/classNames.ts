@@ -2,6 +2,7 @@
 export const pageClassNames = {
   main: "min-h-screen bg-app-bg px-6 py-8 text-white",
   section: "mx-auto max-w-2xl",
+  title: "text-lg font-bold tracking-tight",
 } as const;
 
 // 공통 패널
@@ -13,6 +14,8 @@ export const panelClassNames = {
     "rounded-2xl border border-red-500/30 bg-red-500/5 p-6 shadow-sm",
   dashedSurface:
     "rounded-2xl border border-dashed border-app-base bg-app-surface p-10 text-center shadow-sm",
+  messageSurface:
+    "rounded-2xl border border-app-base bg-app-surface p-10 text-center shadow-sm",
 } as const;
 
 // 공통 카드
@@ -25,13 +28,34 @@ export const cardClassNames = {
 } as const;
 
 // 공통 버튼
+const fixedPrimaryButtonBase =
+  "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold";
+
+const fixedSecondaryButtonBase =
+  "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-app-base text-sm font-medium text-app-soft";
+
 export const buttonClassNames = {
   fixedPrimary:
-    "inline-flex h-10 w-20 items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white",
+    `${fixedPrimaryButtonBase} w-20 cursor-pointer text-white`,
+
+  fixedPrimaryPending:
+    `${fixedPrimaryButtonBase} w-20 cursor-pointer text-white disabled:cursor-wait`,
+
+  fixedPrimaryInactive:
+    `${fixedPrimaryButtonBase} w-20 cursor-not-allowed text-app-muted`,
+
+  fixedPrimaryWide:
+    `${fixedPrimaryButtonBase} w-[110px] cursor-pointer text-white`,
+
   fixedSecondary:
-    "inline-flex h-10 w-20 items-center justify-center gap-2 rounded-xl border border-app-base bg-app-surface text-sm font-medium text-app-soft",
+    `${fixedSecondaryButtonBase} w-20 bg-app-surface`,
+
+  fixedSecondaryWide:
+    `${fixedSecondaryButtonBase} w-[110px] bg-app-bg`,
+
   fixedDanger:
     "inline-flex h-10 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 text-sm font-semibold text-red-300",
+
   smallPill:
     "rounded-full border border-app-base bg-app-bg px-3 py-1.5 text-xs font-medium text-app-soft transition hover:bg-app-surface-hover hover:text-white",
 } as const;

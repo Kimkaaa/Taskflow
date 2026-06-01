@@ -1,6 +1,7 @@
 import Link from "next/link";
 import BackLink from "@/components/common/BackLink";
 import {
+  buttonClassNames,
   pageClassNames,
   panelClassNames,
 } from "@/constants/classNames";
@@ -32,13 +33,13 @@ export default function NotFoundMessage({
         <div className={panelClassNames.dashedSurface}>
           <p className="text-lg font-semibold text-white">{title}</p>
 
-          <p className="mt-2 text-sm leading-6 text-app-muted">
+          <p className="mt-2 mb-6 text-sm leading-6 text-app-muted">
             {description}
           </p>
 
           <Link
             href={actionHref}
-            className="mt-6 inline-flex rounded-xl bg-app-base/80 px-4 py-2 text-sm font-semibold text-white"
+            className={buttonClassNames.fixedPrimaryWide}
           >
             {actionLabel}
           </Link>

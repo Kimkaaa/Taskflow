@@ -17,9 +17,7 @@ export default async function NewGroupPage() {
         <div className="mb-6 flex items-center gap-2">
           <BackLink href={routes.groups} label="그룹 목록으로 돌아가기" />
 
-          <h1 className="text-lg font-bold tracking-tight">
-            그룹 생성
-          </h1>
+          <h1 className={pageClassNames.title}>그룹 생성</h1>
         </div>
 
         <div className={panelClassNames.surface}>

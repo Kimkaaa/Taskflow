@@ -30,7 +30,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
         <div className="mb-6 flex items-center gap-2">
           <BackLink href={routes.tasks} label="작업 목록으로 돌아가기" />
 
-          <h1 className="text-lg font-bold tracking-tight">그룹 초대</h1>
+          <h1 className={pageClassNames.title}>그룹 초대</h1>
         </div>
 
         <section className={panelClassNames.surface}>

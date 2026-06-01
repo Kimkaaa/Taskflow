@@ -11,7 +11,11 @@ import {
   GROUP_DESCRIPTION_MAX_LENGTH,
   GROUP_NAME_MAX_LENGTH,
 } from "@/constants/group";
-import { feedbackClassNames, formClassNames } from "@/constants/classNames";
+import {
+  buttonClassNames,
+  feedbackClassNames,
+  formClassNames,
+} from "@/constants/classNames";
 
 type GroupFormProps = {
   action: (
@@ -33,11 +37,17 @@ function SubmitButton({
 }) {
   const { pending } = useFormStatus();
 
+  const buttonClassName = pending
+    ? buttonClassNames.fixedPrimaryPending
+    : disabled
+      ? buttonClassNames.fixedPrimaryInactive
+      : buttonClassNames.fixedPrimary;
+
   return (
     <button
       type="submit"
       disabled={pending || disabled}
-      className="inline-flex h-10 w-20 cursor-pointer items-center justify-center rounded-xl bg-app-base/80 text-sm font-semibold text-white disabled:cursor-wait"
+      className={buttonClassName}
     >
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />

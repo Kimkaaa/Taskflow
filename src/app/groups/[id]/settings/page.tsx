@@ -75,9 +75,7 @@ export default async function GroupSettingsPage({
         <div className="mb-6 flex items-center gap-2">
           <BackLink href={routes.groupDetail(group.id)} label="그룹 상세로 돌아가기" />
 
-          <h1 className="text-lg font-bold tracking-tight">
-            그룹 관리
-          </h1>
+          <h1 className={pageClassNames.title}>그룹 관리</h1>
         </div>
 
         <div className="grid gap-6">
