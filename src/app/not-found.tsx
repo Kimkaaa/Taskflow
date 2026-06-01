@@ -9,7 +9,7 @@ export default function NotFound() {
       title="페이지를 찾을 수 없습니다."
       description="주소가 잘못되었거나 이동된 페이지일 수 있습니다."
       actionHref={routes.tasks}
-      actionLabel="작업 목록으로 이동"
+      actionLabel="목록으로 이동"
     />
   );
 }

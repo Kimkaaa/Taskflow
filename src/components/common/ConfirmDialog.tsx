@@ -64,7 +64,7 @@ export default function ConfirmDialog({
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer text-app-muted"
+            className={dialogClassNames.closeButton}
             aria-label={hasError ? errorActionLabel : closeLabel}
             title={hasError ? errorActionLabel : closeLabel}
           >

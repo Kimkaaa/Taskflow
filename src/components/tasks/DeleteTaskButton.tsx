@@ -103,7 +103,7 @@ export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
               <button
                 type="button"
                 onClick={handleClose}
-                className="cursor-pointer text-app-muted"
+                className={dialogClassNames.closeButton}
                 aria-label={hasDeleteError ? "작업 목록으로 이동" : "닫기"}
                 title={hasDeleteError ? "작업 목록으로 이동" : "닫기"}
               >
