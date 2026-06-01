@@ -3,6 +3,10 @@ export const routes = {
     nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : "/login",
 
   tasks: "/tasks",
+  tasksNew: "/tasks/new",
+  taskDetail: (taskId: string) => `/tasks/${taskId}`,
+  taskEdit: (taskId: string) => `/tasks/${taskId}/edit`,
+
   groups: "/groups",
   groupsNew: "/groups/new",
   groupDetail: (groupId: string) => `/groups/${groupId}`,

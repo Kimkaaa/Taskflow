@@ -1,5 +1,31 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { routePrefixes, routes } from "@/constants/routes";
+
+function isProtectedTaskPath(pathname: string) {
+  return (
+    pathname === routes.tasksNew ||
+    (pathname.startsWith(routePrefixes.tasks) && pathname.endsWith("/edit"))
+  );
+}
+
+function isProtectedGroupPath(pathname: string) {
+  return pathname === routes.groups || pathname.startsWith(routePrefixes.groups);
+}
+
+function isProtectedPath(pathname: string) {
+  return isProtectedTaskPath(pathname) || isProtectedGroupPath(pathname);
+}
+
+function getNextPath(request: NextRequest) {
+  return `${request.nextUrl.pathname}${request.nextUrl.search}`;
+}
+
+function redirectToLogin(request: NextRequest) {
+  return NextResponse.redirect(
+    new URL(routes.login(getNextPath(request)), request.url),
+  );
+}
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -31,7 +57,11 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getClaims();
+  const { data, error } = await supabase.auth.getClaims();
+
+  if (isProtectedPath(request.nextUrl.pathname) && (error || !data?.claims)) {
+    return redirectToLogin(request);
+  }
 
   return supabaseResponse;
 }
