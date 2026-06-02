@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { LoaderCircle } from "lucide-react";
-import ConfirmDialog from "@/components/common/ConfirmDialog";
+import Dialog from "@/components/common/Dialog";
 import {
   dialogClassNames,
   buttonClassNames,
@@ -64,6 +64,10 @@ export default function GroupDangerForm({
   const errorMessage = !isPending ? state.error : undefined;
 
   const handleClose = () => {
+    if (isPending) {
+      return;
+    }
+
     setIsOpen(false);
   };
 
@@ -77,27 +81,38 @@ export default function GroupDangerForm({
         {label}
       </button>
 
-      <ConfirmDialog
+      <Dialog
         open={isOpen}
-        title={confirmTitle}
-        description={confirmDescription}
+        title={errorMessage ? errorTitle : confirmTitle}
+        description={errorMessage ?? confirmDescription}
         onClose={handleClose}
-        errorTitle={errorTitle}
-        errorMessage={errorMessage}
-        errorActionLabel="닫기"
+        preventClose={isPending}
       >
-        <form action={formAction} className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={handleClose}
-            className={dialogClassNames.cancelButton}
-          >
-            취소
-          </button>
+        {errorMessage ? (
+          <div className={dialogClassNames.actions}>
+            <button
+              type="button"
+              onClick={handleClose}
+              className={dialogClassNames.listButton}
+            >
+              닫기
+            </button>
+          </div>
+        ) : (
+          <form action={formAction} className={dialogClassNames.actions}>
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={isPending}
+              className={dialogClassNames.cancelButton}
+            >
+              취소
+            </button>
 
-          <SubmitButton label={label} />
-        </form>
-      </ConfirmDialog>
+            <SubmitButton label={label} />
+          </form>
+        )}
+      </Dialog>
 
       {isPending ? <BlockingOverlay message={pendingMessage} /> : null}
     </>

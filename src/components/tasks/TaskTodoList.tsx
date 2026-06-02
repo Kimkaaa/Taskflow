@@ -4,9 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CheckSquare, LoaderCircle, Square } from "lucide-react";
 import { completeTask, updateTaskTodoDone } from "@/app/actions/tasks";
-import {
-  dialogClassNames,
-} from "@/constants/classNames";
+import Dialog from "@/components/common/Dialog";
+import { dialogClassNames } from "@/constants/classNames";
 import type { TaskStatus, TaskTodo } from "@/types/task";
 
 type TaskTodoListProps = {
@@ -77,9 +76,9 @@ export default function TaskTodoList({
     const nextItems = items.map((todo) =>
       todo.id === todoId
         ? {
-            ...todo,
-            isDone: nextIsDone,
-          }
+          ...todo,
+          isDone: nextIsDone,
+        }
         : todo,
     );
 
@@ -197,82 +196,61 @@ export default function TaskTodoList({
         <p className="mt-3 text-sm text-red-300">{errorMessage}</p>
       ) : null}
 
-      {isCompleteDialogOpen ? (
-        <div
-          className={dialogClassNames.overlay}
-          role="presentation"
-          onClick={handleCloseCompleteDialog}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="complete-task-title"
-            className={dialogClassNames.panel}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="mb-5">
-              <h2
-                id="complete-task-title"
-                className="text-lg font-semibold text-white"
-              >
-                {hasCompleteError
-                  ? "작업 상태를 변경하지 못했습니다."
-                  : "모든 체크리스트를 완료했어요."}
-              </h2>
-
-              <p
-                className="mt-2 text-sm leading-6 text-app-muted"
-                role={hasCompleteError ? "alert" : undefined}
-              >
-                {hasCompleteError
-                  ? completeErrorMessage
-                  : "작업을 완료로 변경할까요?"}
-              </p>
-            </div>
-
-            {hasCompleteError ? (
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={handleCloseCompleteDialog}
-                  className={dialogClassNames.listButton}
-                >
-                  목록으로 이동
-                </button>
-              </div>
-            ) : (
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={handleCloseCompleteDialog}
-                  disabled={isCompletePending}
-                  className={dialogClassNames.cancelButton}
-                >
-                  취소
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleCompleteTask}
-                  disabled={isCompletePending}
-                  className={dialogClassNames.confirmButton}
-                  aria-label={isCompletePending ? "완료 처리 중" : "확인"}
-                  title={isCompletePending ? "완료 처리 중" : "확인"}
-                >
-                  {isCompletePending ? (
-                    <LoaderCircle
-                      className="h-4 w-4 animate-spin"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    "확인"
-                  )}
-                </button>
-              </div>
-            )}
+      <Dialog
+        open={isCompleteDialogOpen}
+        title={
+          hasCompleteError
+            ? "작업 상태를 변경하지 못했습니다."
+            : "모든 체크리스트를 완료했어요."
+        }
+        description={
+          hasCompleteError
+            ? completeErrorMessage ?? undefined
+            : "작업을 완료로 변경할까요?"
+        }
+        onClose={handleCloseCompleteDialog}
+        showCloseButton={false}
+        closeOnOverlayClick={false}
+        preventClose={isCompletePending}
+      >
+        {hasCompleteError ? (
+          <div className={dialogClassNames.actions}>
+            <button
+              type="button"
+              onClick={handleCloseCompleteDialog}
+              className={dialogClassNames.listButton}
+            >
+              목록으로 이동
+            </button>
           </div>
-        </div>
-      ) : null}
+        ) : (
+          <div className={dialogClassNames.actions}>
+            <button
+              type="button"
+              onClick={handleCloseCompleteDialog}
+              disabled={isCompletePending}
+              className={dialogClassNames.cancelButton}
+            >
+              취소
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCompleteTask}
+              disabled={isCompletePending}
+              className={dialogClassNames.confirmButton}
+              aria-label={isCompletePending ? "완료 처리 중" : "확인"}
+              title={isCompletePending ? "완료 처리 중" : "확인"}
+            >
+              {isCompletePending ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                "확인"
+              )}
+            </button>
+          </div>
+        )}
+      </Dialog>
     </section>
   );
 }

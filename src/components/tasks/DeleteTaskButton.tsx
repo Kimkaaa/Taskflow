@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState, useId, useState } from "react";
+import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoaderCircle, Trash2, X } from "lucide-react";
+import { LoaderCircle, Trash2 } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import { deleteTask } from "@/app/actions/tasks";
+import BlockingOverlay from "@/components/common/BlockingOverlay";
+import Dialog from "@/components/common/Dialog";
 import {
   dialogClassNames,
   taskClassNames,
@@ -37,11 +39,10 @@ function DeleteSubmitButton() {
 
 export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
   const router = useRouter();
-  const titleId = useId();
   const [isOpen, setIsOpen] = useState(false);
 
   const deleteTaskWithId = deleteTask.bind(null, taskId);
-  const [state, formAction] = useActionState(
+  const [state, formAction, isPending] = useActionState(
     deleteTaskWithId,
     initialTaskActionState,
   );
@@ -50,6 +51,10 @@ export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
   const hasDeleteError = Boolean(errorMessage);
 
   const handleClose = () => {
+    if (isPending) {
+      return;
+    }
+
     if (hasDeleteError) {
       router.replace("/tasks");
       return;
@@ -69,76 +74,42 @@ export default function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
         삭제
       </button>
 
-      {isOpen ? (
-        <div
-          className={dialogClassNames.overlay}
-          role="presentation"
-          onClick={handleClose}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            className={dialogClassNames.panel}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="mb-5 flex items-start justify-between gap-4">
-              <div>
-                <h2 id={titleId} className="text-lg font-semibold text-white">
-                  {hasDeleteError
-                    ? "작업을 삭제할 수 없습니다."
-                    : "작업을 삭제할까요?"}
-                </h2>
-
-                <p
-                  className="mt-2 text-sm leading-6 text-app-muted"
-                  role={hasDeleteError ? "alert" : undefined}
-                >
-                  {hasDeleteError
-                    ? errorMessage
-                    : "삭제한 작업은 되돌릴 수 없습니다."}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleClose}
-                className={dialogClassNames.closeButton}
-                aria-label={hasDeleteError ? "작업 목록으로 이동" : "닫기"}
-                title={hasDeleteError ? "작업 목록으로 이동" : "닫기"}
-              >
-                <X className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
-
-            {hasDeleteError ? (
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className={dialogClassNames.listButton}
-                >
-                  목록으로 이동
-                </button>
-              </div>
-            ) : (
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className={dialogClassNames.cancelButton}
-                >
-                  취소
-                </button>
-
-                <form action={formAction}>
-                  <DeleteSubmitButton />
-                </form>
-              </div>
-            )}
+      <Dialog
+        open={isOpen}
+        title={hasDeleteError ? "작업을 삭제할 수 없습니다." : "작업을 삭제할까요?"}
+        description={
+          hasDeleteError ? errorMessage ?? undefined : "삭제한 작업은 되돌릴 수 없습니다."
+        }
+        onClose={handleClose}
+        preventClose={isPending}
+      >
+        {hasDeleteError ? (
+          <div className={dialogClassNames.actions}>
+            <button
+              type="button"
+              onClick={handleClose}
+              className={dialogClassNames.listButton}
+            >
+              목록으로 이동
+            </button>
           </div>
-        </div>
-      ) : null}
+        ) : (
+          <form action={formAction} className={dialogClassNames.actions}>
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={isPending}
+              className={dialogClassNames.cancelButton}
+            >
+              취소
+            </button>
+
+            <DeleteSubmitButton />
+          </form>
+        )}
+      </Dialog>
+
+      {isPending ? <BlockingOverlay message="작업을 삭제하는 중입니다." /> : null}
     </>
   );
 }

@@ -90,6 +90,7 @@ export const dialogClassNames = {
   panel:
     "w-full max-w-sm rounded-2xl border border-app-base bg-app-surface p-6 shadow-xl",
   closeButton: "cursor-pointer text-app-muted",
+  actions: "flex justify-end gap-2",
   actionButtonBase: dialogActionButtonBase,
   cancelButton: `${dialogActionButtonBase} text-app-soft`,
   confirmButton: `${dialogActionButtonBase} bg-app-base/80 text-white`,

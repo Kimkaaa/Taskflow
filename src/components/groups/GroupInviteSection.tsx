@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Copy, LoaderCircle, Trash2 } from "lucide-react";
-import ConfirmDialog from "@/components/common/ConfirmDialog";
+import Dialog from "@/components/common/Dialog";
 import {
   panelClassNames,
   dialogClassNames,
@@ -114,6 +114,14 @@ export default function GroupInviteSection({
     }
   };
 
+  const handleDeleteDialogClose = () => {
+    if (isDeletePending) {
+      return;
+    }
+
+    setIsDeleteDialogOpen(false);
+  };
+
   return (
     <>
       <section className={panelClassNames.surface}>
@@ -179,27 +187,46 @@ export default function GroupInviteSection({
         ) : null}
       </section>
 
-      <ConfirmDialog
+      <Dialog
         open={isDeleteDialogOpen}
-        title="초대 링크를 삭제할까요?"
-        description="기존 링크는 더 이상 사용할 수 없습니다."
-        onClose={() => setIsDeleteDialogOpen(false)}
-        errorTitle="초대 링크를 삭제할 수 없습니다."
-        errorMessage={shouldShowDeleteError ? deleteState.error : undefined}
-        errorActionLabel="닫기"
+        title={
+          shouldShowDeleteError
+            ? "초대 링크를 삭제할 수 없습니다."
+            : "초대 링크를 삭제할까요?"
+        }
+        description={
+          shouldShowDeleteError
+            ? deleteState.error
+            : "기존 링크는 더 이상 사용할 수 없습니다."
+        }
+        onClose={handleDeleteDialogClose}
+        preventClose={isDeletePending}
       >
-        <form action={deleteFormAction} className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={() => setIsDeleteDialogOpen(false)}
-            className={dialogClassNames.cancelButton}
-          >
-            취소
-          </button>
+        {shouldShowDeleteError ? (
+          <div className={dialogClassNames.actions}>
+            <button
+              type="button"
+              onClick={handleDeleteDialogClose}
+              className={dialogClassNames.listButton}
+            >
+              닫기
+            </button>
+          </div>
+        ) : (
+          <form action={deleteFormAction} className={dialogClassNames.actions}>
+            <button
+              type="button"
+              onClick={handleDeleteDialogClose}
+              disabled={isDeletePending}
+              className={dialogClassNames.cancelButton}
+            >
+              취소
+            </button>
 
-          <DeleteSubmitButton />
-        </form>
-      </ConfirmDialog>
+            <DeleteSubmitButton />
+          </form>
+        )}
+      </Dialog>
     </>
   );
 }

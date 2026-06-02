@@ -22,7 +22,8 @@ import { LoaderCircle, Pencil, Plus, RotateCcw } from "lucide-react";
 import SortableTodoItem, {
   type EditableTodo,
 } from "@/components/tasks/SortableTodoItem";
-import TaskGroupSelectDialog from "@/components/tasks/TaskGroupSelectDialog";
+import BlockingOverlay from "@/components/common/BlockingOverlay";
+import Dialog from "@/components/common/Dialog";
 import {
   feedbackClassNames,
   formClassNames,
@@ -473,13 +474,37 @@ export default function TaskForm({
         </div>
       </form>
 
-      <TaskGroupSelectDialog
+      <Dialog
         open={isGroupDialogOpen}
-        groups={groups}
-        selectedGroupId={selectedGroupId}
-        onSelect={handleSelectGroup}
+        title="그룹 선택"
+        description="작업을 공유할 그룹을 선택해 주세요."
         onClose={() => setIsGroupDialogOpen(false)}
-      />
+      >
+        <div className="grid gap-2">
+          {groups.map((group) => {
+            const isSelected = selectedGroupId === group.id;
+
+            return (
+              <button
+                key={group.id}
+                type="button"
+                onClick={() => handleSelectGroup(group.id)}
+                className={
+                  isSelected
+                    ? "rounded-xl border border-app-strong bg-app-base px-4 py-3 text-left text-sm font-semibold text-white truncate cursor-pointer"
+                    : "rounded-xl border border-app-base bg-app-bg px-4 py-3 text-left text-sm font-medium text-app-soft truncate cursor-pointer"
+                }
+              >
+                {group.name}
+              </button>
+            );
+          })}
+        </div>
+      </Dialog>
+
+      {isPending ? (
+        <BlockingOverlay message={`작업을 ${submitLabel}하는 중입니다.`} />
+      ) : null}
     </>
   );
 }
