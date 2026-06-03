@@ -2,6 +2,7 @@ import { routes } from "@/constants/routes";
 import { prisma } from "@/lib/prisma";
 import { isGroupInviteExpired } from "@/lib/groupInvite";
 import type { TaskPriority, TaskStatus } from "@/types/task";
+import { GROUP_MEMBER_LIMIT, USER_GROUP_LIMIT } from "@/constants/group";
 
 export type GroupSummary = {
   id: string;
@@ -54,6 +55,10 @@ export type ActiveGroupInvite = {
   createdAt: string;
 };
 
+export type GroupInviteUnavailableReason =
+  | "USER_GROUP_LIMIT_REACHED"
+  | "GROUP_MEMBER_LIMIT_REACHED";
+
 export type GroupSettingsDetail = {
   id: string;
   name: string;
@@ -75,10 +80,45 @@ export type GroupInviteDetail = {
   expiresAt: string;
   isAvailable: boolean;
   isAlreadyMember: boolean;
+  unavailableReason: GroupInviteUnavailableReason | null;
 };
 
 function formatDate(value: Date) {
   return value.toISOString().slice(0, 10);
+}
+
+export async function getUserGroupCount(userId: string) {
+  return prisma.groupMember.count({
+    where: {
+      userId,
+    },
+  });
+}
+
+function getGroupInviteUnavailableReason({
+  userGroupCount,
+  groupMemberCount,
+  isAlreadyMember,
+  isExpired,
+}: {
+  userGroupCount: number | null;
+  groupMemberCount: number;
+  isAlreadyMember: boolean;
+  isExpired: boolean;
+}): GroupInviteUnavailableReason | null {
+  if (isExpired || isAlreadyMember || userGroupCount === null) {
+    return null;
+  }
+
+  if (userGroupCount >= USER_GROUP_LIMIT) {
+    return "USER_GROUP_LIMIT_REACHED";
+  }
+
+  if (groupMemberCount >= GROUP_MEMBER_LIMIT) {
+    return "GROUP_MEMBER_LIMIT_REACHED";
+  }
+
+  return null;
 }
 
 export async function getMyGroups(userId: string): Promise<GroupSummary[]> {
@@ -305,11 +345,11 @@ export async function getGroupSettingsDetail(
     })),
     activeInvite: activeInvite
       ? {
-          token: activeInvite.token,
-          invitePath: routes.invite(activeInvite.token),
-          expiresAt: formatDate(activeInvite.expiresAt),
-          createdAt: formatDate(activeInvite.createdAt),
-        }
+        token: activeInvite.token,
+        invitePath: routes.invite(activeInvite.token),
+        expiresAt: formatDate(activeInvite.expiresAt),
+        createdAt: formatDate(activeInvite.createdAt),
+      }
       : null,
   };
 }
@@ -345,19 +385,32 @@ export async function getGroupInviteDetail(
 
   const member = userId
     ? await prisma.groupMember.findUnique({
-        where: {
-          groupId_userId: {
-            groupId: invite.group.id,
-            userId,
-          },
+      where: {
+        groupId_userId: {
+          groupId: invite.group.id,
+          userId,
         },
-        select: {
-          id: true,
-        },
-      })
+      },
+      select: {
+        id: true,
+      },
+    })
     : null;
 
   const isExpired = isGroupInviteExpired(invite.expiresAt);
+  const isAlreadyMember = Boolean(member);
+
+  const userGroupCount =
+    userId && !isAlreadyMember && !isExpired
+      ? await getUserGroupCount(userId)
+      : null;
+
+  const unavailableReason = getGroupInviteUnavailableReason({
+    userGroupCount,
+    groupMemberCount: invite.group._count.members,
+    isAlreadyMember,
+    isExpired,
+  });
 
   return {
     token: invite.token,
@@ -368,6 +421,7 @@ export async function getGroupInviteDetail(
     },
     expiresAt: formatDate(invite.expiresAt),
     isAvailable: !isExpired,
-    isAlreadyMember: Boolean(member),
+    isAlreadyMember,
+    unavailableReason,
   };
 }

@@ -9,11 +9,15 @@ import {
   groupClassNames,
 } from "@/constants/classNames";
 import BackLink from "@/components/common/BackLink";
+import { USER_GROUP_LIMIT } from "@/constants/group";
 import { routes } from "@/constants/routes";
 
 export default async function GroupsPage() {
   const user = await requireAppUser(routes.groups);
   const groups = await getMyGroups(user.id);
+
+  const userGroupCount = groups.length;
+  const isGroupLimitReached = userGroupCount >= USER_GROUP_LIMIT;
 
   return (
     <main className={pageClassNames.main}>
@@ -25,10 +29,32 @@ export default async function GroupsPage() {
             <h1 className={pageClassNames.title}>내 그룹</h1>
           </div>
 
-          <Link href={routes.groupsNew} className={buttonClassNames.fixedPrimary}>
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            생성
-          </Link>
+          {isGroupLimitReached ? (
+            <span className={buttonClassNames.fixedPrimaryInactive}>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              생성
+            </span>
+          ) : (
+            <Link
+              href={routes.groupsNew}
+              className={buttonClassNames.fixedPrimary}
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              생성
+            </Link>
+          )}
+        </div>
+
+        <div className="mb-3 flex items-center justify-between text-xs text-app-muted">
+          <span>
+            {userGroupCount}/{USER_GROUP_LIMIT}
+          </span>
+
+          {isGroupLimitReached ? (
+            <span>
+              참여 가능한 그룹은 최대 {USER_GROUP_LIMIT}개입니다.
+            </span>
+          ) : null}
         </div>
 
         {groups.length === 0 ? (

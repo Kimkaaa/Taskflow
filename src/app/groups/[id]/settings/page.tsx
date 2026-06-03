@@ -17,6 +17,7 @@ import {
   cardClassNames,
   groupClassNames,
 } from "@/constants/classNames";
+import { GROUP_MEMBER_LIMIT } from "@/constants/group";
 import { routes } from "@/constants/routes";
 import { requireAppUser } from "@/lib/auth";
 import { getGroupSettingsDetail } from "@/lib/groups";
@@ -37,6 +38,9 @@ export default async function GroupSettingsPage({
   if (!group) {
     notFound();
   }
+
+  const memberCount = group.members.length;
+  const isMemberLimitReached = memberCount >= GROUP_MEMBER_LIMIT;
 
   const updateGroupInfoWithId = updateGroupInfo.bind(null, group.id);
   const deleteGroupWithId = deleteGroup.bind(null, group.id);
@@ -83,7 +87,7 @@ export default async function GroupSettingsPage({
             <h2 className="text-sm font-semibold text-white">기본 정보</h2>
 
             <p className="mt-2 text-sm text-app-muted">
-              생성일 {group.createdAt} · 멤버 {group.members.length}명
+              생성일 {group.createdAt}
             </p>
 
             {group.isOwner ? (
@@ -104,7 +108,13 @@ export default async function GroupSettingsPage({
           </section>
 
           <section className={panelClassNames.surface}>
-            <h2 className="text-sm font-semibold text-white">멤버</h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-sm font-semibold text-white">멤버</h2>
+
+              <span className="text-xs text-app-muted">
+                {memberCount}/{GROUP_MEMBER_LIMIT}
+              </span>
+            </div>
 
             <div className="mt-4 grid gap-3">
               {group.members.map((member) => (
@@ -134,6 +144,7 @@ export default async function GroupSettingsPage({
               activeInvite={group.activeInvite}
               generateAction={generateGroupInviteWithId}
               deleteAction={deleteGroupInviteWithId}
+              isMemberLimitReached={isMemberLimitReached}
             />
           ) : null}
 

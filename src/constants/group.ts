@@ -1,5 +1,11 @@
-export const GROUP_NAME_MAX_LENGTH = 30;
-export const GROUP_DESCRIPTION_MAX_LENGTH = 50;
+export const GROUP_NAME_MAX_LENGTH = 24;
+export const GROUP_DESCRIPTION_MAX_LENGTH = 60;
 
-export const GROUP_INVITE_EXPIRES_IN_DAYS = 7;
+export const USER_GROUP_LIMIT = 5;
+export const GROUP_MEMBER_LIMIT = 10;
+
+export const GROUP_DETAIL_TASK_INITIAL_COUNT = 5;
+export const GROUP_DETAIL_TASK_PAGE_SIZE = 5;
+
+export const GROUP_INVITE_EXPIRES_IN_DAYS = 1;
 export const GROUP_INVITE_TOKEN_BYTES = 24;

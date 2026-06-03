@@ -29,6 +29,7 @@ type GroupInviteSectionProps = {
     prevState: GroupActionState,
     formData: FormData,
   ) => GroupActionState | Promise<GroupActionState>;
+  isMemberLimitReached: boolean;
 };
 
 function GenerateButton() {
@@ -73,6 +74,7 @@ export default function GroupInviteSection({
   activeInvite,
   generateAction,
   deleteAction,
+  isMemberLimitReached,
 }: GroupInviteSectionProps) {
   const [copyMessage, setCopyMessage] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -95,8 +97,11 @@ export default function GroupInviteSection({
 
   const shouldShowDeleteError = Boolean(deleteState.error && !isDeletePending);
 
+  const isInviteCreateBlocked = !activeInvite && isMemberLimitReached;
+  const isInviteShareBlocked = Boolean(activeInvite) && isMemberLimitReached;
+
   const handleCopy = async () => {
-    if (!invitePath) {
+    if (!invitePath || isMemberLimitReached) {
       return;
     }
 
@@ -146,8 +151,12 @@ export default function GroupInviteSection({
                 <button
                   type="button"
                   onClick={handleCopy}
-                  disabled={!invitePath}
-                  className="inline-flex h-10 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl border border-app-base bg-app-bg text-sm font-medium text-app-soft transition hover:text-white disabled:cursor-not-allowed"
+                  disabled={!invitePath || isMemberLimitReached}
+                  className={
+                    isMemberLimitReached
+                      ? "inline-flex h-10 w-20 cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-app-base bg-app-bg text-sm font-medium text-app-muted transition"
+                      : "inline-flex h-10 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl border border-app-base bg-app-bg text-sm font-medium text-app-soft transition hover:text-white disabled:cursor-not-allowed"
+                  }
                 >
                   <Copy className="h-4 w-4" aria-hidden="true" />
                   복사
@@ -163,11 +172,17 @@ export default function GroupInviteSection({
                 </button>
               </div>
 
-              <p className="mt-2 min-h-4 text-xs text-app-muted">
-                {copyMessage}
-              </p>
+              {copyMessage ? (
+                <p className="mt-2 text-xs text-app-muted">
+                  {copyMessage}
+                </p>
+              ) : null}
             </div>
           </div>
+        ) : isInviteCreateBlocked ? (
+          <p className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            현재 멤버가 가득 차 초대 링크를 생성할 수 없습니다.
+          </p>
         ) : (
           <>
             <p className="mt-5 rounded-xl border border-dashed border-app-base bg-app-bg px-4 py-3 text-sm text-app-muted">
@@ -180,9 +195,11 @@ export default function GroupInviteSection({
           </>
         )}
 
-        {shouldShowGenerateError ? (
-          <p className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-            {generateState.error}
+        {(shouldShowGenerateError || isInviteShareBlocked) ? (
+          <p className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            {shouldShowGenerateError
+              ? generateState.error
+              : "현재 멤버가 가득 차 새 멤버는 참여할 수 없습니다."}
           </p>
         ) : null}
       </section>

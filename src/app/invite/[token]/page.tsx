@@ -5,6 +5,10 @@ import {
   pageClassNames,
   panelClassNames,
 } from "@/constants/classNames";
+import {
+  GROUP_MEMBER_LIMIT,
+  USER_GROUP_LIMIT,
+} from "@/constants/group";
 import { routes } from "@/constants/routes";
 import { getCurrentUser, requireAppUser } from "@/lib/auth";
 import { getGroupInviteDetail } from "@/lib/groups";
@@ -23,6 +27,13 @@ export default async function InvitePage({ params }: InvitePageProps) {
   const invite = await getGroupInviteDetail(token, user?.id ?? null);
 
   const acceptGroupInviteWithToken = acceptGroupInvite.bind(null, token);
+
+  const unavailableMessage =
+    invite?.unavailableReason === "USER_GROUP_LIMIT_REACHED"
+      ? `참여 가능한 그룹은 최대 ${USER_GROUP_LIMIT}개입니다.`
+      : invite?.unavailableReason === "GROUP_MEMBER_LIMIT_REACHED"
+        ? `그룹 멤버는 최대 ${GROUP_MEMBER_LIMIT}명까지 참여할 수 있습니다.`
+        : null;
 
   return (
     <main className={pageClassNames.main}>
@@ -94,6 +105,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
                 <InviteAcceptForm
                   action={acceptGroupInviteWithToken}
                   isAlreadyMember={invite.isAlreadyMember}
+                  unavailableMessage={unavailableMessage}
                 />
               </div>
             </>

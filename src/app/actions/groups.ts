@@ -15,6 +15,10 @@ import {
   isGroupInviteExpired,
 } from "@/lib/groupInvite";
 import type { GroupActionState } from "@/types/groupAction";
+import {
+  GROUP_MEMBER_LIMIT,
+  USER_GROUP_LIMIT,
+} from "@/constants/group";
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error) {
@@ -47,6 +51,16 @@ export async function createGroup(
 
   try {
     validateGroupFormInput(input);
+
+    const userGroupCount = await prisma.groupMember.count({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    if (userGroupCount >= USER_GROUP_LIMIT) {
+      throw new Error(`참여 가능한 그룹은 최대 ${USER_GROUP_LIMIT}개입니다.`);
+    }
 
     await prisma.$transaction(async (tx) => {
       const group = await tx.group.create({
@@ -216,6 +230,16 @@ export async function generateGroupInvite(
   try {
     await requireGroupOwner(groupId, user.id);
 
+    const memberCount = await prisma.groupMember.count({
+      where: {
+        groupId,
+      },
+    });
+
+    if (memberCount >= GROUP_MEMBER_LIMIT) {
+      throw new Error(`그룹 멤버는 최대 ${GROUP_MEMBER_LIMIT}명까지 참여할 수 있습니다.`);
+    }
+
     const token = createGroupInviteToken();
     const expiresAt = createGroupInviteExpiresAt();
 
@@ -297,6 +321,41 @@ export async function acceptGroupInvite(
     }
 
     groupId = invite.groupId;
+
+    const existingMember = await prisma.groupMember.findUnique({
+      where: {
+        groupId_userId: {
+          groupId: invite.groupId,
+          userId: user.id,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!existingMember) {
+      const [userGroupCount, groupMemberCount] = await Promise.all([
+        prisma.groupMember.count({
+          where: {
+            userId: user.id,
+          },
+        }),
+        prisma.groupMember.count({
+          where: {
+            groupId: invite.groupId,
+          },
+        }),
+      ]);
+
+      if (userGroupCount >= USER_GROUP_LIMIT) {
+        throw new Error(`참여 가능한 그룹은 최대 ${USER_GROUP_LIMIT}개입니다.`);
+      }
+
+      if (groupMemberCount >= GROUP_MEMBER_LIMIT) {
+        throw new Error(`그룹 멤버는 최대 ${GROUP_MEMBER_LIMIT}명까지 참여할 수 있습니다.`);
+      }
+    }
 
     await prisma.groupMember.upsert({
       where: {
