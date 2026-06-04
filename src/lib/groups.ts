@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { isGroupInviteExpired } from "@/lib/groupInvite";
 import type { TaskPriority, TaskStatus } from "@/types/task";
 import { GROUP_MEMBER_LIMIT, USER_GROUP_LIMIT } from "@/constants/group";
+import { formatDate } from "./date";
 
 export type GroupSummary = {
   id: string;
@@ -82,10 +83,6 @@ export type GroupInviteDetail = {
   isAlreadyMember: boolean;
   unavailableReason: GroupInviteUnavailableReason | null;
 };
-
-function formatDate(value: Date) {
-  return value.toISOString().slice(0, 10);
-}
 
 export async function getUserGroupCount(userId: string) {
   return prisma.groupMember.count({

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import BackLink from "@/components/common/BackLink";
-import GroupDangerForm from "@/components/groups/GroupDangerForm";
+import DangerActionForm from "@/components/common/DangerActionForm";
 import GroupForm from "@/components/groups/GroupForm";
 import GroupInviteSection from "@/components/groups/GroupInviteSection";
 import {
@@ -158,7 +158,7 @@ export default async function GroupSettingsPage({
             </p>
 
             <div className="mt-5">
-              <GroupDangerForm
+              <DangerActionForm
                 action={dangerAction}
                 label={dangerLabel}
                 confirmTitle={dangerConfirmTitle}

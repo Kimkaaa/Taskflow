@@ -9,21 +9,25 @@ import {
   buttonClassNames,
 } from "@/constants/classNames";
 import BlockingOverlay from "@/components/common/BlockingOverlay";
-import {
-  initialGroupActionState,
-  type GroupActionState,
-} from "@/types/groupAction";
 
-type GroupDangerFormProps = {
+type DangerActionState = {
+  error?: string;
+};
+
+type DangerActionFormProps = {
   action: (
-    prevState: GroupActionState,
+    prevState: DangerActionState,
     formData: FormData,
-  ) => GroupActionState | Promise<GroupActionState>;
+  ) => DangerActionState | Promise<DangerActionState>;
   label: string;
   confirmTitle: string;
   confirmDescription: string;
   errorTitle: string;
   pendingMessage: string;
+};
+
+type DangerActionFormInnerProps = DangerActionFormProps & {
+  onReset: () => void;
 };
 
 function SubmitButton({ label }: { label: string }) {
@@ -46,21 +50,17 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
-export default function GroupDangerForm({
+function DangerActionFormInner({
   action,
   label,
   confirmTitle,
   confirmDescription,
   errorTitle,
   pendingMessage,
-}: GroupDangerFormProps) {
+  onReset,
+}: DangerActionFormInnerProps) {
   const [isOpen, setIsOpen] = useState(false);
-
-  const [state, formAction, isPending] = useActionState(
-    action,
-    initialGroupActionState,
-  );
-
+  const [state, formAction, isPending] = useActionState(action, {});
   const errorMessage = !isPending ? state.error : undefined;
 
   const handleClose = () => {
@@ -69,6 +69,7 @@ export default function GroupDangerForm({
     }
 
     setIsOpen(false);
+    onReset();
   };
 
   return (
@@ -116,5 +117,21 @@ export default function GroupDangerForm({
 
       {isPending ? <BlockingOverlay message={pendingMessage} /> : null}
     </>
+  );
+}
+
+export default function DangerActionForm(props: DangerActionFormProps) {
+  const [formKey, setFormKey] = useState(0);
+
+  const handleReset = () => {
+    setFormKey((currentKey) => currentKey + 1);
+  };
+
+  return (
+    <DangerActionFormInner
+      key={formKey}
+      {...props}
+      onReset={handleReset}
+    />
   );
 }

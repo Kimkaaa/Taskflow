@@ -10,6 +10,7 @@ import type {
   TaskTodo,
   TaskVisibility,
 } from "@/types/task";
+import { formatDate } from "./date";
 
 const TASK_PAGE_SIZE = 3;
 
@@ -105,10 +106,6 @@ function isTaskPriority(value: string): value is TaskPriority {
 
 function isTaskSortOption(value: string): value is TaskSortOption {
   return taskSortOptions.includes(value as TaskSortOption);
-}
-
-function formatDate(value: Date) {
-  return value.toISOString().slice(0, 10);
 }
 
 function toTaskTodo(row: TaskDetailRow["todos"][number]): TaskTodo {

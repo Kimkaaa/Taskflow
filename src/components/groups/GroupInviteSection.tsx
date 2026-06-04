@@ -33,6 +33,15 @@ type GroupInviteSectionProps = {
   isMemberLimitReached: boolean;
 };
 
+type InviteDeleteDialogProps = {
+  open: boolean;
+  action: (
+    prevState: GroupActionState,
+    formData: FormData,
+  ) => GroupActionState | Promise<GroupActionState>;
+  onClose: () => void;
+};
+
 function GenerateButton() {
   const { pending } = useFormStatus();
 
@@ -71,6 +80,66 @@ function DeleteSubmitButton() {
   );
 }
 
+function InviteDeleteDialog({
+  open,
+  action,
+  onClose,
+}: InviteDeleteDialogProps) {
+  const [state, formAction, isPending] = useActionState(
+    action,
+    initialGroupActionState,
+  );
+
+  const errorMessage = !isPending ? state.error : undefined;
+
+  const handleClose = () => {
+    if (isPending) {
+      return;
+    }
+
+    onClose();
+  };
+
+  return (
+    <Dialog
+      open={open}
+      title={
+        errorMessage
+          ? "초대 링크를 삭제할 수 없습니다."
+          : "초대 링크를 삭제할까요?"
+      }
+      description={errorMessage ?? "기존 링크는 더 이상 사용할 수 없습니다."}
+      onClose={handleClose}
+      preventClose={isPending}
+    >
+      {errorMessage ? (
+        <div className={dialogClassNames.actions}>
+          <button
+            type="button"
+            onClick={handleClose}
+            className={dialogClassNames.listButton}
+          >
+            닫기
+          </button>
+        </div>
+      ) : (
+        <form action={formAction} className={dialogClassNames.actions}>
+          <button
+            type="button"
+            onClick={handleClose}
+            disabled={isPending}
+            className={dialogClassNames.cancelButton}
+          >
+            취소
+          </button>
+
+          <DeleteSubmitButton />
+        </form>
+      )}
+    </Dialog>
+  );
+}
+
 export default function GroupInviteSection({
   activeInvite,
   generateAction,
@@ -79,14 +148,10 @@ export default function GroupInviteSection({
 }: GroupInviteSectionProps) {
   const [copyMessage, setCopyMessage] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteDialogKey, setDeleteDialogKey] = useState(0);
 
   const [generateState, generateFormAction, isGeneratePending] = useActionState(
     generateAction,
-    initialGroupActionState,
-  );
-
-  const [deleteState, deleteFormAction, isDeletePending] = useActionState(
-    deleteAction,
     initialGroupActionState,
   );
 
@@ -95,8 +160,6 @@ export default function GroupInviteSection({
   const shouldShowGenerateError = Boolean(
     generateState.error && !isGeneratePending,
   );
-
-  const shouldShowDeleteError = Boolean(deleteState.error && !isDeletePending);
 
   const isInviteCreateBlocked = !activeInvite && isMemberLimitReached;
   const isInviteShareBlocked = Boolean(activeInvite) && isMemberLimitReached;
@@ -121,11 +184,8 @@ export default function GroupInviteSection({
   };
 
   const handleDeleteDialogClose = () => {
-    if (isDeletePending) {
-      return;
-    }
-
     setIsDeleteDialogOpen(false);
+    setDeleteDialogKey((currentKey) => currentKey + 1);
   };
 
   return (
@@ -174,9 +234,7 @@ export default function GroupInviteSection({
               </div>
 
               {copyMessage ? (
-                <p className="mt-2 text-xs text-app-muted">
-                  {copyMessage}
-                </p>
+                <p className="mt-2 text-xs text-app-muted">{copyMessage}</p>
               ) : null}
             </div>
           </div>
@@ -196,7 +254,7 @@ export default function GroupInviteSection({
           </>
         )}
 
-        {(shouldShowGenerateError || isInviteShareBlocked) ? (
+        {shouldShowGenerateError || isInviteShareBlocked ? (
           <p className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
             {shouldShowGenerateError
               ? generateState.error
@@ -205,46 +263,12 @@ export default function GroupInviteSection({
         ) : null}
       </section>
 
-      <Dialog
+      <InviteDeleteDialog
+        key={deleteDialogKey}
         open={isDeleteDialogOpen}
-        title={
-          shouldShowDeleteError
-            ? "초대 링크를 삭제할 수 없습니다."
-            : "초대 링크를 삭제할까요?"
-        }
-        description={
-          shouldShowDeleteError
-            ? deleteState.error
-            : "기존 링크는 더 이상 사용할 수 없습니다."
-        }
+        action={deleteAction}
         onClose={handleDeleteDialogClose}
-        preventClose={isDeletePending}
-      >
-        {shouldShowDeleteError ? (
-          <div className={dialogClassNames.actions}>
-            <button
-              type="button"
-              onClick={handleDeleteDialogClose}
-              className={dialogClassNames.listButton}
-            >
-              닫기
-            </button>
-          </div>
-        ) : (
-          <form action={deleteFormAction} className={dialogClassNames.actions}>
-            <button
-              type="button"
-              onClick={handleDeleteDialogClose}
-              disabled={isDeletePending}
-              className={dialogClassNames.cancelButton}
-            >
-              취소
-            </button>
-
-            <DeleteSubmitButton />
-          </form>
-        )}
-      </Dialog>
+      />
     </>
   );
 }
