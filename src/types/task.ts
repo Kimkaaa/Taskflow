@@ -28,18 +28,23 @@ export type TaskTodo = {
   updatedAt: string;
 };
 
-export type Task = {
+export type TaskSummary = {
   id: string;
-  userId: string;
-  groupId: string | null;
   visibility: TaskVisibility;
   title: string;
-  description: string;
   status: TaskStatus;
   priority: TaskPriority;
   dueDate: string | null;
-  completedAt: string | null;
   tags: string[];
+  authorNickname: string;
+  groupName: string | null;
+};
+
+export type Task = TaskSummary & {
+  userId: string;
+  groupId: string | null;
+  description: string;
+  completedAt: string | null;
   todos: TaskTodo[];
   createdAt: string;
   updatedAt: string;

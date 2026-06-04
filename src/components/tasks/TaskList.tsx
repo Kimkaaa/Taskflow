@@ -2,19 +2,19 @@
 
 import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
-import { Lock } from "lucide-react";
+import { Lock, Users } from "lucide-react";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
 import { cardClassNames, taskClassNames, textClassNames } from "@/constants/classNames";
-import type { Task, TaskQuery } from "@/types/task";
+import type { TaskQuery, TaskSummary } from "@/types/task";
 
 type TaskListProps = {
-  initialTasks: Task[];
+  initialTasks: TaskSummary[];
   initialNextCursor: string | null;
   query: TaskQuery;
 };
 
 type TaskPageResponse = {
-  tasks: Task[];
+  tasks: TaskSummary[];
   nextCursor: string | null;
 };
 
@@ -128,30 +128,39 @@ export default function TaskList({
                 {task.visibility === "PRIVATE" ? (
                   <span
                     className="mt-1 shrink-0 text-app-muted"
-                    aria-label="비공개 작업"
-                    title="비공개 작업"
+                    aria-label="개인 작업"
+                    title="개인 작업"
                   >
                     <Lock className="h-3.5 w-3.5 scale-x-90" aria-hidden="true" />
+                  </span>
+                ) : task.visibility === "GROUP" ? (
+                  <span
+                    className="mt-1 shrink-0 text-app-muted"
+                    aria-label="그룹 작업"
+                    title="그룹 작업"
+                  >
+                    <Users className="h-3.5 w-3.5 scale-x-110" aria-hidden="true" />
                   </span>
                 ) : null}
               </div>
 
               <h2 className="text-xl font-bold text-white">{task.title}</h2>
 
-              {task.description ? (
-                <p className="mt-2 text-sm leading-6 text-app-soft">
-                  {task.description}
-                </p>
-              ) : null}
+              <p className="mt-2 text-sm text-app-muted">
+                {task.authorNickname}
+                {task.groupName ? <> · {task.groupName}</> : null}
+              </p>
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              {task.tags.map((tag) => (
-                <span key={tag} className={taskClassNames.tag}>
-                  #{tag}
-                </span>
-              ))}
-            </div>
+            {task.tags.length > 0 ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {task.tags.map((tag) => (
+                  <span key={tag} className={taskClassNames.tag}>
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </Link>
         ))}
       </div>

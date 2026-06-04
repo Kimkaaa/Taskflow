@@ -25,6 +25,7 @@ export type GroupMemberSummary = {
 export type GroupTaskSummary = {
   id: string;
   title: string;
+  authorNickname: string;
   status: TaskStatus;
   priority: TaskPriority;
   dueDate: string | null;
@@ -213,6 +214,11 @@ export async function getGroupDetail(
           priority: true,
           dueDate: true,
           createdAt: true,
+          user: {
+            select: {
+              nickname: true,
+            },
+          },
         },
       },
     },
@@ -239,6 +245,7 @@ export async function getGroupDetail(
     tasks: group.tasks.map((task) => ({
       id: task.id,
       title: task.title,
+      authorNickname: task.user.nickname,
       status: task.status,
       priority: task.priority,
       dueDate: task.dueDate ? formatDate(task.dueDate) : null,

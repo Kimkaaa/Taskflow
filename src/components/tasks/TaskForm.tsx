@@ -358,7 +358,7 @@ export default function TaskForm({
           className={formClassNames.input}
         />
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex justify-end">
             <button
               type="button"

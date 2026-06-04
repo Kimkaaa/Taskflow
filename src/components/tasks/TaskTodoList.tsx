@@ -187,7 +187,7 @@ export default function TaskTodoList({
           })}
         </ul>
       ) : (
-        <p className="rounded-xl border border-dashed border-app-base bg-app-bg px-4 py-5 text-sm text-app-muted">
+        <p className="rounded-xl border border-dashed border-app-base bg-app-bg px-4 py-4 text-sm text-app-muted">
           등록된 체크리스트가 없습니다.
         </p>
       )}

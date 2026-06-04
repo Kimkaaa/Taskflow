@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Lock, Pencil } from "lucide-react";
+import { Lock, Pencil, Users } from "lucide-react";
 import BackButton from "@/components/common/BackButton";
 import DeleteTaskButton from "@/components/tasks/DeleteTaskButton";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
@@ -13,6 +13,7 @@ import {
 } from "@/constants/classNames";
 import { getCurrentUser } from "@/lib/auth";
 import { getTaskById } from "@/lib/tasks";
+import { routes } from "@/constants/routes";
 
 type TaskDetailPageProps = {
   params: Promise<{
@@ -30,6 +31,25 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   }
 
   const canEdit = Boolean(user && task.userId === user.id);
+
+  const visibilityIcon =
+    task.visibility === "PRIVATE" ? (
+      <span
+        className="mt-1 shrink-0 text-app-muted"
+        aria-label="개인 작업"
+        title="개인 작업"
+      >
+        <Lock className="h-3.5 w-3.5 scale-x-90" aria-hidden="true" />
+      </span>
+    ) : task.visibility === "GROUP" ? (
+      <span
+        className="mt-1 shrink-0 text-app-muted"
+        aria-label="그룹 작업"
+        title="그룹 작업"
+      >
+        <Users className="h-3.5 w-3.5 scale-x-110" aria-hidden="true" />
+      </span>
+    ) : null;
 
   return (
     <main className={pageClassNames.main}>
@@ -64,20 +84,28 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
               </span>
             </div>
 
-            {task.visibility === "PRIVATE" ? (
-              <span
-                className="mt-1 shrink-0 text-app-muted"
-                aria-label="비공개 작업"
-                title="비공개 작업"
-              >
-                <Lock className="h-3.5 w-3.5 scale-x-90" aria-hidden="true" />
-              </span>
-            ) : null}
+            {visibilityIcon}
           </div>
 
           <h1 className="text-2xl font-bold tracking-tight text-white">
             {task.title}
           </h1>
+
+          <p className="mt-3 text-sm text-app-muted">
+            by {task.authorNickname}
+
+            {task.groupId && task.groupName ? (
+              <>
+                {" · "}
+                <Link
+                  href={routes.groupDetail(task.groupId)}
+                  className="underline-offset-4 transition hover:text-app-soft hover:underline"
+                >
+                  {task.groupName}
+                </Link>
+              </>
+            ) : null}
+          </p>
 
           {task.description ? (
             <section className="mt-8">

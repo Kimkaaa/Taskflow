@@ -38,7 +38,7 @@ export default async function GroupDetailPage({
   const isTaskScrollable = group.tasks.length > 3;
 
   const memberListClass = `mt-4 space-y-3 ${isMemberScrollable ? "max-h-[222px] inner-scroll" : ""}`;
-  const taskListClass = `mt-4 grid gap-3 ${isTaskScrollable ? "max-h-[306px] inner-scroll" : ""}`;
+  const taskListClass = `mt-4 grid gap-3 ${isTaskScrollable ? "max-h-[378px] inner-scroll" : ""}`;
 
   return (
     <main className={pageClassNames.main}>
@@ -157,6 +157,10 @@ export default async function GroupDetailPage({
                     <h3 className="mt-3 text-base font-bold text-white">
                       {task.title}
                     </h3>
+
+                    <p className={`mt-2 ${textClassNames.meta}`}>
+                      {task.authorNickname}
+                    </p>
                   </Link>
                 ))}
               </div>

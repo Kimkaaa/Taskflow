@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import TaskFilterForm from "@/components/tasks/TaskFilterForm";
 import TaskList from "@/components/tasks/TaskList";
 import TaskListLoading from "@/components/tasks/TaskListLoading";
-import type { Task, TaskQuery } from "@/types/task";
+import type { TaskQuery, TaskSummary } from "@/types/task";
 
 type TaskBoardProps = {
   query: TaskQuery;
-  tasks: Task[];
+  tasks: TaskSummary[];
   nextCursor: string | null;
   totalCount: number | undefined;
 };

@@ -6,6 +6,7 @@ import type {
   TaskQuery,
   TaskSortOption,
   TaskStatus,
+  TaskSummary,
   TaskTodo,
   TaskVisibility,
 } from "@/types/task";
@@ -29,17 +30,21 @@ export const visibilityLabels: Record<TaskVisibility, string> = {
 
 const taskListSelect = {
   id: true,
-  userId: true,
-  groupId: true,
   visibility: true,
   title: true,
-  description: true,
   status: true,
   priority: true,
   dueDate: true,
-  completedAt: true,
-  createdAt: true,
-  updatedAt: true,
+  user: {
+    select: {
+      nickname: true,
+    },
+  },
+  group: {
+    select: {
+      name: true,
+    },
+  },
   taskTags: {
     select: {
       tag: {
@@ -52,6 +57,16 @@ const taskListSelect = {
 } satisfies Prisma.TaskSelect;
 
 const taskDetailInclude = {
+  user: {
+    select: {
+      nickname: true,
+    },
+  },
+  group: {
+    select: {
+      name: true,
+    },
+  },
   todos: {
     orderBy: {
       sortOrder: "asc",
@@ -108,22 +123,17 @@ function toTaskTodo(row: TaskDetailRow["todos"][number]): TaskTodo {
   };
 }
 
-function toTaskSummary(row: TaskListRow): Task {
+function toTaskSummary(row: TaskListRow): TaskSummary {
   return {
     id: row.id,
-    userId: row.userId,
-    groupId: row.groupId,
     visibility: row.visibility,
     title: row.title,
-    description: row.description,
     status: row.status,
     priority: row.priority,
     dueDate: row.dueDate ? formatDate(row.dueDate) : null,
-    completedAt: row.completedAt ? formatDate(row.completedAt) : null,
     tags: row.taskTags.map((taskTag) => taskTag.tag.name),
-    todos: [],
-    createdAt: formatDate(row.createdAt),
-    updatedAt: formatDate(row.updatedAt),
+    authorNickname: row.user.nickname,
+    groupName: row.group?.name ?? null,
   };
 }
 
@@ -143,6 +153,8 @@ function toTask(row: TaskDetailRow): Task {
     todos: row.todos.map(toTaskTodo),
     createdAt: formatDate(row.createdAt),
     updatedAt: formatDate(row.updatedAt),
+    authorNickname: row.user.nickname,
+    groupName: row.group?.name ?? null,
   };
 }
 
@@ -242,6 +254,16 @@ function buildTaskVisibilityWhere(viewerId?: string): Prisma.TaskWhereInput {
       },
       {
         userId: viewerId,
+      },
+      {
+        visibility: "GROUP",
+        group: {
+          members: {
+            some: {
+              userId: viewerId,
+            },
+          },
+        },
       },
     ],
   };
