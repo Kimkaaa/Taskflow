@@ -14,6 +14,9 @@ export const routes = {
   groupsNew: "/groups/new",
   groupDetail: (groupId: string) => `/groups/${groupId}`,
   groupSettings: (groupId: string) => `/groups/${groupId}/settings`,
+
+  me: "/me",
+
   invite: (token: string) => `/invite/${token}`,
 };
 

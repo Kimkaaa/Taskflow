@@ -3,6 +3,7 @@ import AuthButton from "@/components/auth/AuthButton";
 import CreateTaskButton from "@/components/tasks/CreateTaskButton";
 import TaskBoard from "@/components/tasks/TaskBoard";
 import { pageClassNames } from "@/constants/classNames";
+import { routes } from "@/constants/routes";
 import { getCurrentUser } from "@/lib/auth";
 import { getTaskPage, parseTaskQuery } from "@/lib/tasks";
 
@@ -20,13 +21,16 @@ function createTaskListKey(query: ReturnType<typeof parseTaskQuery>) {
   ].join("-");
 }
 
+const navLinkClass =
+  "text-sm font-medium text-app-soft underline-offset-4 transition hover:text-white hover:underline";
+
 export default async function TasksPage({ searchParams }: TasksPageProps) {
   const params = await searchParams;
   const query = parseTaskQuery(params);
   const taskListKey = createTaskListKey(query);
 
   const user = await getCurrentUser();
-  const createTaskHref = user ? "/tasks/new" : "/login?next=/tasks/new";
+  const createTaskHref = user ? routes.tasksNew : routes.login(routes.tasksNew);
 
   const { tasks, nextCursor, totalCount } = await getTaskPage(query, {
     includeTotalCount: true,
@@ -38,13 +42,25 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
       <section className={pageClassNames.section}>
         <div className="mb-6 flex items-center justify-between gap-4">
           <Link
-            href="/tasks"
+            href={routes.tasks}
             className="text-3xl font-bold tracking-tight text-white"
           >
             TaskFlow
           </Link>
 
-          <AuthButton isLoggedIn={Boolean(user)} />
+          {user ? (
+            <nav aria-label="주요 메뉴" className="flex items-center gap-4">
+              <Link href={routes.groups} className={navLinkClass}>
+                그룹
+              </Link>
+
+              <Link href={routes.me} className={navLinkClass}>
+                계정
+              </Link>
+            </nav>
+          ) : (
+            <AuthButton isLoggedIn={false} />
+          )}
         </div>
 
         <TaskBoard

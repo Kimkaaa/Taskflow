@@ -8,6 +8,7 @@ function isAllowedNextPath(pathname: string) {
     pathname.startsWith(routePrefixes.tasks) ||
     pathname === routes.groups ||
     pathname.startsWith(routePrefixes.groups) ||
+    pathname === routes.me ||
     pathname.startsWith(routePrefixes.invite)
   );
 }

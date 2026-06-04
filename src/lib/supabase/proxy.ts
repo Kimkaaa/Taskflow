@@ -13,8 +13,16 @@ function isProtectedGroupPath(pathname: string) {
   return pathname === routes.groups || pathname.startsWith(routePrefixes.groups);
 }
 
+function isProtectedMePath(pathname: string) {
+  return pathname === routes.me;
+}
+
 function isProtectedPath(pathname: string) {
-  return isProtectedTaskPath(pathname) || isProtectedGroupPath(pathname);
+  return (
+    isProtectedTaskPath(pathname) ||
+    isProtectedGroupPath(pathname) ||
+    isProtectedMePath(pathname)
+  );
 }
 
 function getNextPath(request: NextRequest) {
