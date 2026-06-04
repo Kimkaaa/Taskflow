@@ -16,6 +16,7 @@ import {
   panelClassNames,
   cardClassNames,
   groupClassNames,
+  textClassNames,
 } from "@/constants/classNames";
 import { GROUP_MEMBER_LIMIT } from "@/constants/group";
 import { routes } from "@/constants/routes";
@@ -41,6 +42,9 @@ export default async function GroupSettingsPage({
 
   const memberCount = group.members.length;
   const isMemberLimitReached = memberCount >= GROUP_MEMBER_LIMIT;
+
+  const isMemberScrollable = memberCount > 3;
+  const memberListClass = `mt-4 space-y-3 ${isMemberScrollable ? "max-h-[222px] inner-scroll" : ""}`;
 
   const updateGroupInfoWithId = updateGroupInfo.bind(null, group.id);
   const deleteGroupWithId = deleteGroup.bind(null, group.id);
@@ -84,7 +88,7 @@ export default async function GroupSettingsPage({
 
         <div className="grid gap-6">
           <section className={panelClassNames.surface}>
-            <h2 className="text-sm font-semibold text-white">기본 정보</h2>
+            <h2 className={textClassNames.titleSecondary}>기본 정보</h2>
 
             <p className="mt-2 text-sm text-app-muted">
               생성일 {group.createdAt}
@@ -109,14 +113,14 @@ export default async function GroupSettingsPage({
 
           <section className={panelClassNames.surface}>
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-sm font-semibold text-white">멤버</h2>
+              <h2 className={textClassNames.titleSecondary}>멤버</h2>
 
               <span className="text-xs text-app-muted">
                 {memberCount}/{GROUP_MEMBER_LIMIT}
               </span>
             </div>
 
-            <div className="mt-4 grid gap-3">
+            <div className={memberListClass}>
               {group.members.map((member) => (
                 <div key={member.id} className={cardClassNames.inset}>
                   <div className="flex items-center justify-between gap-2">
@@ -125,10 +129,8 @@ export default async function GroupSettingsPage({
                     </p>
 
                     {member.isOwner ? (
-                      <span className={groupClassNames.memberOwnerBadge}>리더</span>
-                    ) : (
-                      <span className={groupClassNames.memberRoleText}>멤버</span>
-                    )}
+                      <span className={groupClassNames.roleOwnerBadge}>리더</span>
+                    ) : null}
                   </div>
 
                   <p className="mt-1 text-xs text-app-muted">

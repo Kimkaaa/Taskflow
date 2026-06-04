@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { CheckSquare, LoaderCircle, Square } from "lucide-react";
 import { completeTask, updateTaskTodoDone } from "@/app/actions/tasks";
 import Dialog from "@/components/common/Dialog";
-import { dialogClassNames } from "@/constants/classNames";
+import { dialogClassNames, textClassNames } from "@/constants/classNames";
 import type { TaskStatus, TaskTodo } from "@/types/task";
 
 type TaskTodoListProps = {
@@ -114,9 +114,9 @@ export default function TaskTodoList({
   return (
     <section className="mt-8">
       <div className="mb-3 flex items-center justify-between gap-4">
-        <h2 className="text-sm font-semibold text-white">체크리스트</h2>
+        <h2 className={textClassNames.titleSecondary}>체크리스트</h2>
 
-        <span className="text-xs font-medium text-app-muted">
+        <span className={textClassNames.meta}>
           {completedTodoCount}/{items.length}
         </span>
       </div>

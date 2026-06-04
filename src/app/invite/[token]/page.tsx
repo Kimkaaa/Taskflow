@@ -4,6 +4,7 @@ import { acceptGroupInvite } from "@/app/actions/groups";
 import {
   pageClassNames,
   panelClassNames,
+  textClassNames,
 } from "@/constants/classNames";
 import {
   GROUP_MEMBER_LIMIT,
@@ -47,7 +48,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
         <section className={panelClassNames.surface}>
           {!invite ? (
             <>
-              <h2 className="text-lg font-bold text-white">
+              <h2 className={textClassNames.titlePrimary}>
                 초대 링크를 찾을 수 없습니다.
               </h2>
 
@@ -57,7 +58,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
             </>
           ) : !invite.isAvailable ? (
             <>
-              <h2 className="text-lg font-bold text-white">
+              <h2 className={textClassNames.titlePrimary}>
                 만료된 초대 링크입니다.
               </h2>
 
@@ -67,7 +68,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
             </>
           ) : !user ? (
             <>
-              <h2 className="text-lg font-bold text-white">
+              <h2 className={textClassNames.titlePrimary}>
                 {invite.group.name}
               </h2>
 
@@ -85,7 +86,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
             </>
           ) : (
             <>
-              <h2 className="text-lg font-bold text-white">
+              <h2 className={textClassNames.titlePrimary}>
                 {invite.group.name}
               </h2>
 

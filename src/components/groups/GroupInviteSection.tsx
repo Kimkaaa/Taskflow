@@ -8,6 +8,7 @@ import {
   panelClassNames,
   dialogClassNames,
   cardClassNames,
+  textClassNames,
 } from "@/constants/classNames";
 import {
   initialGroupActionState,
@@ -130,7 +131,7 @@ export default function GroupInviteSection({
   return (
     <>
       <section className={panelClassNames.surface}>
-        <h2 className="text-sm font-semibold text-white">초대 링크</h2>
+        <h2 className={textClassNames.titleSecondary}>초대 링크</h2>
 
         <p className="mt-2 text-sm leading-6 text-app-muted">
           링크를 받은 사용자는 로그인 후 그룹에 참여할 수 있습니다.

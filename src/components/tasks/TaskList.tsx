@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { Lock } from "lucide-react";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
-import { cardClassNames, taskClassNames } from "@/constants/classNames";
+import { cardClassNames, taskClassNames, textClassNames } from "@/constants/classNames";
 import type { Task, TaskQuery } from "@/types/task";
 
 type TaskListProps = {
@@ -120,7 +120,7 @@ export default function TaskList({
                   <TaskStatusBadge status={task.status} />
                   <TaskPriorityBadge priority={task.priority} />
 
-                  <span className="text-xs font-medium text-app-muted">
+                  <span className={textClassNames.meta}>
                     {task.dueDate ? `마감일 ${task.dueDate}` : "마감일 없음"}
                   </span>
                 </div>

@@ -7,6 +7,7 @@ import {
   buttonClassNames,
   cardClassNames,
   groupClassNames,
+  textClassNames,
 } from "@/constants/classNames";
 import BackLink from "@/components/common/BackLink";
 import { USER_GROUP_LIMIT } from "@/constants/group";
@@ -45,13 +46,13 @@ export default async function GroupsPage() {
           )}
         </div>
 
-        <div className="mb-3 flex items-center justify-between text-xs text-app-muted">
-          <span>
+        <div className="mb-3 flex items-center justify-between text-app-muted">
+          <span className="text-sm">
             {userGroupCount}/{USER_GROUP_LIMIT}
           </span>
 
           {isGroupLimitReached ? (
-            <span>
+            <span className="text-xs">
               참여 가능한 그룹은 최대 {USER_GROUP_LIMIT}개입니다.
             </span>
           ) : null}
@@ -77,14 +78,14 @@ export default async function GroupsPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-lg font-bold text-white">
+                      <h2 className={textClassNames.titlePrimary}>
                         {group.name}
                       </h2>
 
                       {group.isOwner ? (
-                        <span className={groupClassNames.ownerBadge}>리더</span>
+                        <span className={groupClassNames.titleOwnerBadge}>리더</span>
                       ) : (
-                        <span className={groupClassNames.memberBadge}>멤버</span>
+                        <span className={groupClassNames.titleMemberBadge}>멤버</span>
                       )}
                     </div>
 

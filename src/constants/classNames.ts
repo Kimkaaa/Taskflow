@@ -27,6 +27,13 @@ export const cardClassNames = {
     "block rounded-2xl border border-app-base bg-app-surface p-6 shadow-sm transition hover:-translate-y-0.5 hover:bg-app-surface-hover hover:shadow-md",
 } as const;
 
+// 공통 텍스트
+export const textClassNames = {
+  titlePrimary: "text-lg font-bold text-white",
+  titleSecondary: "text-sm font-semibold text-white",
+  meta: "text-xs font-medium text-app-muted",
+} as const;
+
 // 공통 버튼
 const fixedPrimaryButtonBase =
   "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold";
@@ -127,11 +134,12 @@ export const taskClassNames = {
 
 // 그룹
 export const groupClassNames = {
-  ownerBadge:
+  titleOwnerBadge:
     "rounded-full bg-app-base px-2 py-1 text-xs font-medium text-white",
-  memberBadge:
+  titleMemberBadge:
     "rounded-full border border-app-base px-2 py-1 text-xs font-medium text-app-soft",
-  memberOwnerBadge:
-    "rounded-full bg-app-base px-2 py-0.5 text-xs font-medium text-white",
-  memberRoleText: "text-xs text-app-muted",
+  roleOwnerBadge:
+    "rounded-full bg-app-base px-2 py-0.5 text-xs text-white",
+  roleMemberBadge:
+    "rounded-full bg-app-base/30 px-2 py-0.5 text-xs tex-app-muted",
 } as const;

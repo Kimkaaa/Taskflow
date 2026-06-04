@@ -10,10 +10,12 @@ import {
   panelClassNames,
   groupClassNames,
   cardClassNames,
+  textClassNames,
 } from "@/constants/classNames";
 import { routes } from "@/constants/routes";
 import { requireAppUser } from "@/lib/auth";
 import { getGroupDetail } from "@/lib/groups";
+import { GROUP_MEMBER_LIMIT } from "@/constants/group";
 
 type GroupDetailPageProps = {
   params: Promise<{
@@ -31,6 +33,12 @@ export default async function GroupDetailPage({
   if (!group) {
     notFound();
   }
+
+  const isMemberScrollable = group.members.length > 3;
+  const isTaskScrollable = group.tasks.length > 3;
+
+  const memberListClass = `mt-4 space-y-3 ${isMemberScrollable ? "max-h-[222px] inner-scroll" : ""}`;
+  const taskListClass = `mt-4 grid gap-3 ${isTaskScrollable ? "max-h-[306px] inner-scroll" : ""}`;
 
   return (
     <main className={pageClassNames.main}>
@@ -51,14 +59,14 @@ export default async function GroupDetailPage({
 
         <header className={panelClassNames.surface}>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-lg font-bold text-white">
+            <h1 className={textClassNames.titlePrimary}>
               {group.name}
             </h1>
 
             {group.isOwner ? (
-              <span className={groupClassNames.ownerBadge}>리더</span>
+              <span className={groupClassNames.titleOwnerBadge}>리더</span>
             ) : (
-              <span className={groupClassNames.memberBadge}>멤버</span>
+              <span className={groupClassNames.titleMemberBadge}>멤버</span>
             )}
           </div>
 
@@ -69,16 +77,20 @@ export default async function GroupDetailPage({
           ) : null}
 
           <p className="mt-3 text-sm text-app-muted">
-            생성일 {group.createdAt} · 멤버 {group.members.length}명 · 그룹 작업{" "}
-            {group.tasks.length}개
+            생성일 {group.createdAt}
           </p>
         </header>
 
         <div className="mt-6 grid gap-6">
           <section className={panelClassNames.compactSurface}>
-            <h2 className="text-sm font-semibold text-white">멤버</h2>
+            <div className="flex items-center gap-3">
+              <h2 className={textClassNames.titleSecondary}>멤버</h2>
+              <span className={textClassNames.meta}>
+                {group.members.length}/{GROUP_MEMBER_LIMIT}
+              </span>
+            </div>
 
-            <div className="mt-4 space-y-3">
+            <div className={memberListClass}>
               {group.members.map((member) => (
                 <div key={member.id} className={cardClassNames.inset}>
                   <div className="flex items-center justify-between gap-2">
@@ -87,10 +99,8 @@ export default async function GroupDetailPage({
                     </p>
 
                     {member.isOwner ? (
-                      <span className={groupClassNames.memberOwnerBadge}>리더</span>
-                    ) : (
-                      <span className={groupClassNames.memberRoleText}>멤버</span>
-                    )}
+                      <span className={groupClassNames.roleOwnerBadge}>리더</span>
+                    ) : null}
                   </div>
 
                   <p className="mt-1 text-xs text-app-muted">
@@ -103,7 +113,12 @@ export default async function GroupDetailPage({
 
           <section className={panelClassNames.compactSurface}>
             <div className="flex items-center justify-between gap-4">
-              <h2 className="text-sm font-semibold text-white">그룹 작업</h2>
+              <div className="flex items-center gap-3">
+                <h2 className={textClassNames.titleSecondary}>그룹 작업</h2>
+                <span className={textClassNames.meta}>
+                  {group.tasks.length}개
+                </span>
+              </div>
 
               <Link
                 href={`/tasks/new?groupId=${group.id}`}
@@ -123,7 +138,7 @@ export default async function GroupDetailPage({
                 </p>
               </div>
             ) : (
-              <div className="mt-4 grid gap-3">
+              <div className={taskListClass}>
                 {group.tasks.map((task) => (
                   <Link
                     key={task.id}
@@ -134,10 +149,8 @@ export default async function GroupDetailPage({
                       <TaskStatusBadge status={task.status} />
                       <TaskPriorityBadge priority={task.priority} />
 
-                      <span className="text-xs font-medium text-app-muted">
-                        {task.dueDate
-                          ? `마감일 ${task.dueDate}`
-                          : "마감일 없음"}
+                      <span className={textClassNames.meta}>
+                        {task.dueDate ? `마감일 ${task.dueDate}` : "마감일 없음"}
                       </span>
                     </div>
 

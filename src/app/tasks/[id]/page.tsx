@@ -9,6 +9,7 @@ import {
   pageClassNames,
   panelClassNames,
   taskClassNames,
+  textClassNames,
 } from "@/constants/classNames";
 import { getCurrentUser } from "@/lib/auth";
 import { getTaskById } from "@/lib/tasks";
@@ -58,7 +59,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
               <TaskStatusBadge status={task.status} />
               <TaskPriorityBadge priority={task.priority} />
 
-              <span className="text-xs font-medium text-app-muted">
+              <span className={textClassNames.meta}>
                 {task.dueDate ? `마감일 ${task.dueDate}` : "마감일 없음"}
               </span>
             </div>
@@ -80,7 +81,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
 
           {task.description ? (
             <section className="mt-8">
-              <h2 className="text-sm font-semibold text-white">메모</h2>
+              <h2 className={textClassNames.titleSecondary}>메모</h2>
 
               <p className="mt-3 text-sm leading-6 text-app-soft">
                 {task.description}
@@ -97,7 +98,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
 
           {task.tags.length > 0 ? (
             <section className="mt-8">
-              <h2 className="text-sm font-semibold text-white">태그</h2>
+              <h2 className={textClassNames.titleSecondary}>태그</h2>
 
               <div className="mt-3 flex flex-wrap gap-2">
                 {task.tags.map((tag) => (
