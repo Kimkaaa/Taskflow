@@ -157,12 +157,6 @@ export default async function GroupDetailPage({
                     <h3 className="mt-3 text-base font-bold text-white">
                       {task.title}
                     </h3>
-
-                    {task.description ? (
-                      <p className="mt-2 text-sm leading-6 text-app-soft">
-                        {task.description}
-                      </p>
-                    ) : null}
                   </Link>
                 ))}
               </div>
