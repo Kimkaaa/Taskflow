@@ -133,7 +133,6 @@ export async function deleteGroup(
       await tx.task.updateMany({
         where: {
           groupId,
-          visibility: "GROUP",
         },
         data: {
           visibility: "PRIVATE",
@@ -165,35 +164,35 @@ export async function leaveGroup(
   const user = await requireAppUser();
 
   try {
-    const group = await prisma.group.findFirst({
-      where: {
-        id: groupId,
-        members: {
-          some: {
+    await prisma.$transaction(async (tx) => {
+      const membership = await tx.groupMember.findUnique({
+        where: {
+          groupId_userId: {
+            groupId,
             userId: user.id,
           },
         },
-      },
-      select: {
-        id: true,
-        ownerId: true,
-      },
-    });
+        select: {
+          group: {
+            select: {
+              ownerId: true,
+            },
+          },
+        },
+      });
 
-    if (!group) {
-      throw new Error("그룹을 찾을 수 없습니다.");
-    }
+      if (!membership) {
+        throw new Error("그룹을 찾을 수 없습니다.");
+      }
 
-    if (group.ownerId === user.id) {
-      throw new Error("리더는 그룹을 나갈 수 없습니다. 그룹 삭제를 이용해주세요.");
-    }
+      if (membership.group.ownerId === user.id) {
+        throw new Error("리더는 그룹을 나갈 수 없습니다. 그룹 삭제를 이용해주세요.");
+      }
 
-    await prisma.$transaction(async (tx) => {
       await tx.task.updateMany({
         where: {
           userId: user.id,
           groupId,
-          visibility: "GROUP",
         },
         data: {
           visibility: "PRIVATE",
@@ -242,21 +241,23 @@ export async function generateGroupInvite(
 
     const token = createGroupInviteToken();
     const expiresAt = createGroupInviteExpiresAt();
+    const createdAt = new Date();
 
-    await prisma.$transaction(async (tx) => {
-      await tx.groupInvite.deleteMany({
-        where: {
-          groupId,
-        },
-      });
-
-      await tx.groupInvite.create({
-        data: {
-          groupId,
-          token,
-          expiresAt,
-        },
-      });
+    await prisma.groupInvite.upsert({
+      where: {
+        groupId,
+      },
+      update: {
+        token,
+        expiresAt,
+        createdAt,
+      },
+      create: {
+        groupId,
+        token,
+        expiresAt,
+        createdAt,
+      },
     });
   } catch (error) {
     return {
