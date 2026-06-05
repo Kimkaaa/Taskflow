@@ -5,7 +5,7 @@ import { redirect, RedirectType } from "next/navigation";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { parseTaskFormData } from "@/lib/taskForm";
-import { requireAppUser, requireTaskOwner } from "@/lib/auth";
+import { requireAppUser, requireTaskOwner, requireUser } from "@/lib/auth";
 import type { TaskActionState } from "@/types/taskAction";
 
 type ActionTransaction = Prisma.TransactionClient;
@@ -226,7 +226,7 @@ export async function deleteTask(
   _prevState: TaskActionState,
   _formData: FormData,
 ): Promise<TaskActionState> {
-  const user = await requireAppUser();
+  const user = await requireUser();
 
   const result = await prisma.task.deleteMany({
     where: {
@@ -247,17 +247,22 @@ export async function deleteTask(
 }
 
 export async function completeTask(taskId: string) {
-  await requireTaskOwner(taskId);
+  const user = await requireUser();
 
-  await prisma.task.update({
+  const result = await prisma.task.updateMany({
     where: {
       id: taskId,
+      userId: user.id,
     },
     data: {
       status: "DONE",
       completedAt: new Date(),
     },
   });
+
+  if (result.count === 0) {
+    throw new Error("작업을 찾을 수 없거나 권한이 없습니다.");
+  }
 
   revalidatePath("/tasks");
   revalidatePath(`/tasks/${taskId}`);
@@ -268,12 +273,15 @@ export async function updateTaskTodoDone(
   todoId: string,
   isDone: boolean,
 ) {
-  await requireTaskOwner(taskId);
+  const user = await requireUser();
 
   const result = await prisma.taskTodo.updateMany({
     where: {
       id: todoId,
       taskId,
+      task: {
+        userId: user.id,
+      },
     },
     data: {
       isDone,
@@ -281,7 +289,7 @@ export async function updateTaskTodoDone(
   });
 
   if (result.count === 0) {
-    throw new Error("체크리스트 항목을 찾을 수 없습니다.");
+    throw new Error("체크리스트 항목을 찾을 수 없거나 수정 권한이 없습니다.");
   }
 
   revalidatePath("/tasks");

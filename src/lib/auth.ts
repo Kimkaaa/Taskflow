@@ -53,7 +53,7 @@ export async function requireAppUser(nextPath?: string) {
 }
 
 export async function requireTaskOwner(taskId: string) {
-  const user = await requireAppUser();
+  const user = await requireUser();
 
   const task = await prisma.task.findFirst({
     where: {
