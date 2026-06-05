@@ -1,11 +1,11 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import BackLink from "@/components/common/BackLink";
 import TaskForm from "@/components/tasks/TaskForm";
 import { pageClassNames, panelClassNames } from "@/constants/classNames";
 import { updateTask } from "@/app/actions/tasks";
 import { requireAppUser } from "@/lib/auth";
 import { getMyGroupOptions } from "@/lib/groups";
-import { getTaskById } from "@/lib/tasks";
+import { getOwnedTaskById } from "@/lib/tasks";
 
 type EditTaskPageProps = {
   params: Promise<{
@@ -17,13 +17,9 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
   const { id } = await params;
 
   const user = await requireAppUser();
-  const task = await getTaskById(id, user.id);
+  const task = await getOwnedTaskById(id, user.id);
 
   if (!task) {
-    notFound();
-  }
-
-  if (task.userId !== user.id) {
     notFound();
   }
 

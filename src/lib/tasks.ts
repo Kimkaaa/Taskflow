@@ -308,6 +308,48 @@ function buildTaskAccessWhere(
   };
 }
 
+function buildTaskDetailAccessWhere(viewerId?: string): Prisma.TaskWhereInput {
+  if (!viewerId) {
+    return {
+      visibility: "PUBLIC",
+    };
+  }
+
+  return {
+    OR: [
+      {
+        visibility: "PUBLIC",
+      },
+      {
+        userId: viewerId,
+      },
+      {
+        visibility: "GROUP",
+        group: {
+          members: {
+            some: {
+              userId: viewerId,
+            },
+          },
+        },
+      },
+    ],
+  };
+}
+
+async function findTaskDetail(where: Prisma.TaskWhereInput) {
+  const row = await prisma.task.findFirst({
+    where,
+    include: taskDetailInclude,
+  });
+
+  if (!row) {
+    return null;
+  }
+
+  return toTask(row);
+}
+
 function buildTaskWhere(
   query: TaskQuery = {},
   accessContext: TaskAccessContext,
@@ -509,24 +551,15 @@ export async function getTasks(query: TaskQuery = {}, viewerId?: string) {
 }
 
 export async function getTaskById(id: string, viewerId?: string) {
-  const groupIds = await getViewerGroupIds(viewerId, "all");
-
-  const row = await prisma.task.findFirst({
-    where: {
-      id,
-      AND: [
-        buildTaskAccessWhere(undefined, {
-          viewerId,
-          groupIds,
-        }),
-      ],
-    },
-    include: taskDetailInclude,
+  return findTaskDetail({
+    id,
+    ...buildTaskDetailAccessWhere(viewerId),
   });
+}
 
-  if (!row) {
-    return null;
-  }
-
-  return toTask(row);
+export async function getOwnedTaskById(id: string, userId: string) {
+  return findTaskDetail({
+    id,
+    userId,
+  });
 }
