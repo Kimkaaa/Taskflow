@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect, RedirectType } from "next/navigation";
 import { routes } from "@/constants/routes";
 import { prisma } from "@/lib/prisma";
-import { requireAppUser, requireGroupOwner } from "@/lib/auth";
+import { requireAppUser, requireGroupOwner, requireUser } from "@/lib/auth";
 import {
   parseGroupFormData,
   validateGroupFormInput,
@@ -47,9 +47,10 @@ export async function createGroup(
   formData: FormData,
 ): Promise<GroupActionState> {
   const user = await requireAppUser();
-  const input = parseGroupFormData(formData);
 
   try {
+    const input = parseGroupFormData(formData);
+
     validateGroupFormInput(input);
 
     const userGroupCount = await prisma.groupMember.count({
@@ -93,22 +94,27 @@ export async function updateGroupInfo(
   _prevState: GroupActionState,
   formData: FormData,
 ): Promise<GroupActionState> {
-  const user = await requireAppUser();
-  const input = parseGroupFormData(formData);
+  const user = await requireUser();
 
   try {
-    validateGroupFormInput(input);
-    await requireGroupOwner(groupId, user.id);
+    const input = parseGroupFormData(formData);
 
-    await prisma.group.update({
+    validateGroupFormInput(input);
+
+    const result = await prisma.group.updateMany({
       where: {
         id: groupId,
+        ownerId: user.id,
       },
       data: {
         name: input.name,
         description: input.description,
       },
     });
+
+    if (result.count === 0) {
+      throw new Error("그룹을 관리할 권한이 없습니다.");
+    }
   } catch (error) {
     return {
       error: getErrorMessage(error),
@@ -124,7 +130,7 @@ export async function deleteGroup(
   _prevState: GroupActionState,
   _formData: FormData,
 ): Promise<GroupActionState> {
-  const user = await requireAppUser();
+  const user = await requireUser();
 
   try {
     await requireGroupOwner(groupId, user.id);
@@ -161,7 +167,7 @@ export async function leaveGroup(
   _prevState: GroupActionState,
   _formData: FormData,
 ): Promise<GroupActionState> {
-  const user = await requireAppUser();
+  const user = await requireUser();
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -224,18 +230,28 @@ export async function generateGroupInvite(
   _prevState: GroupActionState,
   _formData: FormData,
 ): Promise<GroupActionState> {
-  const user = await requireAppUser();
+  const user = await requireUser();
 
   try {
-    await requireGroupOwner(groupId, user.id);
-
-    const memberCount = await prisma.groupMember.count({
+    const group = await prisma.group.findFirst({
       where: {
-        groupId,
+        id: groupId,
+        ownerId: user.id,
+      },
+      select: {
+        _count: {
+          select: {
+            members: true,
+          },
+        },
       },
     });
 
-    if (memberCount >= GROUP_MEMBER_LIMIT) {
+    if (!group) {
+      throw new Error("그룹을 관리할 권한이 없습니다.");
+    }
+
+    if (group._count.members >= GROUP_MEMBER_LIMIT) {
       throw new Error(`그룹 멤버는 최대 ${GROUP_MEMBER_LIMIT}명까지 참여할 수 있습니다.`);
     }
 
@@ -274,16 +290,23 @@ export async function deleteGroupInvite(
   _prevState: GroupActionState,
   _formData: FormData,
 ): Promise<GroupActionState> {
-  const user = await requireAppUser();
+  const user = await requireUser();
 
   try {
-    await requireGroupOwner(groupId, user.id);
-
-    await prisma.groupInvite.deleteMany({
+    const result = await prisma.groupInvite.deleteMany({
       where: {
         groupId,
+        group: {
+          is: {
+            ownerId: user.id,
+          },
+        },
       },
     });
+
+    if (result.count === 0) {
+      throw new Error("초대 링크를 삭제할 수 없거나 권한이 없습니다.");
+    }
   } catch (error) {
     return {
       error: getErrorMessage(error),
