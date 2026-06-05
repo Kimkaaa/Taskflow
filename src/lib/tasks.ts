@@ -411,28 +411,6 @@ function buildTaskWhere(
             mode: "insensitive",
           },
         },
-        {
-          taskTags: {
-            some: {
-              tag: {
-                name: {
-                  contains: keyword,
-                  mode: "insensitive",
-                },
-              },
-            },
-          },
-        },
-        {
-          todos: {
-            some: {
-              content: {
-                contains: keyword,
-                mode: "insensitive",
-              },
-            },
-          },
-        },
       ],
     });
   }
