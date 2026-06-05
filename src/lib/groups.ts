@@ -1,9 +1,14 @@
 import { routes } from "@/constants/routes";
 import { prisma } from "@/lib/prisma";
 import { isGroupInviteExpired } from "@/lib/groupInvite";
+import type { Prisma } from "@/generated/prisma/client";
 import type { TaskPriority, TaskStatus } from "@/types/task";
-import { GROUP_MEMBER_LIMIT, USER_GROUP_LIMIT } from "@/constants/group";
-import { formatDate } from "./date";
+import {
+  GROUP_DETAIL_TASK_INITIAL_COUNT,
+  GROUP_MEMBER_LIMIT,
+  USER_GROUP_LIMIT,
+} from "@/constants/group";
+import { formatDate } from "@/lib/date";
 
 export type GroupSummary = {
   id: string;
@@ -42,6 +47,7 @@ export type GroupDetail = {
   createdAt: string;
   members: GroupMemberSummary[];
   tasks: GroupTaskSummary[];
+  taskCount: number;
 };
 
 export type GroupOption = {
@@ -83,6 +89,64 @@ export type GroupInviteDetail = {
   isAlreadyMember: boolean;
   unavailableReason: GroupInviteUnavailableReason | null;
 };
+
+const groupMemberSelect = {
+  id: true,
+  userId: true,
+  joinedAt: true,
+  user: {
+    select: {
+      nickname: true,
+    },
+  },
+} satisfies Prisma.GroupMemberSelect;
+
+const groupTaskSelect = {
+  id: true,
+  title: true,
+  status: true,
+  priority: true,
+  dueDate: true,
+  createdAt: true,
+  user: {
+    select: {
+      nickname: true,
+    },
+  },
+} satisfies Prisma.TaskSelect;
+
+type GroupMemberRow = Prisma.GroupMemberGetPayload<{
+  select: typeof groupMemberSelect;
+}>;
+
+type GroupTaskRow = Prisma.TaskGetPayload<{
+  select: typeof groupTaskSelect;
+}>;
+
+function toGroupMemberSummary(
+  member: GroupMemberRow,
+  ownerId: string,
+): GroupMemberSummary {
+  return {
+    id: member.id,
+    userId: member.userId,
+    nickname: member.user.nickname,
+    isOwner: member.userId === ownerId,
+    joinedAt: formatDate(member.joinedAt),
+  };
+}
+
+function toGroupTaskSummary(task: GroupTaskRow): GroupTaskSummary {
+  return {
+    id: task.id,
+    title: task.title,
+    authorNickname: task.user.nickname,
+    status: task.status,
+    priority: task.priority,
+    dueDate: task.dueDate ? formatDate(task.dueDate) : null,
+    createdAt: formatDate(task.createdAt),
+  };
+}
 
 export async function getUserGroupCount(userId: string) {
   return prisma.groupMember.count({
@@ -136,7 +200,11 @@ export async function getMyGroups(userId: string): Promise<GroupSummary[]> {
           _count: {
             select: {
               members: true,
-              tasks: true,
+              tasks: {
+                where: {
+                  visibility: "GROUP",
+                },
+              },
             },
           },
         },
@@ -174,20 +242,20 @@ export async function getGroupDetail(
       description: true,
       ownerId: true,
       createdAt: true,
+      _count: {
+        select: {
+          tasks: {
+            where: {
+              visibility: "GROUP",
+            },
+          },
+        },
+      },
       members: {
         orderBy: {
           joinedAt: "asc",
         },
-        select: {
-          id: true,
-          userId: true,
-          joinedAt: true,
-          user: {
-            select: {
-              nickname: true,
-            },
-          },
-        },
+        select: groupMemberSelect,
       },
       tasks: {
         where: {
@@ -204,19 +272,8 @@ export async function getGroupDetail(
             createdAt: "desc",
           },
         ],
-        select: {
-          id: true,
-          title: true,
-          status: true,
-          priority: true,
-          dueDate: true,
-          createdAt: true,
-          user: {
-            select: {
-              nickname: true,
-            },
-          },
-        },
+        take: GROUP_DETAIL_TASK_INITIAL_COUNT,
+        select: groupTaskSelect,
       },
     },
   });
@@ -232,22 +289,11 @@ export async function getGroupDetail(
     ownerId: group.ownerId,
     isOwner: group.ownerId === userId,
     createdAt: formatDate(group.createdAt),
-    members: group.members.map((member) => ({
-      id: member.id,
-      userId: member.userId,
-      nickname: member.user.nickname,
-      isOwner: member.userId === group.ownerId,
-      joinedAt: formatDate(member.joinedAt),
-    })),
-    tasks: group.tasks.map((task) => ({
-      id: task.id,
-      title: task.title,
-      authorNickname: task.user.nickname,
-      status: task.status,
-      priority: task.priority,
-      dueDate: task.dueDate ? formatDate(task.dueDate) : null,
-      createdAt: formatDate(task.createdAt),
-    })),
+    members: group.members.map((member) =>
+      toGroupMemberSummary(member, group.ownerId),
+    ),
+    tasks: group.tasks.map(toGroupTaskSummary),
+    taskCount: group._count.tasks,
   };
 }
 
@@ -307,16 +353,7 @@ export async function getGroupSettingsDetail(
         orderBy: {
           joinedAt: "asc",
         },
-        select: {
-          id: true,
-          userId: true,
-          joinedAt: true,
-          user: {
-            select: {
-              nickname: true,
-            },
-          },
-        },
+        select: groupMemberSelect,
       },
     },
   });
@@ -337,13 +374,9 @@ export async function getGroupSettingsDetail(
     ownerId: group.ownerId,
     isOwner: group.ownerId === userId,
     createdAt: formatDate(group.createdAt),
-    members: group.members.map((member) => ({
-      id: member.id,
-      userId: member.userId,
-      nickname: member.user.nickname,
-      isOwner: member.userId === group.ownerId,
-      joinedAt: formatDate(member.joinedAt),
-    })),
+    members: group.members.map((member) =>
+      toGroupMemberSummary(member, group.ownerId),
+    ),
     activeInvite: activeInvite
       ? {
         token: activeInvite.token,

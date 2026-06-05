@@ -116,7 +116,7 @@ export default async function GroupDetailPage({
               <div className="flex items-center gap-3">
                 <h2 className={textClassNames.titleSecondary}>그룹 작업</h2>
                 <span className={textClassNames.meta}>
-                  {group.tasks.length}개
+                  {group.taskCount}개
                 </span>
               </div>
 
