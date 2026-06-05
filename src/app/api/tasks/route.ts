@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { getTaskPage, parseTaskQuery } from "@/lib/tasks";
+import { getTaskPage } from "@/lib/tasks";
+import { parseTaskQuery } from "@/lib/taskQuery";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export async function GET(request: NextRequest) {
     priority: searchParams.get("priority") ?? undefined,
     sort: searchParams.get("sort") ?? undefined,
     tag: searchParams.get("tag") ?? undefined,
+    scope: searchParams.get("scope") ?? undefined,
   });
 
   const cursor = searchParams.get("cursor") ?? undefined;

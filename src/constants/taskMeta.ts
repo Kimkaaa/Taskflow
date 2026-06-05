@@ -1,8 +1,24 @@
-import type { TaskPriority, TaskStatus } from "@/types/task";
+import type { TaskPriority, TaskScope, TaskStatus } from "@/types/task";
 
 export const statusOptions: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
 
 export const priorityOptions: TaskPriority[] = ["HIGH", "MEDIUM", "LOW"];
+
+export const taskScopeOptions: TaskScope[] = [
+  "all",
+  "mine",
+  "private",
+  "group",
+  "public",
+];
+
+export const taskScopeLabels: Record<TaskScope, string> = {
+  all: "전체",
+  mine: "내 작업",
+  private: "개인",
+  group: "그룹",
+  public: "공개",
+};
 
 export const statusLabels: Record<TaskStatus, string> = {
   TODO: "예정",

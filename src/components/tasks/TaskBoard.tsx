@@ -12,6 +12,7 @@ type TaskBoardProps = {
   tasks: TaskSummary[];
   nextCursor: string | null;
   totalCount: number | undefined;
+  isLoggedIn: boolean;
 };
 
 export default function TaskBoard({
@@ -19,6 +20,7 @@ export default function TaskBoard({
   tasks,
   nextCursor,
   totalCount,
+  isLoggedIn,
 }: TaskBoardProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -36,7 +38,11 @@ export default function TaskBoard({
 
   return (
     <>
-      <TaskFilterForm query={optimisticQuery} onNavigate={handleNavigate} />
+      <TaskFilterForm
+        query={optimisticQuery}
+        onNavigate={handleNavigate}
+        isLoggedIn={isLoggedIn}
+      />
 
       <div className="mb-4 text-sm text-app-muted">
         총{" "}

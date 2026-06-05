@@ -4,7 +4,12 @@ import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { Lock, Users } from "lucide-react";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
-import { cardClassNames, taskClassNames, textClassNames } from "@/constants/classNames";
+import {
+  cardClassNames,
+  taskClassNames,
+  textClassNames,
+} from "@/constants/classNames";
+import { createTaskApiUrl } from "@/lib/taskQuery";
 import type { TaskQuery, TaskSummary } from "@/types/task";
 
 type TaskListProps = {
@@ -17,34 +22,6 @@ type TaskPageResponse = {
   tasks: TaskSummary[];
   nextCursor: string | null;
 };
-
-function createTaskApiUrl(query: TaskQuery, cursor: string) {
-  const params = new URLSearchParams();
-
-  if (query.keyword) {
-    params.set("keyword", query.keyword);
-  }
-
-  if (query.status) {
-    params.set("status", query.status);
-  }
-
-  if (query.priority) {
-    params.set("priority", query.priority);
-  }
-
-  if (query.sort) {
-    params.set("sort", query.sort);
-  }
-
-  if (query.tag) {
-    params.set("tag", query.tag);
-  }
-
-  params.set("cursor", cursor);
-
-  return `/api/tasks?${params.toString()}`;
-}
 
 export default function TaskList({
   initialTasks,
@@ -131,7 +108,10 @@ export default function TaskList({
                     aria-label="개인 작업"
                     title="개인 작업"
                   >
-                    <Lock className="h-3.5 w-3.5 scale-x-90" aria-hidden="true" />
+                    <Lock
+                      className="h-3.5 w-3.5 scale-x-90"
+                      aria-hidden="true"
+                    />
                   </span>
                 ) : task.visibility === "GROUP" ? (
                   <span
@@ -139,7 +119,10 @@ export default function TaskList({
                     aria-label="그룹 작업"
                     title="그룹 작업"
                   >
-                    <Users className="h-3.5 w-3.5 scale-x-110" aria-hidden="true" />
+                    <Users
+                      className="h-3.5 w-3.5 scale-x-110"
+                      aria-hidden="true"
+                    />
                   </span>
                 ) : null}
               </div>

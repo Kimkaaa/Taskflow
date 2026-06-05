@@ -5,7 +5,8 @@ import TaskBoard from "@/components/tasks/TaskBoard";
 import { pageClassNames } from "@/constants/classNames";
 import { routes } from "@/constants/routes";
 import { getCurrentUser } from "@/lib/auth";
-import { getTaskPage, parseTaskQuery } from "@/lib/tasks";
+import { getTaskPage } from "@/lib/tasks";
+import { parseTaskQuery } from "@/lib/taskQuery";
 
 type TasksPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -18,6 +19,7 @@ function createTaskListKey(query: ReturnType<typeof parseTaskQuery>) {
     query.priority ?? "",
     query.sort ?? "",
     query.tag ?? "",
+    query.scope ?? "",
   ].join("-");
 }
 
@@ -69,6 +71,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
           tasks={tasks}
           nextCursor={nextCursor}
           totalCount={totalCount}
+          isLoggedIn={Boolean(user)}
         />
       </section>
 

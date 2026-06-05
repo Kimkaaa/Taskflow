@@ -4,6 +4,8 @@ export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
 
 export type TaskVisibility = "PRIVATE" | "GROUP" | "PUBLIC";
 
+export type TaskScope = "all" | "mine" | "private" | "group" | "public";
+
 export type TaskSortOption =
   | "dueAsc"
   | "dueDesc"
@@ -16,6 +18,7 @@ export type TaskQuery = {
   priority?: TaskPriority;
   sort?: TaskSortOption;
   tag?: string;
+  scope?: TaskScope;
 };
 
 export type TaskTodo = {

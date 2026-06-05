@@ -2,26 +2,16 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 import type {
   Task,
-  TaskPriority,
   TaskQuery,
+  TaskScope,
   TaskSortOption,
-  TaskStatus,
   TaskSummary,
   TaskTodo,
   TaskVisibility,
 } from "@/types/task";
-import { formatDate } from "./date";
+import { formatDate } from "@/lib/date";
 
 const TASK_PAGE_SIZE = 3;
-
-const taskStatuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
-const taskPriorities: TaskPriority[] = ["LOW", "MEDIUM", "HIGH"];
-const taskSortOptions: TaskSortOption[] = [
-  "dueAsc",
-  "dueDesc",
-  "priorityDesc",
-  "priorityAsc",
-];
 
 export const visibilityLabels: Record<TaskVisibility, string> = {
   PRIVATE: "나만 보기",
@@ -88,25 +78,10 @@ type TaskDetailRow = Prisma.TaskGetPayload<{
   include: typeof taskDetailInclude;
 }>;
 
-function getFirstParam(value: string | string[] | undefined) {
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-
-  return value;
-}
-
-function isTaskStatus(value: string): value is TaskStatus {
-  return taskStatuses.includes(value as TaskStatus);
-}
-
-function isTaskPriority(value: string): value is TaskPriority {
-  return taskPriorities.includes(value as TaskPriority);
-}
-
-function isTaskSortOption(value: string): value is TaskSortOption {
-  return taskSortOptions.includes(value as TaskSortOption);
-}
+type TaskAccessContext = {
+  viewerId?: string;
+  groupIds: string[];
+};
 
 function toTaskTodo(row: TaskDetailRow["todos"][number]): TaskTodo {
   return {
@@ -237,44 +212,111 @@ function getTaskOrderBy(
   ];
 }
 
-function buildTaskVisibilityWhere(viewerId?: string): Prisma.TaskWhereInput {
+function requiresViewer(scope?: TaskScope) {
+  return scope === "mine" || scope === "private" || scope === "group";
+}
+
+function needsViewerGroupIds(scope?: TaskScope) {
+  return !scope || scope === "all" || scope === "group";
+}
+
+async function getViewerGroupIds(viewerId: string | undefined, scope?: TaskScope) {
+  if (!viewerId || !needsViewerGroupIds(scope)) {
+    return [];
+  }
+
+  const memberships = await prisma.groupMember.findMany({
+    where: {
+      userId: viewerId,
+    },
+    select: {
+      groupId: true,
+    },
+  });
+
+  return memberships.map((membership) => membership.groupId);
+}
+
+function createEmptyTaskPageResult(includeTotalCount?: boolean) {
+  return {
+    tasks: [],
+    nextCursor: null,
+    totalCount: includeTotalCount ? 0 : undefined,
+  };
+}
+
+function buildTaskAccessWhere(
+  scope: TaskScope | undefined,
+  { viewerId, groupIds }: TaskAccessContext,
+): Prisma.TaskWhereInput {
+  const currentScope = scope ?? "all";
+
   if (!viewerId) {
     return {
       visibility: "PUBLIC",
     };
   }
 
+  if (currentScope === "mine") {
+    return {
+      userId: viewerId,
+    };
+  }
+
+  if (currentScope === "private") {
+    return {
+      userId: viewerId,
+      visibility: "PRIVATE",
+    };
+  }
+
+  if (currentScope === "group") {
+    return {
+      visibility: "GROUP",
+      groupId: {
+        in: groupIds,
+      },
+    };
+  }
+
+  if (currentScope === "public") {
+    return {
+      visibility: "PUBLIC",
+    };
+  }
+
+  const accessConditions: Prisma.TaskWhereInput[] = [
+    {
+      visibility: "PUBLIC",
+    },
+    {
+      userId: viewerId,
+    },
+  ];
+
+  if (groupIds.length > 0) {
+    accessConditions.push({
+      visibility: "GROUP",
+      groupId: {
+        in: groupIds,
+      },
+    });
+  }
+
   return {
-    OR: [
-      {
-        visibility: "PUBLIC",
-      },
-      {
-        userId: viewerId,
-      },
-      {
-        visibility: "GROUP",
-        group: {
-          members: {
-            some: {
-              userId: viewerId,
-            },
-          },
-        },
-      },
-    ],
+    OR: accessConditions,
   };
 }
 
 function buildTaskWhere(
   query: TaskQuery = {},
-  viewerId?: string,
+  accessContext: TaskAccessContext,
 ): Prisma.TaskWhereInput {
   const keyword = query.keyword?.trim() ?? "";
   const tag = query.tag?.trim() ?? "";
 
   const andConditions: Prisma.TaskWhereInput[] = [
-    buildTaskVisibilityWhere(viewerId),
+    buildTaskAccessWhere(query.scope, accessContext),
   ];
 
   const hasSearchCondition = Boolean(keyword || tag);
@@ -402,24 +444,6 @@ function createTaskPageResult({
   };
 }
 
-export function parseTaskQuery(
-  params: Record<string, string | string[] | undefined>,
-): TaskQuery {
-  const keyword = getFirstParam(params.keyword)?.trim() ?? "";
-  const status = getFirstParam(params.status);
-  const priority = getFirstParam(params.priority);
-  const sort = getFirstParam(params.sort);
-  const tag = getFirstParam(params.tag)?.trim() ?? "";
-
-  return {
-    keyword: keyword || undefined,
-    status: status && isTaskStatus(status) ? status : undefined,
-    priority: priority && isTaskPriority(priority) ? priority : undefined,
-    sort: sort && isTaskSortOption(sort) ? sort : undefined,
-    tag: tag || undefined,
-  };
-}
-
 export async function getTaskPage(
   query: TaskQuery = {},
   options: {
@@ -430,7 +454,21 @@ export async function getTaskPage(
   } = {},
 ) {
   const limit = options.limit ?? TASK_PAGE_SIZE;
-  const where = buildTaskWhere(query, options.viewerId);
+
+  if (requiresViewer(query.scope) && !options.viewerId) {
+    return createEmptyTaskPageResult(options.includeTotalCount);
+  }
+
+  const groupIds = await getViewerGroupIds(options.viewerId, query.scope);
+
+  if (query.scope === "group" && groupIds.length === 0) {
+    return createEmptyTaskPageResult(options.includeTotalCount);
+  }
+
+  const where = buildTaskWhere(query, {
+    viewerId: options.viewerId,
+    groupIds,
+  });
 
   const rowsPromise = findTaskListRows({
     where,
@@ -471,10 +509,17 @@ export async function getTasks(query: TaskQuery = {}, viewerId?: string) {
 }
 
 export async function getTaskById(id: string, viewerId?: string) {
+  const groupIds = await getViewerGroupIds(viewerId, "all");
+
   const row = await prisma.task.findFirst({
     where: {
       id,
-      AND: [buildTaskVisibilityWhere(viewerId)],
+      AND: [
+        buildTaskAccessWhere(undefined, {
+          viewerId,
+          groupIds,
+        }),
+      ],
     },
     include: taskDetailInclude,
   });

@@ -5,6 +5,7 @@ import { RotateCcw, Search } from "lucide-react";
 import type {
   TaskPriority,
   TaskQuery,
+  TaskScope,
   TaskSortOption,
   TaskStatus,
 } from "@/types/task";
@@ -13,12 +14,16 @@ import {
   priorityOptions,
   statusLabels,
   statusOptions,
+  taskScopeLabels,
+  taskScopeOptions,
 } from "@/constants/taskMeta";
 import { taskClassNames } from "@/constants/classNames";
+import { createTaskListHref } from "@/lib/taskQuery";
 
 type TaskFilterFormProps = {
   query: TaskQuery;
   onNavigate: (href: string, nextQuery: TaskQuery) => void;
+  isLoggedIn: boolean;
 };
 
 type TaskQueryUpdates = Partial<{
@@ -27,6 +32,7 @@ type TaskQueryUpdates = Partial<{
   priority: TaskPriority | null;
   sort: TaskSortOption | null;
   tag: string | null;
+  scope: TaskScope | null;
 }>;
 
 const resetButtonClass =
@@ -62,12 +68,18 @@ function createNextQuery(
     updates.keyword !== undefined
       ? updates.keyword?.trim() || null
       : query.keyword;
+
   const status = updates.status !== undefined ? updates.status : query.status;
+
   const priority =
     updates.priority !== undefined ? updates.priority : query.priority;
+
   const sort = updates.sort !== undefined ? updates.sort : query.sort;
+
   const tag =
     updates.tag !== undefined ? updates.tag?.trim() || null : query.tag;
+
+  const scope = updates.scope !== undefined ? updates.scope : query.scope;
 
   return {
     keyword: keyword || undefined,
@@ -75,35 +87,8 @@ function createNextQuery(
     priority: priority ?? undefined,
     sort: sort ?? undefined,
     tag: tag || undefined,
+    scope: scope && scope !== "all" ? scope : undefined,
   };
-}
-
-function createTaskListHref(query: TaskQuery) {
-  const params = new URLSearchParams();
-
-  if (query.keyword) {
-    params.set("keyword", query.keyword);
-  }
-
-  if (query.status) {
-    params.set("status", query.status);
-  }
-
-  if (query.priority) {
-    params.set("priority", query.priority);
-  }
-
-  if (query.sort) {
-    params.set("sort", query.sort);
-  }
-
-  if (query.tag) {
-    params.set("tag", query.tag);
-  }
-
-  const queryString = params.toString();
-
-  return queryString ? `/tasks?${queryString}` : "/tasks";
 }
 
 function getNextDueSort(sort?: TaskSortOption) {
@@ -125,6 +110,7 @@ function isPrioritySort(sort?: TaskSortOption) {
 export default function TaskFilterForm({
   query,
   onNavigate,
+  isLoggedIn,
 }: TaskFilterFormProps) {
   const [keywordValue, setKeywordValue] = useState(query.keyword ?? "");
 
@@ -135,11 +121,10 @@ export default function TaskFilterForm({
       priority: updates.priority,
       sort: updates.sort,
       tag: updates.tag,
+      scope: updates.scope,
     });
 
-    const href = createTaskListHref(nextQuery);
-
-    onNavigate(href, nextQuery);
+    onNavigate(createTaskListHref(nextQuery), nextQuery);
   };
 
   const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -163,9 +148,18 @@ export default function TaskFilterForm({
     });
   };
 
+  const handleScopeChange = (scope: TaskScope) => {
+    const currentScope = query.scope ?? "all";
+    const nextScope = scope === "all" || currentScope === scope ? null : scope;
+
+    navigateWithUpdates({
+      scope: nextScope,
+    });
+  };
+
   const handleReset = () => {
     setKeywordValue("");
-    onNavigate("/tasks", {});
+    onNavigate(createTaskListHref({}), {});
   };
 
   return (
@@ -199,6 +193,26 @@ export default function TaskFilterForm({
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
         </button>
       </form>
+
+      {isLoggedIn ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {taskScopeOptions.map((scope) => {
+            const currentScope = query.scope ?? "all";
+            const isActive = currentScope === scope;
+
+            return (
+              <button
+                key={scope}
+                type="button"
+                onClick={() => handleScopeChange(scope)}
+                className={getChipClass(isActive)}
+              >
+                {taskScopeLabels[scope]}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
 
       {query.tag ? (
         <div className="mt-3 flex flex-wrap gap-2">
@@ -262,7 +276,11 @@ export default function TaskFilterForm({
               });
             }}
             className={getChipClass(isPrioritySort(query.sort))}
-            title={query.sort === "priorityAsc" ? "중요도 낮은 순" : "중요도 높은 순"}
+            title={
+              query.sort === "priorityAsc"
+                ? "중요도 낮은 순"
+                : "중요도 높은 순"
+            }
           >
             중요도
           </button>
