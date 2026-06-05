@@ -59,30 +59,17 @@ export async function deleteAccount(
 
   try {
     await prisma.$transaction(async (tx) => {
-      const ownedGroups = await tx.group.findMany({
+      await tx.task.updateMany({
         where: {
-          ownerId: user.id,
+          group: {
+            ownerId: user.id,
+          },
         },
-        select: {
-          id: true,
+        data: {
+          visibility: "PRIVATE",
+          groupId: null,
         },
       });
-
-      const ownedGroupIds = ownedGroups.map((group) => group.id);
-
-      if (ownedGroupIds.length > 0) {
-        await tx.task.updateMany({
-          where: {
-            groupId: {
-              in: ownedGroupIds,
-            },
-          },
-          data: {
-            visibility: "PRIVATE",
-            groupId: null,
-          },
-        });
-      }
 
       await tx.user.delete({
         where: {
