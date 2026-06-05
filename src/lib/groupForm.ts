@@ -1,9 +1,8 @@
 import {
   GROUP_DESCRIPTION_MAX_LENGTH,
   GROUP_NAME_MAX_LENGTH,
+  GROUP_NAME_MIN_LENGTH,
 } from "@/constants/group";
-
-const UNSAFE_GROUP_TEXT_PATTERN = /[\x00-\x1F\x7F<>]/;
 
 type GroupFormInput = {
   name: string;
@@ -20,10 +19,6 @@ function getStringValue(formData: FormData, key: string) {
   return value.trim();
 }
 
-function validateSafeText(value: string) {
-  return !UNSAFE_GROUP_TEXT_PATTERN.test(value);
-}
-
 export function parseGroupFormData(formData: FormData): GroupFormInput {
   return {
     name: getStringValue(formData, "name"),
@@ -31,29 +26,47 @@ export function parseGroupFormData(formData: FormData): GroupFormInput {
   };
 }
 
+export function getGroupNameValidationMessage(name: string) {
+  const value = name.trim();
+
+  if (!value) {
+    return "그룹명을 입력해주세요.";
+  }
+
+  if (value.length < GROUP_NAME_MIN_LENGTH) {
+    return `그룹명은 ${GROUP_NAME_MIN_LENGTH}자 이상 입력해주세요.`;
+  }
+
+  if (value.length > GROUP_NAME_MAX_LENGTH) {
+    return `그룹명은 ${GROUP_NAME_MAX_LENGTH}자 이하로 입력해주세요.`;
+  }
+
+  return null;
+}
+
+export function getGroupDescriptionValidationMessage(description: string) {
+  const value = description.trim();
+
+  if (value.length > GROUP_DESCRIPTION_MAX_LENGTH) {
+    return `그룹 설명은 ${GROUP_DESCRIPTION_MAX_LENGTH}자 이하로 입력해주세요.`;
+  }
+
+  return null;
+}
+
 export function validateGroupName(name: string) {
-  if (!name) {
-    throw new Error("그룹명을 입력해주세요.");
-  }
+  const message = getGroupNameValidationMessage(name);
 
-  if (name.length > GROUP_NAME_MAX_LENGTH) {
-    throw new Error(`그룹명은 ${GROUP_NAME_MAX_LENGTH}자 이하로 입력해주세요.`);
-  }
-
-  if (!validateSafeText(name)) {
-    throw new Error("그룹명에는 <, > 또는 줄바꿈 문자를 사용할 수 없습니다.");
+  if (message) {
+    throw new Error(message);
   }
 }
 
 export function validateGroupDescription(description: string) {
-  if (description.length > GROUP_DESCRIPTION_MAX_LENGTH) {
-    throw new Error(
-      `그룹 설명은 ${GROUP_DESCRIPTION_MAX_LENGTH}자 이하로 입력해주세요.`,
-    );
-  }
+  const message = getGroupDescriptionValidationMessage(description);
 
-  if (!validateSafeText(description)) {
-    throw new Error("그룹 설명에는 <, > 또는 줄바꿈 문자를 사용할 수 없습니다.");
+  if (message) {
+    throw new Error(message);
   }
 }
 

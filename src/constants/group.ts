@@ -1,3 +1,4 @@
+export const GROUP_NAME_MIN_LENGTH = 2;
 export const GROUP_NAME_MAX_LENGTH = 24;
 export const GROUP_DESCRIPTION_MAX_LENGTH = 60;
 

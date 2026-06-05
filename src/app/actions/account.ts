@@ -24,12 +24,19 @@ export async function updateNickname(
   _prevState: AccountActionState,
   formData: FormData,
 ): Promise<AccountActionState> {
-  const user = await requireAppUser(routes.me);
   const input = parseUserProfileFormData(formData);
 
   try {
     validateNickname(input.nickname);
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
 
+  const user = await requireAppUser(routes.me);
+
+  try {
     await prisma.user.update({
       where: {
         id: user.id,
