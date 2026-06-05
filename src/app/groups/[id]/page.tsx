@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Settings } from "lucide-react";
 
 import BackLink from "@/components/common/BackLink";
+import GroupMemberList from "@/components/groups/GroupMemberList";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
 import {
   pageClassNames,
@@ -34,10 +35,8 @@ export default async function GroupDetailPage({
     notFound();
   }
 
-  const isMemberScrollable = group.members.length > 3;
   const isTaskScrollable = group.tasks.length > 3;
 
-  const memberListClass = `mt-4 space-y-3 ${isMemberScrollable ? "max-h-[222px] inner-scroll" : ""}`;
   const taskListClass = `mt-4 grid gap-3 ${isTaskScrollable ? "max-h-[378px] inner-scroll" : ""}`;
 
   return (
@@ -90,25 +89,7 @@ export default async function GroupDetailPage({
               </span>
             </div>
 
-            <div className={memberListClass}>
-              {group.members.map((member) => (
-                <div key={member.id} className={cardClassNames.inset}>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-medium text-white">
-                      {member.nickname}
-                    </p>
-
-                    {member.isOwner ? (
-                      <span className={groupClassNames.roleOwnerBadge}>리더</span>
-                    ) : null}
-                  </div>
-
-                  <p className="mt-1 text-xs text-app-muted">
-                    참여일 {member.joinedAt}
-                  </p>
-                </div>
-              ))}
-            </div>
+            <GroupMemberList members={group.members} />
           </section>
 
           <section className={panelClassNames.compactSurface}>

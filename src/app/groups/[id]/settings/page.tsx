@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 
 import BackLink from "@/components/common/BackLink";
-import DangerActionForm from "@/components/common/DangerActionForm";
 import GroupForm from "@/components/groups/GroupForm";
+import GroupMemberList from "@/components/groups/GroupMemberList";
 import GroupInviteSection from "@/components/groups/GroupInviteSection";
+import DangerActionForm from "@/components/common/DangerActionForm";
 import {
   deleteGroup,
   deleteGroupInvite,
@@ -14,8 +15,6 @@ import {
 import {
   pageClassNames,
   panelClassNames,
-  cardClassNames,
-  groupClassNames,
   textClassNames,
 } from "@/constants/classNames";
 import { GROUP_MEMBER_LIMIT } from "@/constants/group";
@@ -42,9 +41,6 @@ export default async function GroupSettingsPage({
 
   const memberCount = group.members.length;
   const isMemberLimitReached = memberCount >= GROUP_MEMBER_LIMIT;
-
-  const isMemberScrollable = memberCount > 3;
-  const memberListClass = `mt-4 space-y-3 ${isMemberScrollable ? "max-h-[222px] inner-scroll" : ""}`;
 
   const updateGroupInfoWithId = updateGroupInfo.bind(null, group.id);
   const deleteGroupWithId = deleteGroup.bind(null, group.id);
@@ -120,25 +116,7 @@ export default async function GroupSettingsPage({
               </span>
             </div>
 
-            <div className={memberListClass}>
-              {group.members.map((member) => (
-                <div key={member.id} className={cardClassNames.inset}>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-medium text-white">
-                      {member.nickname}
-                    </p>
-
-                    {member.isOwner ? (
-                      <span className={groupClassNames.roleOwnerBadge}>리더</span>
-                    ) : null}
-                  </div>
-
-                  <p className="mt-1 text-xs text-app-muted">
-                    참여일 {member.joinedAt}
-                  </p>
-                </div>
-              ))}
-            </div>
+            <GroupMemberList members={group.members} />
           </section>
 
           {group.isOwner ? (
