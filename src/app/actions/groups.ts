@@ -43,10 +43,6 @@ function revalidateGroupPaths(groupId: string) {
   revalidatePath(routes.groupSettings(groupId));
 }
 
-function revalidateGroupSettingsPath(groupId: string) {
-  revalidatePath(routes.groupSettings(groupId));
-}
-
 export async function createGroup(
   _prevState: GroupActionState,
   formData: FormData,
@@ -120,14 +116,20 @@ export async function updateGroupInfo(
     if (result.count === 0) {
       throw new Error("그룹을 관리할 권한이 없습니다.");
     }
+
+    revalidateGroupPaths(groupId);
+
+    return {
+      savedGroup: {
+        name: input.name,
+        description: input.description,
+      },
+    };
   } catch (error) {
     return {
       error: getErrorMessage(error),
     };
   }
-
-  revalidateGroupPaths(groupId);
-  redirect(routes.groupSettings(groupId), RedirectType.replace);
 }
 
 export async function deleteGroup(

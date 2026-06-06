@@ -13,6 +13,10 @@ export type GroupInviteDeleteActionState = {
 
 export type GroupActionState = {
   error?: string;
+  savedGroup?: {
+    name: string;
+    description: string;
+  };
 };
 
 export const initialGroupActionState: GroupActionState = {};

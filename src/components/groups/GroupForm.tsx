@@ -71,12 +71,33 @@ export default function GroupForm({
 }: GroupFormProps) {
   const [name, setName] = useState(defaultName);
   const [description, setDescription] = useState(defaultDescription);
+  const [savedName, setSavedName] = useState(defaultName);
+  const [savedDescription, setSavedDescription] = useState(defaultDescription);
   const [isNameTouched, setIsNameTouched] = useState(false);
   const [isDescriptionTouched, setIsDescriptionTouched] = useState(false);
   const [isServerErrorHidden, setIsServerErrorHidden] = useState(false);
 
+  const handleFormAction = async (
+    prevState: GroupActionState,
+    formData: FormData,
+  ) => {
+    const result = await action(prevState, formData);
+
+    if (result.savedGroup) {
+      setName(result.savedGroup.name);
+      setDescription(result.savedGroup.description);
+      setSavedName(result.savedGroup.name);
+      setSavedDescription(result.savedGroup.description);
+      setIsNameTouched(false);
+      setIsDescriptionTouched(false);
+      setIsServerErrorHidden(false);
+    }
+
+    return result;
+  };
+
   const [state, formAction, isPending] = useActionState(
-    action,
+    handleFormAction,
     initialGroupActionState,
   );
 
@@ -98,8 +119,8 @@ export default function GroupForm({
   const errorMessage = clientError ?? serverError;
 
   const isUnchanged =
-    name.trim() === defaultName.trim() &&
-    description.trim() === defaultDescription.trim();
+    name.trim() === savedName.trim() &&
+    description.trim() === savedDescription.trim();
 
   const isSubmitDisabled =
     Boolean(clientError) || (disableWhenUnchanged && isUnchanged);
