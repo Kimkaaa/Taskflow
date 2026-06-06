@@ -51,11 +51,12 @@ export async function updateNickname(
     };
   }
 
-  revalidatePath(routes.me);
   revalidatePath(routes.tasks);
   revalidatePath(routes.groups);
 
-  redirect(routes.me, RedirectType.replace);
+  return {
+    savedNickname: input.nickname,
+  };
 }
 
 export async function deleteAccount(

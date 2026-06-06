@@ -52,15 +52,31 @@ export default function AccountProfileForm({
   nickname,
 }: AccountProfileFormProps) {
   const [value, setValue] = useState(nickname);
+  const [savedNickname, setSavedNickname] = useState(nickname);
   const [isServerErrorHidden, setIsServerErrorHidden] = useState(false);
 
+  const handleFormAction = async (
+    prevState: AccountActionState,
+    formData: FormData,
+  ) => {
+    const result = await action(prevState, formData);
+
+    if (result.savedNickname) {
+      setValue(result.savedNickname);
+      setSavedNickname(result.savedNickname);
+      setIsServerErrorHidden(false);
+    }
+
+    return result;
+  };
+
   const [state, formAction, isPending] = useActionState(
-    action,
+    handleFormAction,
     initialAccountActionState,
   );
 
   const trimmedValue = value.trim();
-  const isUnchanged = trimmedValue === nickname.trim();
+  const isUnchanged = trimmedValue === savedNickname.trim();
 
   const clientError = isUnchanged
     ? null
