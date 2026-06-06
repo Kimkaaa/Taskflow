@@ -12,7 +12,9 @@ import {
 } from "@/constants/classNames";
 import {
   initialGroupActionState,
+  initialGroupInviteActionState,
   type GroupActionState,
+  type GroupInviteActionState,
 } from "@/types/groupAction";
 
 type ActiveGroupInvite = {
@@ -23,9 +25,9 @@ type ActiveGroupInvite = {
 type GroupInviteSectionProps = {
   activeInvite: ActiveGroupInvite | null;
   generateAction: (
-    prevState: GroupActionState,
+    prevState: GroupInviteActionState,
     formData: FormData,
-  ) => GroupActionState | Promise<GroupActionState>;
+  ) => GroupInviteActionState | Promise<GroupInviteActionState>;
   deleteAction: (
     prevState: GroupActionState,
     formData: FormData,
@@ -152,17 +154,18 @@ export default function GroupInviteSection({
 
   const [generateState, generateFormAction, isGeneratePending] = useActionState(
     generateAction,
-    initialGroupActionState,
+    initialGroupInviteActionState,
   );
 
-  const invitePath = activeInvite?.invitePath ?? "";
+  const currentInvite = generateState.invite ?? activeInvite;
+  const invitePath = currentInvite?.invitePath ?? "";
 
   const shouldShowGenerateError = Boolean(
     generateState.error && !isGeneratePending,
   );
 
-  const isInviteCreateBlocked = !activeInvite && isMemberLimitReached;
-  const isInviteShareBlocked = Boolean(activeInvite) && isMemberLimitReached;
+  const isInviteCreateBlocked = !currentInvite && isMemberLimitReached;
+  const isInviteShareBlocked = Boolean(currentInvite) && isMemberLimitReached;
 
   const handleCopy = async () => {
     if (!invitePath || isMemberLimitReached) {
@@ -197,13 +200,13 @@ export default function GroupInviteSection({
           링크를 받은 사용자는 로그인 후 그룹에 참여할 수 있습니다.
         </p>
 
-        {activeInvite ? (
+        {currentInvite ? (
           <div className="mt-5 space-y-3">
             <div className={cardClassNames.inset}>
               <p className="break-all text-sm text-app-soft">{invitePath}</p>
 
               <p className="mt-2 text-xs text-app-muted">
-                만료일 {activeInvite.expiresAt}
+                만료일 {currentInvite.expiresAt}
               </p>
             </div>
 

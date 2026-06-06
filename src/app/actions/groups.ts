@@ -14,7 +14,11 @@ import {
   createGroupInviteToken,
   isGroupInviteExpired,
 } from "@/lib/groupInvite";
-import type { GroupActionState } from "@/types/groupAction";
+import { formatDate } from "@/lib/date";
+import type {
+  GroupActionState,
+  GroupInviteActionState,
+} from "@/types/groupAction";
 import {
   GROUP_MEMBER_LIMIT,
   USER_GROUP_LIMIT,
@@ -227,9 +231,9 @@ export async function leaveGroup(
 
 export async function generateGroupInvite(
   groupId: string,
-  _prevState: GroupActionState,
+  _prevState: GroupInviteActionState,
   _formData: FormData,
-): Promise<GroupActionState> {
+): Promise<GroupInviteActionState> {
   const user = await requireUser();
 
   try {
@@ -275,14 +279,18 @@ export async function generateGroupInvite(
         createdAt,
       },
     });
+
+    return {
+      invite: {
+        invitePath: routes.invite(token),
+        expiresAt: formatDate(expiresAt),
+      },
+    };
   } catch (error) {
     return {
       error: getErrorMessage(error),
     };
   }
-
-  revalidateGroupSettingsPath(groupId);
-  redirect(routes.groupSettings(groupId), RedirectType.replace);
 }
 
 export async function deleteGroupInvite(
