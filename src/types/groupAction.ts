@@ -6,9 +6,16 @@ export type GroupInviteActionState = {
   };
 };
 
+export type GroupInviteDeleteActionState = {
+  error?: string;
+  deleted?: boolean;
+};
+
 export type GroupActionState = {
   error?: string;
 };
 
 export const initialGroupActionState: GroupActionState = {};
 export const initialGroupInviteActionState: GroupInviteActionState = {};
+export const initialGroupInviteDeleteActionState: GroupInviteDeleteActionState =
+  {};

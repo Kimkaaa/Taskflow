@@ -11,10 +11,10 @@ import {
   textClassNames,
 } from "@/constants/classNames";
 import {
-  initialGroupActionState,
   initialGroupInviteActionState,
-  type GroupActionState,
+  initialGroupInviteDeleteActionState,
   type GroupInviteActionState,
+  type GroupInviteDeleteActionState,
 } from "@/types/groupAction";
 
 type ActiveGroupInvite = {
@@ -29,19 +29,20 @@ type GroupInviteSectionProps = {
     formData: FormData,
   ) => GroupInviteActionState | Promise<GroupInviteActionState>;
   deleteAction: (
-    prevState: GroupActionState,
+    prevState: GroupInviteDeleteActionState,
     formData: FormData,
-  ) => GroupActionState | Promise<GroupActionState>;
+  ) => GroupInviteDeleteActionState | Promise<GroupInviteDeleteActionState>;
   isMemberLimitReached: boolean;
 };
 
 type InviteDeleteDialogProps = {
   open: boolean;
   action: (
-    prevState: GroupActionState,
+    prevState: GroupInviteDeleteActionState,
     formData: FormData,
-  ) => GroupActionState | Promise<GroupActionState>;
+  ) => GroupInviteDeleteActionState | Promise<GroupInviteDeleteActionState>;
   onClose: () => void;
+  onDeleted: () => void;
 };
 
 function GenerateButton() {
@@ -86,10 +87,24 @@ function InviteDeleteDialog({
   open,
   action,
   onClose,
+  onDeleted,
 }: InviteDeleteDialogProps) {
+  const handleDeleteAction = async (
+    prevState: GroupInviteDeleteActionState,
+    formData: FormData,
+  ) => {
+    const result = await action(prevState, formData);
+
+    if (result.deleted) {
+      onDeleted();
+    }
+
+    return result;
+  };
+
   const [state, formAction, isPending] = useActionState(
-    action,
-    initialGroupActionState,
+    handleDeleteAction,
+    initialGroupInviteDeleteActionState,
   );
 
   const errorMessage = !isPending ? state.error : undefined;
@@ -148,16 +163,30 @@ export default function GroupInviteSection({
   deleteAction,
   isMemberLimitReached,
 }: GroupInviteSectionProps) {
+  const [currentInvite, setCurrentInvite] = useState(activeInvite);
   const [copyMessage, setCopyMessage] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteDialogKey, setDeleteDialogKey] = useState(0);
 
+  const handleGenerateAction = async (
+    prevState: GroupInviteActionState,
+    formData: FormData,
+  ) => {
+    const result = await generateAction(prevState, formData);
+
+    if (result.invite) {
+      setCurrentInvite(result.invite);
+      setCopyMessage("");
+    }
+
+    return result;
+  };
+
   const [generateState, generateFormAction, isGeneratePending] = useActionState(
-    generateAction,
+    handleGenerateAction,
     initialGroupInviteActionState,
   );
 
-  const currentInvite = generateState.invite ?? activeInvite;
   const invitePath = currentInvite?.invitePath ?? "";
 
   const shouldShowGenerateError = Boolean(
@@ -187,6 +216,13 @@ export default function GroupInviteSection({
   };
 
   const handleDeleteDialogClose = () => {
+    setIsDeleteDialogOpen(false);
+    setDeleteDialogKey((currentKey) => currentKey + 1);
+  };
+
+  const handleInviteDeleted = () => {
+    setCurrentInvite(null);
+    setCopyMessage("");
     setIsDeleteDialogOpen(false);
     setDeleteDialogKey((currentKey) => currentKey + 1);
   };
@@ -271,6 +307,7 @@ export default function GroupInviteSection({
         open={isDeleteDialogOpen}
         action={deleteAction}
         onClose={handleDeleteDialogClose}
+        onDeleted={handleInviteDeleted}
       />
     </>
   );

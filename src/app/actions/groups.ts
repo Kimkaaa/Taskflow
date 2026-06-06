@@ -18,6 +18,7 @@ import { formatDate } from "@/lib/date";
 import type {
   GroupActionState,
   GroupInviteActionState,
+  GroupInviteDeleteActionState,
 } from "@/types/groupAction";
 import {
   GROUP_MEMBER_LIMIT,
@@ -295,9 +296,9 @@ export async function generateGroupInvite(
 
 export async function deleteGroupInvite(
   groupId: string,
-  _prevState: GroupActionState,
+  _prevState: GroupInviteDeleteActionState,
   _formData: FormData,
-): Promise<GroupActionState> {
+): Promise<GroupInviteDeleteActionState> {
   const user = await requireUser();
 
   try {
@@ -321,8 +322,9 @@ export async function deleteGroupInvite(
     };
   }
 
-  revalidateGroupSettingsPath(groupId);
-  redirect(routes.groupSettings(groupId), RedirectType.replace);
+  return {
+    deleted: true,
+  };
 }
 
 export async function acceptGroupInvite(
