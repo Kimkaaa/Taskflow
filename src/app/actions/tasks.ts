@@ -292,6 +292,5 @@ export async function updateTaskTodoDone(
     throw new Error("체크리스트 항목을 찾을 수 없거나 수정 권한이 없습니다.");
   }
 
-  revalidatePath("/tasks");
   revalidatePath(`/tasks/${taskId}`);
 }
