@@ -12,7 +12,6 @@ export async function GET(request: NextRequest) {
     keyword: searchParams.get("keyword") ?? undefined,
     status: searchParams.get("status") ?? undefined,
     priority: searchParams.get("priority") ?? undefined,
-    sort: searchParams.get("sort") ?? undefined,
     tag: searchParams.get("tag") ?? undefined,
     scope: searchParams.get("scope") ?? undefined,
   });

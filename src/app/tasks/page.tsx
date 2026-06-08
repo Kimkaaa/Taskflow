@@ -17,7 +17,6 @@ function createTaskListKey(query: ReturnType<typeof parseTaskQuery>) {
     query.keyword ?? "",
     query.status ?? "",
     query.priority ?? "",
-    query.sort ?? "",
     query.tag ?? "",
     query.scope ?? "",
   ].join("-");

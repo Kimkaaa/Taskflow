@@ -4,7 +4,6 @@ import type {
   Task,
   TaskQuery,
   TaskScope,
-  TaskSortOption,
   TaskSummary,
   TaskTodo,
   TaskVisibility,
@@ -138,63 +137,7 @@ function getPriorityOrderBy(
   };
 }
 
-function getTaskOrderBy(
-  sort?: TaskSortOption,
-): Prisma.TaskOrderByWithRelationInput[] {
-  if (sort === "dueDesc") {
-    return [
-      {
-        dueDate: {
-          sort: "desc",
-          nulls: "last",
-        },
-      },
-      getPriorityOrderBy("desc"),
-      {
-        createdAt: "desc",
-      },
-      {
-        id: "asc",
-      },
-    ];
-  }
-
-  if (sort === "priorityDesc") {
-    return [
-      getPriorityOrderBy("desc"),
-      {
-        dueDate: {
-          sort: "asc",
-          nulls: "last",
-        },
-      },
-      {
-        createdAt: "desc",
-      },
-      {
-        id: "asc",
-      },
-    ];
-  }
-
-  if (sort === "priorityAsc") {
-    return [
-      getPriorityOrderBy("asc"),
-      {
-        dueDate: {
-          sort: "asc",
-          nulls: "last",
-        },
-      },
-      {
-        createdAt: "desc",
-      },
-      {
-        id: "asc",
-      },
-    ];
-  }
-
+function getTaskOrderBy(): Prisma.TaskOrderByWithRelationInput[] {
   return [
     {
       dueDate: {
@@ -422,19 +365,17 @@ function buildTaskWhere(
 
 async function findTaskListRows({
   where,
-  query,
   cursor,
   limit,
 }: {
   where: Prisma.TaskWhereInput;
-  query: TaskQuery;
   cursor?: string;
   limit: number;
 }) {
   return prisma.task.findMany({
     where,
     select: taskListSelect,
-    orderBy: getTaskOrderBy(query.sort),
+    orderBy: getTaskOrderBy(),
     take: limit + 1,
     cursor: cursor
       ? {
@@ -492,7 +433,6 @@ export async function getTaskPage(
 
   const rowsPromise = findTaskListRows({
     where,
-    query,
     cursor: options.cursor,
     limit,
   });

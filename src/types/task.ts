@@ -6,17 +6,10 @@ export type TaskVisibility = "PRIVATE" | "GROUP" | "PUBLIC";
 
 export type TaskScope = "all" | "mine" | "private" | "group" | "public";
 
-export type TaskSortOption =
-  | "dueAsc"
-  | "dueDesc"
-  | "priorityDesc"
-  | "priorityAsc";
-
 export type TaskQuery = {
   keyword?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
-  sort?: TaskSortOption;
   tag?: string;
   scope?: TaskScope;
 };

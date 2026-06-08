@@ -8,16 +8,8 @@ import type {
   TaskPriority,
   TaskQuery,
   TaskScope,
-  TaskSortOption,
   TaskStatus,
 } from "@/types/task";
-
-const taskSortOptions: TaskSortOption[] = [
-  "dueAsc",
-  "dueDesc",
-  "priorityDesc",
-  "priorityAsc",
-];
 
 function getFirstParam(value: string | string[] | undefined) {
   if (Array.isArray(value)) {
@@ -42,10 +34,6 @@ function isTaskPriority(value: string): value is TaskPriority {
   return isOneOf(priorityOptions, value);
 }
 
-function isTaskSortOption(value: string): value is TaskSortOption {
-  return isOneOf(taskSortOptions, value);
-}
-
 function isTaskScope(value: string): value is TaskScope {
   return isOneOf(taskScopeOptions, value);
 }
@@ -56,7 +44,6 @@ export function parseTaskQuery(
   const keyword = getFirstParam(params.keyword)?.trim() ?? "";
   const status = getFirstParam(params.status);
   const priority = getFirstParam(params.priority);
-  const sort = getFirstParam(params.sort);
   const tag = getFirstParam(params.tag)?.trim() ?? "";
   const scope = getFirstParam(params.scope);
 
@@ -64,7 +51,6 @@ export function parseTaskQuery(
     keyword: keyword || undefined,
     status: status && isTaskStatus(status) ? status : undefined,
     priority: priority && isTaskPriority(priority) ? priority : undefined,
-    sort: sort && isTaskSortOption(sort) ? sort : undefined,
     tag: tag || undefined,
     scope: scope && isTaskScope(scope) && scope !== "all" ? scope : undefined,
   };
@@ -83,10 +69,6 @@ export function createTaskQueryParams(query: TaskQuery) {
 
   if (query.priority) {
     params.set("priority", query.priority);
-  }
-
-  if (query.sort) {
-    params.set("sort", query.sort);
   }
 
   if (query.tag) {

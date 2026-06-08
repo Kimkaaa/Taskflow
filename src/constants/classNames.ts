@@ -120,6 +120,10 @@ export const taskClassNames = {
   deleteActionButton: `${taskActionButtonBase} text-red-300`,
   floatingCreateButton:
     "fixed bottom-6 right-6 flex h-12 w-12 items-center justify-center rounded-full bg-app-base/80 text-white shadow-lg backdrop-blur transition",
+  filterScopeChipBase:
+    "inline-flex h-8 cursor-pointer items-center justify-center rounded-full border px-2.5 text-sm font-medium tracking-tight transition sm:h-9 sm:px-3 sm:tracking-normal",
+  filterDetailChipBase:
+    "inline-flex h-8 cursor-pointer items-center justify-center rounded-full bg-app-base/60 px-2.5 text-sm font-medium tracking-tight transition sm:px-3",
   formChipBase:
     "inline-flex h-9 cursor-pointer items-center justify-center rounded-full border px-3 text-sm font-medium transition",
   formSubmitButton:

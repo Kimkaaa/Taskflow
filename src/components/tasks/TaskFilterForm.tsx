@@ -6,7 +6,6 @@ import type {
   TaskPriority,
   TaskQuery,
   TaskScope,
-  TaskSortOption,
   TaskStatus,
 } from "@/types/task";
 import {
@@ -30,7 +29,6 @@ type TaskQueryUpdates = Partial<{
   keyword: string | null;
   status: TaskStatus | null;
   priority: TaskPriority | null;
-  sort: TaskSortOption | null;
   tag: string | null;
   scope: TaskScope | null;
 }>;
@@ -40,8 +38,14 @@ const resetButtonClass =
 
 function getChipClass(isActive: boolean) {
   return isActive
-    ? `${taskClassNames.formChipBase} border-app-strong bg-app-base text-white`
-    : `${taskClassNames.formChipBase} border-app-base bg-app-bg text-app-soft`;
+    ? `${taskClassNames.filterScopeChipBase} border-app-strong bg-app-base text-white`
+    : `${taskClassNames.filterScopeChipBase} border-app-base bg-app-bg text-app-soft`;
+}
+
+function getDetailChipClass(isActive: boolean) {
+  return isActive
+    ? `${taskClassNames.filterDetailChipBase} text-app-soft`
+    : `${taskClassNames.filterDetailChipBase} text-app-muted`;
 }
 
 function parseHashTagSearch(value: string) {
@@ -74,8 +78,6 @@ function createNextQuery(
   const priority =
     updates.priority !== undefined ? updates.priority : query.priority;
 
-  const sort = updates.sort !== undefined ? updates.sort : query.sort;
-
   const tag =
     updates.tag !== undefined ? updates.tag?.trim() || null : query.tag;
 
@@ -85,26 +87,9 @@ function createNextQuery(
     keyword: keyword || undefined,
     status: status ?? undefined,
     priority: priority ?? undefined,
-    sort: sort ?? undefined,
     tag: tag || undefined,
     scope: scope && scope !== "all" ? scope : undefined,
   };
-}
-
-function getNextDueSort(sort?: TaskSortOption) {
-  return sort === "dueAsc" ? "dueDesc" : "dueAsc";
-}
-
-function getNextPrioritySort(sort?: TaskSortOption) {
-  return sort === "priorityDesc" ? "priorityAsc" : "priorityDesc";
-}
-
-function isDueSort(sort?: TaskSortOption) {
-  return sort === "dueAsc" || sort === "dueDesc";
-}
-
-function isPrioritySort(sort?: TaskSortOption) {
-  return sort === "priorityDesc" || sort === "priorityAsc";
 }
 
 export default function TaskFilterForm({
@@ -119,7 +104,6 @@ export default function TaskFilterForm({
       keyword: updates.keyword !== undefined ? updates.keyword : keywordValue,
       status: updates.status,
       priority: updates.priority,
-      sort: updates.sort,
       tag: updates.tag,
       scope: updates.scope,
     });
@@ -194,6 +178,12 @@ export default function TaskFilterForm({
         </button>
       </form>
 
+      {query.tag ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          <span className={taskClassNames.tag}>#{query.tag}</span>
+        </div>
+      ) : null}
+
       {isLoggedIn ? (
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {taskScopeOptions.map((scope) => {
@@ -214,13 +204,7 @@ export default function TaskFilterForm({
         </div>
       ) : null}
 
-      {query.tag ? (
-        <div className="mt-3 flex flex-wrap gap-2">
-          <span className={taskClassNames.tag}>#{query.tag}</span>
-        </div>
-      ) : null}
-
-      <div className="mt-3 flex flex-wrap items-center gap-3">
+      <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
         <div className="flex shrink-0 items-center gap-2">
           {statusOptions.map((status) => {
             const isActive = query.status === status;
@@ -234,7 +218,7 @@ export default function TaskFilterForm({
                     status: isActive ? null : status,
                   });
                 }}
-                className={getChipClass(isActive)}
+                className={getDetailChipClass(isActive)}
               >
                 {statusLabels[status]}
               </button>
@@ -242,7 +226,7 @@ export default function TaskFilterForm({
           })}
         </div>
 
-        <span className="hidden h-5 w-px bg-app-base sm:block" />
+        <span className="h-5 w-px bg-app-base" />
 
         <div className="flex shrink-0 items-center gap-2">
           {priorityOptions.map((priority) => {
@@ -257,46 +241,12 @@ export default function TaskFilterForm({
                     priority: isActive ? null : priority,
                   });
                 }}
-                className={getChipClass(isActive)}
+                className={getDetailChipClass(isActive)}
               >
                 {priorityLabels[priority]}
               </button>
             );
           })}
-        </div>
-
-        <span className="hidden h-5 w-px bg-app-base sm:block" />
-
-        <div className="flex shrink-0 items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              navigateWithUpdates({
-                sort: getNextPrioritySort(query.sort),
-              });
-            }}
-            className={getChipClass(isPrioritySort(query.sort))}
-            title={
-              query.sort === "priorityAsc"
-                ? "중요도 낮은 순"
-                : "중요도 높은 순"
-            }
-          >
-            중요도
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              navigateWithUpdates({
-                sort: getNextDueSort(query.sort),
-              });
-            }}
-            className={getChipClass(isDueSort(query.sort))}
-            title={query.sort === "dueDesc" ? "마감일 먼 순" : "마감일 가까운 순"}
-          >
-            마감일
-          </button>
         </div>
       </div>
     </section>
