@@ -7,12 +7,18 @@ import TaskList from "@/components/tasks/TaskList";
 import TaskListLoading from "@/components/tasks/TaskListLoading";
 import type { TaskQuery, TaskSummary } from "@/types/task";
 
+type TaskGroupOption = {
+  id: string;
+  name: string;
+};
+
 type TaskBoardProps = {
   query: TaskQuery;
   tasks: TaskSummary[];
   nextCursor: string | null;
   totalCount: number | undefined;
   isLoggedIn: boolean;
+  groupOptions: TaskGroupOption[];
 };
 
 export default function TaskBoard({
@@ -21,6 +27,7 @@ export default function TaskBoard({
   nextCursor,
   totalCount,
   isLoggedIn,
+  groupOptions,
 }: TaskBoardProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -42,6 +49,7 @@ export default function TaskBoard({
         query={optimisticQuery}
         onNavigate={handleNavigate}
         isLoggedIn={isLoggedIn}
+        groupOptions={groupOptions}
       />
 
       <div className="mb-4 text-sm text-app-muted">

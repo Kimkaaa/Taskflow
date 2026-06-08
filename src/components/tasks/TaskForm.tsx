@@ -28,6 +28,7 @@ import {
   feedbackClassNames,
   formClassNames,
   taskClassNames,
+  dialogClassNames,
 } from "@/constants/classNames";
 import { TASK_FORM_LIMITS } from "@/constants/taskFormLimits";
 import {
@@ -122,6 +123,12 @@ function getInitialTodos(task?: Task): EditableTodo[] {
   }
 
   return task.todos.map(toEditableTodo);
+}
+
+function getGroupOptionClass(isSelected: boolean) {
+  return isSelected
+    ? dialogClassNames.optionButtonSelected
+    : dialogClassNames.optionButtonDefault;
 }
 
 function SubmitButton({ label }: { label: string }) {
@@ -489,11 +496,7 @@ export default function TaskForm({
                 key={group.id}
                 type="button"
                 onClick={() => handleSelectGroup(group.id)}
-                className={
-                  isSelected
-                    ? "rounded-xl border border-app-strong bg-app-base px-4 py-3 text-left text-sm font-semibold text-white truncate cursor-pointer"
-                    : "rounded-xl border border-app-base bg-app-bg px-4 py-3 text-left text-sm font-medium text-app-soft truncate cursor-pointer"
-                }
+                className={getGroupOptionClass(isSelected)}
               >
                 {group.name}
               </button>

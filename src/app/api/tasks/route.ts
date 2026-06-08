@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     priority: searchParams.get("priority") ?? undefined,
     tag: searchParams.get("tag") ?? undefined,
     scope: searchParams.get("scope") ?? undefined,
+    groupId: searchParams.get("groupId") ?? undefined,
   });
 
   const cursor = searchParams.get("cursor") ?? undefined;

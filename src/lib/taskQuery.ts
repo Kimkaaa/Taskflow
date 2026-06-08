@@ -46,13 +46,18 @@ export function parseTaskQuery(
   const priority = getFirstParam(params.priority);
   const tag = getFirstParam(params.tag)?.trim() ?? "";
   const scope = getFirstParam(params.scope);
+  const groupId = getFirstParam(params.groupId)?.trim() ?? "";
+
+  const parsedScope =
+    scope && isTaskScope(scope) && scope !== "all" ? scope : undefined;
 
   return {
     keyword: keyword || undefined,
     status: status && isTaskStatus(status) ? status : undefined,
     priority: priority && isTaskPriority(priority) ? priority : undefined,
     tag: tag || undefined,
-    scope: scope && isTaskScope(scope) && scope !== "all" ? scope : undefined,
+    scope: parsedScope,
+    groupId: parsedScope === "group" && groupId ? groupId : undefined,
   };
 }
 
@@ -77,6 +82,10 @@ export function createTaskQueryParams(query: TaskQuery) {
 
   if (query.scope) {
     params.set("scope", query.scope);
+  }
+
+  if (query.scope === "group" && query.groupId) {
+    params.set("groupId", query.groupId);
   }
 
   return params;

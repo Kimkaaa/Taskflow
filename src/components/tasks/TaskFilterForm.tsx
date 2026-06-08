@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { RotateCcw, Search, X } from "lucide-react";
+import { ChevronDown, RotateCcw, Search, X } from "lucide-react";
+import Dialog from "@/components/common/Dialog";
 import type {
   TaskPriority,
   TaskQuery,
@@ -16,13 +17,19 @@ import {
   taskScopeLabels,
   taskScopeOptions,
 } from "@/constants/taskMeta";
-import { taskClassNames } from "@/constants/classNames";
+import { dialogClassNames, taskClassNames } from "@/constants/classNames";
 import { createTaskListHref } from "@/lib/taskQuery";
+
+type TaskGroupOption = {
+  id: string;
+  name: string;
+};
 
 type TaskFilterFormProps = {
   query: TaskQuery;
   onNavigate: (href: string, nextQuery: TaskQuery) => void;
   isLoggedIn: boolean;
+  groupOptions: TaskGroupOption[];
 };
 
 type TaskQueryUpdates = Partial<{
@@ -31,6 +38,7 @@ type TaskQueryUpdates = Partial<{
   priority: TaskPriority | null;
   tag: string | null;
   scope: TaskScope | null;
+  groupId: string | null;
 }>;
 
 const resetButtonClass =
@@ -46,6 +54,12 @@ function getDetailChipClass(isActive: boolean) {
   return isActive
     ? `${taskClassNames.filterDetailChipBase} text-app-soft`
     : `${taskClassNames.filterDetailChipBase} text-app-muted`;
+}
+
+function getGroupOptionClass(isSelected: boolean) {
+  return isSelected
+    ? dialogClassNames.optionButtonSelected
+    : dialogClassNames.optionButtonDefault;
 }
 
 function parseHashTagSearch(value: string) {
@@ -82,13 +96,20 @@ function createNextQuery(
     updates.tag !== undefined ? updates.tag?.trim() || null : query.tag;
 
   const scope = updates.scope !== undefined ? updates.scope : query.scope;
+  const nextScope = scope && scope !== "all" ? scope : undefined;
+
+  const groupId =
+    updates.groupId !== undefined
+      ? updates.groupId?.trim() || null
+      : query.groupId;
 
   return {
     keyword: keyword || undefined,
     status: status ?? undefined,
     priority: priority ?? undefined,
     tag: tag || undefined,
-    scope: scope && scope !== "all" ? scope : undefined,
+    scope: nextScope,
+    groupId: nextScope === "group" ? groupId || undefined : undefined,
   };
 }
 
@@ -96,8 +117,10 @@ export default function TaskFilterForm({
   query,
   onNavigate,
   isLoggedIn,
+  groupOptions,
 }: TaskFilterFormProps) {
   const [keywordValue, setKeywordValue] = useState(query.keyword ?? "");
+  const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
 
   const navigateWithUpdates = (updates: TaskQueryUpdates) => {
     const nextQuery = createNextQuery(query, {
@@ -106,6 +129,7 @@ export default function TaskFilterForm({
       priority: updates.priority,
       tag: updates.tag,
       scope: updates.scope,
+      groupId: updates.groupId,
     });
 
     onNavigate(createTaskListHref(nextQuery), nextQuery);
@@ -140,12 +164,26 @@ export default function TaskFilterForm({
     onNavigate(createTaskListHref(nextQuery), nextQuery);
   };
 
+  const selectedGroup = groupOptions.find((group) => group.id === query.groupId);
+  const shouldShowGroupSelector = query.scope === "group" && groupOptions.length > 0;
+  const groupFilterLabel = selectedGroup?.name ?? "그룹 전체";
+
+  const handleSelectGroup = (groupId: string | null) => {
+    navigateWithUpdates({
+      scope: "group",
+      groupId,
+    });
+
+    setIsGroupDialogOpen(false);
+  };
+
   const handleScopeChange = (scope: TaskScope) => {
     const currentScope = query.scope ?? "all";
     const nextScope = scope === "all" || currentScope === scope ? null : scope;
 
     navigateWithUpdates({
       scope: nextScope,
+      groupId: null,
     });
   };
 
@@ -224,6 +262,21 @@ export default function TaskFilterForm({
         </div>
       ) : null}
 
+      {shouldShowGroupSelector ? (
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setIsGroupDialogOpen(true)}
+            className="inline-flex h-8 max-w-full cursor-pointer items-center gap-1 rounded-full bg-app-base/60 px-3 text-sm font-medium text-app-soft"
+            aria-label="그룹 필터 선택"
+            title={groupFilterLabel}
+          >
+            <span className="truncate">{groupFilterLabel}</span>
+            <ChevronDown className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          </button>
+        </div>
+      ) : null}
+
       <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
         <div className="flex shrink-0 items-center gap-2">
           {statusOptions.map((status) => {
@@ -269,6 +322,38 @@ export default function TaskFilterForm({
           })}
         </div>
       </div>
+
+      <Dialog
+        open={isGroupDialogOpen}
+        title="그룹 선택"
+        description="조회할 그룹을 선택해 주세요."
+        onClose={() => setIsGroupDialogOpen(false)}
+      >
+        <div className="grid gap-2">
+          <button
+            type="button"
+            onClick={() => handleSelectGroup(null)}
+            className={getGroupOptionClass(!query.groupId)}
+          >
+            그룹 전체
+          </button>
+
+          {groupOptions.map((group) => {
+            const isSelected = query.groupId === group.id;
+
+            return (
+              <button
+                key={group.id}
+                type="button"
+                onClick={() => handleSelectGroup(group.id)}
+                className={getGroupOptionClass(isSelected)}
+              >
+                {group.name}
+              </button>
+            );
+          })}
+        </div>
+      </Dialog>
     </section>
   );
 }

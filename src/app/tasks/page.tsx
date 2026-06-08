@@ -7,6 +7,7 @@ import { routes } from "@/constants/routes";
 import { getCurrentUser } from "@/lib/auth";
 import { getTaskPage } from "@/lib/tasks";
 import { parseTaskQuery } from "@/lib/taskQuery";
+import { getMyGroupOptions } from "@/lib/groups";
 
 type TasksPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -19,6 +20,7 @@ function createTaskListKey(query: ReturnType<typeof parseTaskQuery>) {
     query.priority ?? "",
     query.tag ?? "",
     query.scope ?? "",
+    query.groupId ?? "",
   ].join("-");
 }
 
@@ -27,15 +29,35 @@ const navLinkClass =
 
 export default async function TasksPage({ searchParams }: TasksPageProps) {
   const params = await searchParams;
-  const query = parseTaskQuery(params);
-  const taskListKey = createTaskListKey(query);
+  const parsedQuery = parseTaskQuery(params);
 
   const user = await getCurrentUser();
   const createTaskHref = user ? routes.tasksNew : routes.login(routes.tasksNew);
 
+  const groupOptions =
+    user && parsedQuery.scope === "group"
+      ? await getMyGroupOptions(user.id)
+      : [];
+
+  const viewerGroupIds = groupOptions.map((group) => group.id);
+
+  const query =
+    parsedQuery.scope === "group" &&
+    parsedQuery.groupId &&
+    !viewerGroupIds.includes(parsedQuery.groupId)
+      ? {
+          ...parsedQuery,
+          groupId: undefined,
+        }
+      : parsedQuery;
+
+  const taskListKey = createTaskListKey(query);
+
   const { tasks, nextCursor, totalCount } = await getTaskPage(query, {
     includeTotalCount: true,
     viewerId: user?.id,
+    viewerGroupIds:
+      query.scope === "group" ? viewerGroupIds : undefined,
   });
 
   return (
@@ -71,6 +93,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
           nextCursor={nextCursor}
           totalCount={totalCount}
           isLoggedIn={Boolean(user)}
+          groupOptions={groupOptions}
         />
       </section>
 

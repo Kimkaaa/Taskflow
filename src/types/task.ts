@@ -12,6 +12,7 @@ export type TaskQuery = {
   priority?: TaskPriority;
   tag?: string;
   scope?: TaskScope;
+  groupId?: string;
 };
 
 export type TaskTodo = {

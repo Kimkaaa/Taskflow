@@ -163,9 +163,17 @@ function needsViewerGroupIds(scope?: TaskScope) {
   return !scope || scope === "all" || scope === "group";
 }
 
-async function getViewerGroupIds(viewerId: string | undefined, scope?: TaskScope) {
+async function getViewerGroupIds(
+  viewerId: string | undefined,
+  scope?: TaskScope,
+  viewerGroupIds?: string[],
+) {
   if (!viewerId || !needsViewerGroupIds(scope)) {
     return [];
+  }
+
+  if (viewerGroupIds) {
+    return viewerGroupIds;
   }
 
   const memberships = await prisma.groupMember.findMany({
@@ -379,8 +387,8 @@ async function findTaskListRows({
     take: limit + 1,
     cursor: cursor
       ? {
-          id: cursor,
-        }
+        id: cursor,
+      }
       : undefined,
     skip: cursor ? 1 : 0,
   });
@@ -412,6 +420,7 @@ export async function getTaskPage(
     limit?: number;
     includeTotalCount?: boolean;
     viewerId?: string;
+    viewerGroupIds?: string[];
   } = {},
 ) {
   const limit = options.limit ?? TASK_PAGE_SIZE;
@@ -420,15 +429,26 @@ export async function getTaskPage(
     return createEmptyTaskPageResult(options.includeTotalCount);
   }
 
-  const groupIds = await getViewerGroupIds(options.viewerId, query.scope);
+  const groupIds = await getViewerGroupIds(
+    options.viewerId,
+    query.scope,
+    options.viewerGroupIds,
+  );
 
   if (query.scope === "group" && groupIds.length === 0) {
     return createEmptyTaskPageResult(options.includeTotalCount);
   }
 
+  if (query.scope === "group" && query.groupId && !groupIds.includes(query.groupId)) {
+    return createEmptyTaskPageResult(options.includeTotalCount);
+  }
+
+  const accessGroupIds =
+    query.scope === "group" && query.groupId ? [query.groupId] : groupIds;
+
   const where = buildTaskWhere(query, {
     viewerId: options.viewerId,
-    groupIds,
+    groupIds: accessGroupIds,
   });
 
   const rowsPromise = findTaskListRows({

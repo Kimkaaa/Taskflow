@@ -91,6 +91,9 @@ export const feedbackClassNames = {
 const dialogActionButtonBase =
   "inline-flex h-10 min-w-20 cursor-pointer items-center justify-center rounded-xl px-4 text-sm font-semibold disabled:cursor-wait";
 
+const dialogSelectOptionButtonBase =
+  "cursor-pointer truncate rounded-xl border px-4 py-3 text-left text-sm";
+
 export const dialogClassNames = {
   overlay:
     "fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6",
@@ -103,6 +106,11 @@ export const dialogClassNames = {
   confirmButton: `${dialogActionButtonBase} bg-app-base/80 text-white`,
   listButton: `${dialogActionButtonBase} bg-app-base/80 text-white`,
   dangerButton: `${dialogActionButtonBase} bg-red-500/15 text-red-300`,
+
+  optionButtonSelected:
+    `${dialogSelectOptionButtonBase} border-app-strong bg-app-base font-semibold text-white`,
+  optionButtonDefault:
+    `${dialogSelectOptionButtonBase} border-app-base bg-app-bg font-medium text-app-soft`,
 } as const;
 
 // 작업
