@@ -2,6 +2,7 @@ import { deleteAccount, updateNickname } from "@/app/actions/account";
 import AuthButton from "@/components/auth/AuthButton";
 import BackLink from "@/components/common/BackLink";
 import DangerActionForm from "@/components/common/DangerActionForm";
+import AccountActivityCard from "@/components/account/AccountActivityCard";
 import AccountProfileForm from "@/components/account/AccountProfileForm";
 import {
   pageClassNames,
@@ -10,10 +11,12 @@ import {
 } from "@/constants/classNames";
 import { routes } from "@/constants/routes";
 import { requireAppUser } from "@/lib/auth";
+import { getAccountActivity } from "@/lib/accountActivity";
 import { formatDate } from "@/lib/date";
 
 export default async function MePage() {
   const user = await requireAppUser(routes.me);
+  const activity = await getAccountActivity(user.id);
 
   return (
     <main className={pageClassNames.main}>
@@ -29,6 +32,8 @@ export default async function MePage() {
         </div>
 
         <div className="grid gap-6">
+          <AccountActivityCard activity={activity} />
+
           <section className={panelClassNames.surface}>
             <h2 className={textClassNames.titleSecondary}>기본 정보</h2>
 
