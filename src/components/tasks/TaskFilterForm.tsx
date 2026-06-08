@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { RotateCcw, Search } from "lucide-react";
+import { RotateCcw, Search, X } from "lucide-react";
 import type {
   TaskPriority,
   TaskQuery,
@@ -132,6 +132,14 @@ export default function TaskFilterForm({
     });
   };
 
+  const handleTagClear = () => {
+    const nextQuery = createNextQuery(query, {
+      tag: null,
+    });
+
+    onNavigate(createTaskListHref(nextQuery), nextQuery);
+  };
+
   const handleScopeChange = (scope: TaskScope) => {
     const currentScope = query.scope ?? "all";
     const nextScope = scope === "all" || currentScope === scope ? null : scope;
@@ -180,7 +188,19 @@ export default function TaskFilterForm({
 
       {query.tag ? (
         <div className="mt-3 flex flex-wrap gap-2">
-          <span className={taskClassNames.tag}>#{query.tag}</span>
+          <div className={`${taskClassNames.tag} inline-flex items-center gap-1.5`}>
+            <span>#{query.tag}</span>
+
+            <button
+              type="button"
+              onClick={handleTagClear}
+              className="cursor-pointer text-app-muted transition hover:text-white"
+              aria-label={`#${query.tag} 태그 필터 제거`}
+              title="태그 필터 제거"
+            >
+              <X className="h-3 w-3" aria-hidden="true" />
+            </button>
+          </div>
         </div>
       ) : null}
 
