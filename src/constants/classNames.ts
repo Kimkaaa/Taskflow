@@ -133,11 +133,13 @@ export const taskClassNames = {
   filterDetailChipBase:
     "inline-flex h-8 cursor-pointer items-center justify-center rounded-full bg-app-base/60 px-2.5 text-sm font-medium tracking-tight transition sm:px-3",
   formChipBase:
-    "inline-flex h-9 cursor-pointer items-center justify-center rounded-full border px-3 text-sm font-medium transition",
+    "inline-flex h-8 cursor-pointer items-center justify-center rounded-full border px-2.5 text-sm font-medium tracking-tight transition sm:h-9 sm:px-3 sm:tracking-normal",
   formSubmitButton:
-    "inline-flex h-11 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-80",
+    "inline-flex h-10 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white disabled:cursor-wait",
   formResetButton:
-    "inline-flex h-11 w-11 cursor-pointer items-center justify-center text-app-muted transition hover:text-white",
+    "inline-flex h-10 w-10 cursor-pointer items-center justify-center text-app-muted transition hover:text-white",
+  todoAddButton:
+    "inline-flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-full border border-app-base bg-app-surface px-3 text-xs font-medium text-app-soft transition hover:bg-app-surface-hover hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-app-surface disabled:hover:text-app-soft sm:h-9",
   todoInput:
     "min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-white outline-none placeholder:text-app-disabled",
   todoItem:

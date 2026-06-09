@@ -17,7 +17,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { LoaderCircle, Pencil, Plus, RotateCcw } from "lucide-react";
+import { LoaderCircle, Plus, RotateCcw } from "lucide-react";
 
 import SortableTodoItem, {
   type EditableTodo,
@@ -146,10 +146,7 @@ function SubmitButton({ label }: { label: string }) {
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
       ) : (
-        <>
-          <Pencil className="h-4 w-4" aria-hidden="true" />
-          {label}
-        </>
+        label
       )}
     </button>
   );
@@ -314,50 +311,52 @@ export default function TaskForm({
           maxLength={TASK_FORM_LIMITS.DESCRIPTION_MAX_LENGTH}
         />
 
-        <div className="grid items-center gap-3 min-[600px]:grid-cols-[max-content_max-content_180px] min-[600px]:justify-between">
-          <fieldset className="flex flex-wrap items-center gap-2">
-            <legend className="sr-only">상태</legend>
+        <div className="grid gap-4 sm:grid-cols-[max-content_max-content_180px] sm:items-center sm:justify-between">
+          <div className="grid gap-3 min-[375px]:gap-0 min-[375px]:grid-cols-[max-content_max-content] min-[375px]:items-center min-[375px]:justify-between sm:contents">
+            <fieldset className="flex flex-wrap items-center gap-2">
+              <legend className="sr-only">상태</legend>
 
-            {statusOptions.map((status) => (
-              <label key={status}>
-                <input
-                  type="radio"
-                  name="status"
-                  value={status}
-                  defaultChecked={defaultStatus === status}
-                  className="peer sr-only"
-                />
+              {statusOptions.map((status) => (
+                <label key={status}>
+                  <input
+                    type="radio"
+                    name="status"
+                    value={status}
+                    defaultChecked={defaultStatus === status}
+                    className="peer sr-only"
+                  />
 
-                <span
-                  className={`${taskClassNames.formChipBase} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
-                >
-                  {statusLabels[status]}
-                </span>
-              </label>
-            ))}
-          </fieldset>
+                  <span
+                    className={`${taskClassNames.formChipBase} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
+                  >
+                    {statusLabels[status]}
+                  </span>
+                </label>
+              ))}
+            </fieldset>
 
-          <fieldset className="flex flex-wrap items-center gap-2">
-            <legend className="sr-only">중요도</legend>
+            <fieldset className="flex flex-wrap items-center gap-2">
+              <legend className="sr-only">중요도</legend>
 
-            {priorityOptions.map((priority) => (
-              <label key={priority}>
-                <input
-                  type="radio"
-                  name="priority"
-                  value={priority}
-                  defaultChecked={defaultPriority === priority}
-                  className="peer sr-only"
-                />
+              {priorityOptions.map((priority) => (
+                <label key={priority}>
+                  <input
+                    type="radio"
+                    name="priority"
+                    value={priority}
+                    defaultChecked={defaultPriority === priority}
+                    className="peer sr-only"
+                  />
 
-                <span
-                  className={`${taskClassNames.formChipBase} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
-                >
-                  {priorityLabels[priority]}
-                </span>
-              </label>
-            ))}
-          </fieldset>
+                  <span
+                    className={`${taskClassNames.formChipBase} border-app-base bg-app-bg text-app-soft peer-checked:border-app-strong peer-checked:bg-app-base peer-checked:text-white`}
+                  >
+                    {priorityLabels[priority]}
+                  </span>
+                </label>
+              ))}
+            </fieldset>
+          </div>
 
           <input
             name="dueDate"
@@ -392,7 +391,7 @@ export default function TaskForm({
               type="button"
               onClick={handleAddTodo}
               disabled={isTodoAddDisabled}
-              className="inline-flex h-9 cursor-pointer shrink-0 items-center gap-1 rounded-full border border-app-base bg-app-surface px-3 text-xs font-medium text-app-soft transition hover:bg-app-surface-hover hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-app-surface disabled:hover:text-app-soft"
+              className={taskClassNames.todoAddButton}
               aria-label={
                 isTodoAddDisabled
                   ? `체크리스트는 최대 ${TASK_FORM_LIMITS.TODO_MAX_COUNT}개까지 추가할 수 있습니다.`
@@ -470,7 +469,7 @@ export default function TaskForm({
                 <button
                   type="button"
                   onClick={() => setIsGroupDialogOpen(true)}
-                  className="inline-flex h-11 max-w-full cursor-pointer items-center px-1 text-left text-sm font-medium text-app-soft underline-offset-4 transition hover:text-white hover:underline"
+                  className="inline-flex h-10 max-w-full cursor-pointer items-center px-1 text-left text-sm font-medium text-app-soft underline-offset-4 transition hover:text-white hover:underline"
                   aria-label="공유 그룹 선택"
                   title={selectedGroup?.name ?? "그룹 선택"}
                 >

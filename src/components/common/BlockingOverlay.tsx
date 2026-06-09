@@ -9,7 +9,7 @@ type BlockingOverlayProps = {
 export default function BlockingOverlay({ message }: BlockingOverlayProps) {
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-app-bg px-6"
+      className="fixed inset-0 z-60 flex items-center justify-center bg-app-bg px-6"
       role="status"
       aria-live="polite"
       aria-label={message}
