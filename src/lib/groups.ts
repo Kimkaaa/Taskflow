@@ -8,7 +8,7 @@ import {
   GROUP_MEMBER_LIMIT,
   USER_GROUP_LIMIT,
 } from "@/constants/group";
-import { formatDate } from "@/lib/date";
+import { formatDate, getStartOfWeekInKorea } from "@/lib/date";
 
 export type GroupSummary = {
   id: string;
@@ -38,6 +38,27 @@ export type GroupTaskSummary = {
   createdAt: string;
 };
 
+export type GroupTrophyCode =
+  | "WEEKLY_GROUP_COMPLETED_1"
+  | "WEEKLY_GROUP_COMPLETED_5"
+  | "WEEKLY_GROUP_COMPLETED_10";
+
+export type GroupTrophy = {
+  code: GroupTrophyCode;
+  title: string;
+  description: string;
+  isEarned: boolean;
+  current: number;
+  target: number;
+};
+
+export type GroupActivity = {
+  weeklyCompletedCount: number;
+  totalCompletedCount: number;
+  earnedTrophyCount: number;
+  trophies: GroupTrophy[];
+};
+
 export type GroupDetail = {
   id: string;
   name: string;
@@ -48,6 +69,7 @@ export type GroupDetail = {
   members: GroupMemberSummary[];
   tasks: GroupTaskSummary[];
   taskCount: number;
+  activity: GroupActivity;
 };
 
 export type GroupOption = {
@@ -145,6 +167,72 @@ function toGroupTaskSummary(task: GroupTaskRow): GroupTaskSummary {
     priority: task.priority,
     dueDate: task.dueDate ? formatDate(task.dueDate) : null,
     createdAt: formatDate(task.createdAt),
+  };
+}
+
+function createTrophy({
+  code,
+  title,
+  description,
+  current,
+  target,
+}: {
+  code: GroupTrophyCode;
+  title: string;
+  description: string;
+  current: number;
+  target: number;
+}): GroupTrophy {
+  return {
+    code,
+    title,
+    description,
+    current,
+    target,
+    isEarned: current >= target,
+  };
+}
+
+function getGroupTrophies(weeklyCompletedCount: number) {
+  return [
+    createTrophy({
+      code: "WEEKLY_GROUP_COMPLETED_1",
+      title: "첫 걸음",
+      description: "이번 주 그룹 작업 1개를 완료했어요.",
+      current: weeklyCompletedCount,
+      target: 1,
+    }),
+    createTrophy({
+      code: "WEEKLY_GROUP_COMPLETED_5",
+      title: "좋은 페이스",
+      description: "이번 주 그룹 작업 5개를 완료했어요.",
+      current: weeklyCompletedCount,
+      target: 5,
+    }),
+    createTrophy({
+      code: "WEEKLY_GROUP_COMPLETED_10",
+      title: "주간 챔피언",
+      description: "이번 주 그룹 작업 10개를 완료했어요.",
+      current: weeklyCompletedCount,
+      target: 10,
+    }),
+  ];
+}
+
+function createGroupActivity({
+  weeklyCompletedCount,
+  totalCompletedCount,
+}: {
+  weeklyCompletedCount: number;
+  totalCompletedCount: number;
+}): GroupActivity {
+  const trophies = getGroupTrophies(weeklyCompletedCount);
+
+  return {
+    weeklyCompletedCount,
+    totalCompletedCount,
+    earnedTrophyCount: trophies.filter((trophy) => trophy.isEarned).length,
+    trophies,
   };
 }
 
@@ -282,6 +370,35 @@ export async function getGroupDetail(
     return null;
   }
 
+  const members = group.members.map((member) =>
+    toGroupMemberSummary(member, group.ownerId),
+  );
+
+  const startOfWeek = getStartOfWeekInKorea();
+
+  const [weeklyCompletedCount, totalCompletedCount] = await Promise.all([
+    prisma.task.count({
+      where: {
+        groupId: group.id,
+        visibility: "GROUP",
+        status: "DONE",
+        completedAt: {
+          gte: startOfWeek,
+        },
+      },
+    }),
+    prisma.task.count({
+      where: {
+        groupId: group.id,
+        visibility: "GROUP",
+        status: "DONE",
+        completedAt: {
+          not: null,
+        },
+      },
+    }),
+  ]);
+
   return {
     id: group.id,
     name: group.name,
@@ -289,11 +406,13 @@ export async function getGroupDetail(
     ownerId: group.ownerId,
     isOwner: group.ownerId === userId,
     createdAt: formatDate(group.createdAt),
-    members: group.members.map((member) =>
-      toGroupMemberSummary(member, group.ownerId),
-    ),
+    members,
     tasks: group.tasks.map(toGroupTaskSummary),
     taskCount: group._count.tasks,
+    activity: createGroupActivity({
+      weeklyCompletedCount,
+      totalCompletedCount,
+    }),
   };
 }
 

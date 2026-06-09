@@ -1,3 +1,4 @@
+import { getStartOfWeekInKorea } from "@/lib/date";
 import { prisma } from "@/lib/prisma";
 
 export type AccountBadgeCode =
@@ -23,26 +24,6 @@ export type AccountActivity = {
   earnedBadgeCount: number;
   badges: AccountBadge[];
 };
-
-const KOREA_TIME_OFFSET_MS = 9 * 60 * 60 * 1000;
-
-function getStartOfWeekInKorea(date = new Date()) {
-  const koreaDate = new Date(date.getTime() + KOREA_TIME_OFFSET_MS);
-  const day = koreaDate.getUTCDay();
-  const daysFromMonday = (day + 6) % 7;
-
-  const startOfWeekInKorea = Date.UTC(
-    koreaDate.getUTCFullYear(),
-    koreaDate.getUTCMonth(),
-    koreaDate.getUTCDate() - daysFromMonday,
-    0,
-    0,
-    0,
-    0,
-  );
-
-  return new Date(startOfWeekInKorea - KOREA_TIME_OFFSET_MS);
-}
 
 function createBadge({
   code,
@@ -77,28 +58,28 @@ function getAccountBadges({
   return [
     createBadge({
       code: "FIRST_COMPLETED",
-      title: "첫 완료",
+      title: "첫 삽",
       description: "첫 작업을 완료했어요.",
       current: totalCompletedCount,
       target: 1,
     }),
     createBadge({
       code: "COMPLETED_5",
-      title: "좋은 시작",
+      title: "새싹",
       description: "작업 5개를 완료했어요.",
       current: totalCompletedCount,
       target: 5,
     }),
     createBadge({
       code: "COMPLETED_10",
-      title: "꾸준한 흐름",
+      title: "나무",
       description: "작업 10개를 완료했어요.",
       current: totalCompletedCount,
       target: 10,
     }),
     createBadge({
       code: "COMPLETED_30",
-      title: "작업 수집가",
+      title: "작은 숲",
       description: "작업 30개를 완료했어요.",
       current: totalCompletedCount,
       target: 30,
@@ -112,7 +93,7 @@ function getAccountBadges({
     }),
     createBadge({
       code: "GROUP_COMPLETED_5",
-      title: "그룹 기여자",
+      title: "함께한 기록",
       description: "그룹 작업 5개를 완료했어요.",
       current: groupCompletedCount,
       target: 5,

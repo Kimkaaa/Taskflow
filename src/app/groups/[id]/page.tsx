@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Settings } from "lucide-react";
 
 import BackLink from "@/components/common/BackLink";
+import GroupActivityCard from "@/components/groups/GroupActivityCard";
 import GroupMemberList from "@/components/groups/GroupMemberList";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/tasks/TaskBadges";
 import {
@@ -81,7 +82,9 @@ export default async function GroupDetailPage({
         </header>
 
         <div className="mt-6 grid gap-6">
-          <section className={panelClassNames.compactSurface}>
+          <GroupActivityCard activity={group.activity} />
+
+          <section className={panelClassNames.surface}>
             <div className="flex items-center gap-3">
               <h2 className={textClassNames.titleSecondary}>멤버</h2>
               <span className={textClassNames.meta}>
@@ -92,7 +95,7 @@ export default async function GroupDetailPage({
             <GroupMemberList members={group.members} />
           </section>
 
-          <section className={panelClassNames.compactSurface}>
+          <section className={panelClassNames.surface}>
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <h2 className={textClassNames.titleSecondary}>그룹 작업</h2>
