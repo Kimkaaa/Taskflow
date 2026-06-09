@@ -23,7 +23,7 @@ export default async function GroupsPage() {
   return (
     <main className={pageClassNames.main}>
       <section className={pageClassNames.section}>
-        <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="mb-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <BackLink href={routes.tasks} label="작업 목록으로 돌아가기" />
 

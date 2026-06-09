@@ -243,7 +243,7 @@ export default function TaskFilterForm({
       ) : null}
 
       {isLoggedIn ? (
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
           {taskScopeOptions.map((scope) => {
             const currentScope = query.scope ?? "all";
             const isActive = currentScope === scope;
@@ -277,8 +277,8 @@ export default function TaskFilterForm({
         </div>
       ) : null}
 
-      <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
-        <div className="flex shrink-0 items-center gap-2">
+      <div className="mt-3 flex flex-wrap items-center gap-3 sm:gap-4">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           {statusOptions.map((status) => {
             const isActive = query.status === status;
 
@@ -301,7 +301,7 @@ export default function TaskFilterForm({
 
         <span className="h-5 w-px bg-app-base" />
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           {priorityOptions.map((priority) => {
             const isActive = query.priority === priority;
 

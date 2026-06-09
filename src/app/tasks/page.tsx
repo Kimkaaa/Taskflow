@@ -66,7 +66,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
         <div className="mb-6 flex items-center justify-between gap-4">
           <Link
             href={routes.tasks}
-            className="text-3xl font-bold tracking-tight text-white"
+            className="text-2xl font-bold tracking-tight text-white sm:text-3xl"
           >
             TaskFlow
           </Link>
