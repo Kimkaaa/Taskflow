@@ -48,6 +48,7 @@ import {
   initialTaskActionState,
   type TaskActionState,
 } from "@/types/taskAction";
+import { getTagsValidationMessage, parseTags } from "@/lib/taskForm";
 
 type TaskFormGroupOption = {
   id: string;
@@ -165,9 +166,11 @@ export default function TaskForm({
   const defaultPriority = getDefaultPriority(task);
   const defaultVisibility = getDefaultVisibility({ task, defaultGroupId });
   const defaultSelectedGroupId = task?.groupId ?? defaultGroupId ?? "";
+  const defaultTagsValue = task?.tags.join(", ") ?? "";
   const visibilityOptions = getVisibilityOptions(groups.length > 0);
 
   const [todos, setTodos] = useState(() => getInitialTodos(task));
+  const [tagsValue, setTagsValue] = useState(defaultTagsValue);
   const [selectedVisibility, setSelectedVisibility] =
     useState<TaskVisibility>(defaultVisibility);
   const [selectedGroupId, setSelectedGroupId] = useState(defaultSelectedGroupId);
@@ -191,7 +194,9 @@ export default function TaskForm({
   );
 
   const selectedGroup = groups.find((group) => group.id === selectedGroupId);
-  const shouldShowError = Boolean(state.error && !isErrorHidden && !isPending);
+  const tagsError = getTagsValidationMessage(parseTags(tagsValue));
+  const serverError =
+    state.error && !isErrorHidden && !isPending ? state.error : null;
   const isTodoAddDisabled = todos.length >= TASK_FORM_LIMITS.TODO_MAX_COUNT;
 
   const handleVisibilityChange = (visibility: TaskVisibility) => {
@@ -247,6 +252,7 @@ export default function TaskForm({
 
   const handleResetForm = () => {
     setTodos(getInitialTodos(task));
+    setTagsValue(defaultTagsValue);
     setSelectedVisibility(defaultVisibility);
     setSelectedGroupId(defaultSelectedGroupId);
     setIsGroupDialogOpen(false);
@@ -255,6 +261,11 @@ export default function TaskForm({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     setIsErrorHidden(false);
+
+    if (tagsError) {
+      event.preventDefault();
+      return;
+    }
 
     if (selectedVisibility === "GROUP" && !selectedGroupId) {
       event.preventDefault();
@@ -357,13 +368,23 @@ export default function TaskForm({
           />
         </div>
 
-        <input
-          name="tags"
-          type="text"
-          defaultValue={task?.tags.join(", ") ?? ""}
-          placeholder="태그 (쉼표로 구분)"
-          className={formClassNames.input}
-        />
+        <div className="space-y-3">
+          <input
+            name="tags"
+            type="text"
+            value={tagsValue}
+            onChange={(event) => {
+              setTagsValue(event.target.value);
+              setIsErrorHidden(true);
+            }}
+            placeholder="태그 (쉼표로 구분)"
+            className={formClassNames.input}
+          />
+
+          {tagsError ? (
+            <p className={feedbackClassNames.errorBox}>{tagsError}</p>
+          ) : null}
+        </div>
 
         <div className="space-y-3">
           <div className="flex justify-end">
@@ -412,10 +433,6 @@ export default function TaskForm({
             </SortableContext>
           </DndContext>
         </div>
-
-        {shouldShowError ? (
-          <p className={feedbackClassNames.errorBox}>{state.error}</p>
-        ) : null}
 
         <input
           type="hidden"
@@ -478,6 +495,10 @@ export default function TaskForm({
               <SubmitButton label={submitLabel} />
             </div>
           </div>
+
+          {serverError ? (
+            <p className={feedbackClassNames.errorBox}>{serverError}</p>
+          ) : null}
         </div>
       </form>
 

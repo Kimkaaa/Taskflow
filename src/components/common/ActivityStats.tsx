@@ -30,7 +30,7 @@ function ActivityStatCard({
 }: ActivityStatCardProps) {
   const content = (
     <>
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between sm:gap-2">
         <p className={textClassNames.meta}>{label}</p>
 
         {onClick ? (

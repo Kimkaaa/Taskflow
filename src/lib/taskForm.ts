@@ -52,11 +52,35 @@ function isTaskVisibility(value: string): value is TaskVisibility {
   return taskVisibilities.includes(value as TaskVisibility);
 }
 
-function parseTags(value: string) {
+export function parseTags(value: string) {
   return value
     .split(",")
     .map((tag) => tag.trim())
     .filter(Boolean);
+}
+
+export function getTagsValidationMessage(tags: string[]) {
+  if (tags.length > TASK_FORM_LIMITS.TAG_MAX_COUNT) {
+    return `태그는 최대 ${TASK_FORM_LIMITS.TAG_MAX_COUNT}개까지 입력할 수 있습니다.`;
+  }
+
+  if (tags.some((tag) => /\s/.test(tag))) {
+    return "태그는 공백 없이 입력해주세요.";
+  }
+
+  if (tags.some((tag) => tag.length > TASK_FORM_LIMITS.TAG_MAX_LENGTH)) {
+    return `태그는 개별 ${TASK_FORM_LIMITS.TAG_MAX_LENGTH}자 이하로 입력해주세요.`;
+  }
+
+  return null;
+}
+
+function validateTags(tags: string[]) {
+  const message = getTagsValidationMessage(tags);
+
+  if (message) {
+    throw new Error(message);
+  }
 }
 
 function parseTodos(formData: FormData): TaskFormTodoInput[] {
@@ -97,24 +121,6 @@ function validateDueDate(value: string) {
 
   if (!isValidDate) {
     throw new Error("마감일 형식이 올바르지 않습니다.");
-  }
-}
-
-function validateTags(tags: string[]) {
-  if (tags.length > TASK_FORM_LIMITS.TAG_MAX_COUNT) {
-    throw new Error(
-      `태그는 최대 ${TASK_FORM_LIMITS.TAG_MAX_COUNT}개까지 입력할 수 있습니다.`,
-    );
-  }
-
-  const hasTooLongTag = tags.some(
-    (tag) => tag.length > TASK_FORM_LIMITS.TAG_MAX_LENGTH,
-  );
-
-  if (hasTooLongTag) {
-    throw new Error(
-      `태그는 개별 ${TASK_FORM_LIMITS.TAG_MAX_LENGTH}자 이하로 입력해주세요.`,
-    );
   }
 }
 
