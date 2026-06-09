@@ -33,19 +33,24 @@ function getErrorMessage(error: unknown) {
 async function getOrCreateTags(tags: string[], tx: ActionTransaction) {
   const uniqueTags = removeDuplicateTags(tags);
 
-  return Promise.all(
-    uniqueTags.map((name) =>
-      tx.tag.upsert({
-        where: {
-          name,
-        },
-        update: {},
-        create: {
-          name,
-        },
-      }),
-    ),
-  );
+  if (uniqueTags.length === 0) {
+    return [];
+  }
+
+  await tx.tag.createMany({
+    data: uniqueTags.map((name) => ({
+      name,
+    })),
+    skipDuplicates: true,
+  });
+
+  return tx.tag.findMany({
+    where: {
+      name: {
+        in: uniqueTags,
+      },
+    },
+  });
 }
 
 async function validateGroupVisibility(
