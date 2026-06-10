@@ -9,6 +9,8 @@ import {
   dialogClassNames,
   cardClassNames,
   textClassNames,
+  buttonClassNames,
+  feedbackClassNames,
 } from "@/constants/classNames";
 import {
   initialGroupInviteActionState,
@@ -52,7 +54,7 @@ function GenerateButton() {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex h-10 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl bg-app-base/80 text-sm font-semibold text-white transition disabled:cursor-wait"
+      className={buttonClassNames.fixedPrimaryPending}
     >
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -252,11 +254,7 @@ export default function GroupInviteSection({
                   type="button"
                   onClick={handleCopy}
                   disabled={!invitePath || isMemberLimitReached}
-                  className={
-                    isMemberLimitReached
-                      ? "inline-flex h-10 w-20 cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-app-base bg-app-bg text-sm font-medium text-app-muted transition"
-                      : "inline-flex h-10 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl border border-app-base bg-app-bg text-sm font-medium text-app-soft transition hover:text-white disabled:cursor-not-allowed"
-                  }
+                  className={buttonClassNames.iconSecondary}
                 >
                   <Copy className="h-4 w-4" aria-hidden="true" />
                   복사
@@ -265,7 +263,7 @@ export default function GroupInviteSection({
                 <button
                   type="button"
                   onClick={() => setIsDeleteDialogOpen(true)}
-                  className="inline-flex h-10 w-20 cursor-pointer items-center justify-center gap-2 rounded-xl border border-red-500/30 text-sm font-semibold text-red-200"
+                  className={buttonClassNames.iconDanger}
                 >
                   <Trash2 className="h-4 w-4" aria-hidden="true" />
                   삭제
@@ -278,7 +276,7 @@ export default function GroupInviteSection({
             </div>
           </div>
         ) : isInviteCreateBlocked ? (
-          <p className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <p className={`mt-5 ${feedbackClassNames.errorBox}`}>
             현재 멤버가 가득 차 초대 링크를 생성할 수 없습니다.
           </p>
         ) : (
@@ -294,7 +292,7 @@ export default function GroupInviteSection({
         )}
 
         {shouldShowGenerateError || isInviteShareBlocked ? (
-          <p className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <p className={`mt-5 ${feedbackClassNames.errorBox}`}>
             {shouldShowGenerateError
               ? generateState.error
               : "현재 멤버가 가득 차 새 멤버는 참여할 수 없습니다."}

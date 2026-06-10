@@ -41,6 +41,9 @@ const fixedPrimaryButtonBase =
 const fixedSecondaryButtonBase =
   "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-app-base text-sm font-medium text-app-soft";
 
+const iconButtonBase =
+  "inline-flex h-10 w-20 items-center justify-center gap-2 rounded-xl border text-sm";
+
 export const buttonClassNames = {
   fixedPrimary:
     `${fixedPrimaryButtonBase} w-20 cursor-pointer text-white`,
@@ -65,6 +68,12 @@ export const buttonClassNames = {
 
   smallPill:
     "rounded-full border border-app-base bg-app-bg px-3 py-1.5 text-xs font-medium text-app-soft transition hover:bg-app-surface-hover hover:text-white",
+
+  iconSecondary:
+    `${iconButtonBase} cursor-pointer border-app-base bg-app-bg font-medium text-app-soft transition hover:text-white disabled:cursor-not-allowed disabled:text-app-muted disabled:hover:text-app-muted`,
+
+  iconDanger:
+    `${iconButtonBase} cursor-pointer border-red-500/30 font-semibold text-red-200`,
 } as const;
 
 // 공통 폼
@@ -155,5 +164,5 @@ export const groupClassNames = {
   roleOwnerBadge:
     "rounded-full bg-app-base px-2 py-0.5 text-xs text-white",
   roleMemberBadge:
-    "rounded-full bg-app-base/30 px-2 py-0.5 text-xs tex-app-muted",
+    "rounded-full bg-app-base/30 px-2 py-0.5 text-xs text-app-muted",
 } as const;
