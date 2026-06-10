@@ -46,15 +46,13 @@ export default async function GroupDetailPage({
         <div className="mb-6 flex items-center justify-between gap-4">
           <BackLink href={routes.groups} label="그룹 목록으로 돌아가기" />
 
-          {group.isOwner ? (
-            <Link
-              href={routes.groupSettings(group.id)}
-              className={buttonClassNames.fixedSecondary}
-            >
-              <Settings className="h-4 w-4" aria-hidden="true" />
-              관리
-            </Link>
-          ) : null}
+          <Link
+            href={routes.groupSettings(group.id)}
+            className={buttonClassNames.fixedSecondary}
+          >
+            <Settings className="h-4 w-4" aria-hidden="true" />
+            설정
+          </Link>
         </div>
 
         <header className={panelClassNames.surface}>

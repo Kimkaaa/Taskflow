@@ -33,7 +33,7 @@ export default function NotFoundMessage({
         <div className={panelClassNames.dashedSurface}>
           <p className="text-lg font-semibold text-white">{title}</p>
 
-          <p className="mt-2 mb-6 text-sm leading-6 text-app-muted">
+          <p className="mt-3 mb-6 text-sm leading-6 text-app-muted">
             {description}
           </p>
 

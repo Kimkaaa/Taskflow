@@ -79,18 +79,18 @@ export default async function GroupSettingsPage({
         <div className="mb-6 flex items-center gap-2">
           <BackLink href={routes.groupDetail(group.id)} label="그룹 상세로 돌아가기" />
 
-          <h1 className={pageClassNames.title}>그룹 관리</h1>
+          <h1 className={pageClassNames.title}>그룹 설정</h1>
         </div>
 
         <div className="grid gap-6">
-          <section className={panelClassNames.surface}>
-            <h2 className={textClassNames.titleSecondary}>기본 정보</h2>
+          {group.isOwner ? (
+            <section className={panelClassNames.surface}>
+              <h2 className={textClassNames.titleSecondary}>기본 정보</h2>
 
-            <p className="mt-2 text-sm text-app-muted">
-              생성일 {group.createdAt}
-            </p>
+              <p className="mt-2 text-sm text-app-muted">
+                생성일 {group.createdAt}
+              </p>
 
-            {group.isOwner ? (
               <div className="mt-5">
                 <GroupForm
                   action={updateGroupInfoWithId}
@@ -100,12 +100,8 @@ export default async function GroupSettingsPage({
                   disableWhenUnchanged
                 />
               </div>
-            ) : (
-              <p className="mt-5 text-sm text-app-soft">
-                그룹 정보는 리더만 수정할 수 있습니다.
-              </p>
-            )}
-          </section>
+            </section>
+          ) : null}
 
           <section className={panelClassNames.surface}>
             <div className="flex items-center justify-between gap-3">

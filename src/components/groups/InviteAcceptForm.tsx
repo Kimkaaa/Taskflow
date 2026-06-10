@@ -7,78 +7,63 @@ import {
   initialGroupActionState,
   type GroupActionState,
 } from "@/types/groupAction";
-import { buttonClassNames, feedbackClassNames } from "@/constants/classNames";
+import {
+  buttonClassNames,
+  feedbackClassNames,
+} from "@/constants/classNames";
+import BlockingOverlay from "@/components/common/BlockingOverlay";
 
 type InviteAcceptFormProps = {
   action: (
     prevState: GroupActionState,
     formData: FormData,
   ) => GroupActionState | Promise<GroupActionState>;
-  isAlreadyMember: boolean;
-  unavailableMessage?: string | null;
 };
 
-function SubmitButton({
-  isAlreadyMember,
-  disabled,
-}: {
-  isAlreadyMember: boolean;
-  disabled: boolean;
-}) {
+function SubmitButton() {
   const { pending } = useFormStatus();
-  const isDisabled = pending || disabled;
 
   return (
     <button
       type="submit"
-      disabled={isDisabled}
-      className={
-        disabled
-          ? buttonClassNames.fixedPrimaryInactive
-          : buttonClassNames.fixedPrimaryPending
-      }
+      disabled={pending}
+      className={buttonClassNames.fixedPrimary}
+      aria-label={pending ? "참여 중" : "참여"}
+      title={pending ? "참여 중" : "참여"}
     >
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
       ) : (
         <>
           <UserPlus className="h-4 w-4" aria-hidden="true" />
-          {isAlreadyMember ? "이동" : "참여"}
+          참여
         </>
       )}
     </button>
   );
 }
 
-export default function InviteAcceptForm({
-  action,
-  isAlreadyMember,
-  unavailableMessage = null,
-}: InviteAcceptFormProps) {
+export default function InviteAcceptForm({ action }: InviteAcceptFormProps) {
   const [state, formAction, isPending] = useActionState(
     action,
     initialGroupActionState,
   );
 
-  const isUnavailable = Boolean(unavailableMessage && !isAlreadyMember);
-  const shouldShowError = Boolean(state.error && !isPending);
-
   return (
-    <form action={formAction} className="space-y-4">
-      {isUnavailable ? (
-        <p className={feedbackClassNames.errorBox}>
-          {unavailableMessage}
-        </p>
-      ) : shouldShowError ? (
-        <p className={feedbackClassNames.errorBox}>
-          {state.error}
-        </p>
-      ) : null}
+    <>
+      <form action={formAction}>
+        {state.error ? (
+          <p className={`${feedbackClassNames.errorBox} mb-4`}>
+            {state.error}
+          </p>
+        ) : null}
 
-      <SubmitButton
-        isAlreadyMember={isAlreadyMember}
-        disabled={isUnavailable}
-      />
-    </form>
+        <SubmitButton />
+      </form>
+
+      {isPending ? (
+        <BlockingOverlay message="그룹에 참여하는 중입니다." />
+      ) : null}
+    </>
   );
 }
