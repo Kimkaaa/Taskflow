@@ -1,6 +1,6 @@
 # TaskFlow
 
-![TaskFlow 대표 화면](./docs/images/cover.png)
+![TaskFlow 대표 화면](./docs/images/cover_new.png)
 
 <br>
 
@@ -15,7 +15,7 @@ Next.js와 TypeScript로 구현했으며, Supabase를 통해 인증과 데이터
 
 - **유형**: 개인 프로젝트
 
-- **기간**: 2026.05.06 ~ 2026.05.11
+- **기간**: 2026.05.06 ~ 2026.06.11
 
 - **배포 링크**: 🔗 [https://taskflow-ten-eosin.vercel.app](https://taskflow-ten-eosin.vercel.app/)
 
@@ -43,11 +43,11 @@ Next.js와 TypeScript로 구현했으며, Supabase를 통해 인증과 데이터
 
 - 작업 등록/수정/삭제
 
-- 상태, 중요도, 마감일, 공개 여부 설정
+- 체크리스트 관리
 
-- 검색, 필터링, 정렬
+- 그룹 관리, 작업 공유, 초대 링크 관리
 
-- 체크리스트 기반 세부 작업 관리
+- 계정 관리
 
 <br>
 <br>
@@ -56,25 +56,49 @@ Next.js와 TypeScript로 구현했으며, Supabase를 통해 인증과 데이터
 
 ### 작업 목록
 
-검색, 태그, 필터, 정렬 조건에 따라 작업을 확인할 수 있습니다.
+검색, 필터를 통해 개인/그룹/공개 작업을 조회할 수 있습니다.
 
-<img src="./docs/images/task-list.png" alt="작업 목록" width="500" />
+<img src="./docs/images/tasks_list.gif" alt="작업 목록" width="500" />
 
 <br>
 
-### 작업 수정
+### 작업 등록
 
-작업 기본 정보와 태그, 체크리스트를 수정할 수 있습니다.
+작업 정보와 체크리스트를 입력하고, 그룹 작업으로 공유할 수 있습니다.
 
-<img src="./docs/images/task-edit.gif" alt="작업 수정" width="500" />
+<img src="./docs/images/tasks_create.gif" alt="작업 등록" width="500" />
 
 <br>
 
 ### 작업 상세
 
-작업 내용과 체크리스트를 확인하고, 항목별 완료 여부를 변경할 수 있습니다.
+작업 내용을 확인하고, 체크리스트 완료 여부를 변경할 수 있습니다.
 
-<img src="./docs/images/task-detail.gif" alt="작업 상세" width="500" />
+<img src="./docs/images/tasks_detail.gif" alt="작업 상세" width="500" />
+
+<br>
+
+### 그룹 상세
+
+그룹 활동, 멤버, 공유된 그룹 작업을 확인할 수 있습니다.
+
+<img src="./docs/images/groups_detail.png" alt="그룹 상세" width="500" />
+
+<br>
+
+### 그룹 설정
+
+그룹 정보를 수정하고, 초대 링크를 생성해 멤버를 초대할 수 있습니다.
+
+<img src="./docs/images/groups_settings.png" alt="그룹 설정" width="500" />
+
+<br>
+
+### 계정
+
+활동 기록과 뱃지를 확인하고, 계정을 관리할 수 있습니다.
+
+<img src="./docs/images/me.png" alt="계정" width="500" />
 
 <br>
 <br>
@@ -120,3 +144,21 @@ Supabase Auth를 사용해 GitHub 로그인을 연동했습니다.
 입력 화면에서 항목을 편집하고, `dnd-kit`을 사용해 드래그 앤 드롭으로 순서를 변경할 수 있도록 했습니다.
 
 변경된 순서는 `sortOrder`로 저장해, 저장 후에도 순서가 유지되도록 했습니다.
+
+<br>
+
+### 그룹 기능과 멤버 초대
+
+작업 공개 범위를 개인/그룹/공개로 구분했습니다.
+
+- 개인: 비공개
+
+- 그룹: 그룹 멤버 공개
+
+- 공개: 전체 공개
+
+그룹을 생성해 멤버들이 작업을 공유하고, 이번 주 완료 현황과 트로피를 확인할 수 있도록 했습니다.
+
+그룹 정보 수정과 초대 링크 기반 멤버 초대 기능을 제공했습니다.
+
+그룹 삭제나 탈퇴 시 공유된 그룹 작업은 개인 작업으로 전환되도록 처리했습니다.
