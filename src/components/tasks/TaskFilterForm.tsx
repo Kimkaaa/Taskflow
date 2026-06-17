@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { ChevronDown, RotateCcw, Search, X } from "lucide-react";
-import Dialog from "@/components/common/Dialog";
+import { useState, useTransition, type FormEvent, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { RotateCcw, Search, X } from "lucide-react";
 import type {
   TaskPriority,
   TaskQuery,
@@ -14,22 +14,13 @@ import {
   priorityOptions,
   statusLabels,
   statusOptions,
-  taskScopeLabels,
-  taskScopeOptions,
 } from "@/constants/taskMeta";
-import { dialogClassNames, taskClassNames } from "@/constants/classNames";
+import { taskClassNames } from "@/constants/classNames";
 import { createTaskListHref } from "@/lib/taskQuery";
-
-type TaskGroupOption = {
-  id: string;
-  name: string;
-};
 
 type TaskFilterFormProps = {
   query: TaskQuery;
-  onNavigate: (href: string, nextQuery: TaskQuery) => void;
-  isLoggedIn: boolean;
-  groupOptions: TaskGroupOption[];
+  children?: ReactNode;
 };
 
 type TaskQueryUpdates = Partial<{
@@ -44,22 +35,10 @@ type TaskQueryUpdates = Partial<{
 const resetButtonClass =
   "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-app-base bg-app-bg text-app-soft transition";
 
-function getChipClass(isActive: boolean) {
-  return isActive
-    ? `${taskClassNames.filterScopeChipBase} border-app-strong bg-app-base text-white`
-    : `${taskClassNames.filterScopeChipBase} border-app-base bg-app-bg text-app-soft`;
-}
-
 function getDetailChipClass(isActive: boolean) {
   return isActive
     ? `${taskClassNames.filterDetailChipBase} text-app-soft`
     : `${taskClassNames.filterDetailChipBase} text-app-muted`;
-}
-
-function getGroupOptionClass(isSelected: boolean) {
-  return isSelected
-    ? dialogClassNames.optionButtonSelected
-    : dialogClassNames.optionButtonDefault;
 }
 
 function parseHashTagSearch(value: string) {
@@ -115,12 +94,19 @@ function createNextQuery(
 
 export default function TaskFilterForm({
   query,
-  onNavigate,
-  isLoggedIn,
-  groupOptions,
+  children,
 }: TaskFilterFormProps) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
   const [keywordValue, setKeywordValue] = useState(query.keyword ?? "");
-  const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
+
+  const navigate = (nextQuery: TaskQuery) => {
+    startTransition(() => {
+      router.push(createTaskListHref(nextQuery), {
+        scroll: false,
+      });
+    });
+  };
 
   const navigateWithUpdates = (updates: TaskQueryUpdates) => {
     const nextQuery = createNextQuery(query, {
@@ -132,7 +118,7 @@ export default function TaskFilterForm({
       groupId: updates.groupId,
     });
 
-    onNavigate(createTaskListHref(nextQuery), nextQuery);
+    navigate(nextQuery);
   };
 
   const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -157,39 +143,16 @@ export default function TaskFilterForm({
   };
 
   const handleTagClear = () => {
-    const nextQuery = createNextQuery(query, {
-      tag: null,
-    });
-
-    onNavigate(createTaskListHref(nextQuery), nextQuery);
-  };
-
-  const selectedGroup = groupOptions.find((group) => group.id === query.groupId);
-  const shouldShowGroupSelector = query.scope === "group" && groupOptions.length > 0;
-  const groupFilterLabel = selectedGroup?.name ?? "그룹 전체";
-
-  const handleSelectGroup = (groupId: string | null) => {
-    navigateWithUpdates({
-      scope: "group",
-      groupId,
-    });
-
-    setIsGroupDialogOpen(false);
-  };
-
-  const handleScopeChange = (scope: TaskScope) => {
-    const currentScope = query.scope ?? "all";
-    const nextScope = scope === "all" || currentScope === scope ? null : scope;
-
-    navigateWithUpdates({
-      scope: nextScope,
-      groupId: null,
-    });
+    navigate(
+      createNextQuery(query, {
+        tag: null,
+      }),
+    );
   };
 
   const handleReset = () => {
     setKeywordValue("");
-    onNavigate(createTaskListHref({}), {});
+    navigate({});
   };
 
   return (
@@ -226,7 +189,9 @@ export default function TaskFilterForm({
 
       {query.tag ? (
         <div className="mt-3 flex flex-wrap gap-2">
-          <div className={`${taskClassNames.tag} inline-flex items-center gap-1.5`}>
+          <div
+            className={`${taskClassNames.tag} inline-flex items-center gap-1.5`}
+          >
             <span>#{query.tag}</span>
 
             <button
@@ -242,40 +207,7 @@ export default function TaskFilterForm({
         </div>
       ) : null}
 
-      {isLoggedIn ? (
-        <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
-          {taskScopeOptions.map((scope) => {
-            const currentScope = query.scope ?? "all";
-            const isActive = currentScope === scope;
-
-            return (
-              <button
-                key={scope}
-                type="button"
-                onClick={() => handleScopeChange(scope)}
-                className={getChipClass(isActive)}
-              >
-                {taskScopeLabels[scope]}
-              </button>
-            );
-          })}
-        </div>
-      ) : null}
-
-      {shouldShowGroupSelector ? (
-        <div className="mt-3">
-          <button
-            type="button"
-            onClick={() => setIsGroupDialogOpen(true)}
-            className="inline-flex h-8 max-w-full cursor-pointer items-center gap-1 rounded-full bg-app-base/60 px-3 text-sm font-medium text-app-soft"
-            aria-label="그룹 필터 선택"
-            title={groupFilterLabel}
-          >
-            <span className="truncate">{groupFilterLabel}</span>
-            <ChevronDown className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          </button>
-        </div>
-      ) : null}
+      {children}
 
       <div className="mt-3 flex flex-wrap items-center gap-3 sm:gap-4">
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -322,38 +254,6 @@ export default function TaskFilterForm({
           })}
         </div>
       </div>
-
-      <Dialog
-        open={isGroupDialogOpen}
-        title="그룹 선택"
-        description="조회할 그룹을 선택해 주세요."
-        onClose={() => setIsGroupDialogOpen(false)}
-      >
-        <div className="grid gap-2">
-          <button
-            type="button"
-            onClick={() => handleSelectGroup(null)}
-            className={getGroupOptionClass(!query.groupId)}
-          >
-            그룹 전체
-          </button>
-
-          {groupOptions.map((group) => {
-            const isSelected = query.groupId === group.id;
-
-            return (
-              <button
-                key={group.id}
-                type="button"
-                onClick={() => handleSelectGroup(group.id)}
-                className={getGroupOptionClass(isSelected)}
-              >
-                {group.name}
-              </button>
-            );
-          })}
-        </div>
-      </Dialog>
     </section>
   );
 }
