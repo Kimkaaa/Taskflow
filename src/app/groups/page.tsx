@@ -1,5 +1,8 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import BackLink from "@/components/common/BackLink";
+import GroupListLoading from "@/components/groups/GroupListLoading";
 import { requireAppUser } from "@/lib/auth";
 import { getMyGroups } from "@/lib/groups";
 import {
@@ -7,18 +10,17 @@ import {
   buttonClassNames,
   cardClassNames,
   groupClassNames,
+  panelClassNames,
   textClassNames,
 } from "@/constants/classNames";
-import BackLink from "@/components/common/BackLink";
 import { USER_GROUP_LIMIT } from "@/constants/group";
 import { routes } from "@/constants/routes";
 
+type GroupsPromise = ReturnType<typeof getMyGroups>;
+
 export default async function GroupsPage() {
   const user = await requireAppUser(routes.groups);
-  const groups = await getMyGroups(user.id);
-
-  const userGroupCount = groups.length;
-  const isGroupLimitReached = userGroupCount >= USER_GROUP_LIMIT;
+  const groupsPromise = getMyGroups(user.id);
 
   return (
     <main className={pageClassNames.main}>
@@ -30,87 +32,119 @@ export default async function GroupsPage() {
             <h1 className={pageClassNames.title}>내 그룹</h1>
           </div>
 
-          {isGroupLimitReached ? (
-            <span className={buttonClassNames.fixedPrimaryInactive}>
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              생성
-            </span>
-          ) : (
-            <Link
-              href={routes.groupsNew}
-              className={buttonClassNames.fixedPrimary}
-            >
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              생성
-            </Link>
-          )}
+          <Suspense fallback={null}>
+            <GroupCreateButton groupsPromise={groupsPromise} />
+          </Suspense>
         </div>
 
-        <div className="mb-3 flex items-center justify-between text-app-muted">
-          <span className="text-sm">
-            {userGroupCount}/{USER_GROUP_LIMIT}
-          </span>
-
-          {isGroupLimitReached ? (
-            <span className="text-xs">
-              참여 가능한 그룹은 최대 {USER_GROUP_LIMIT}개입니다.
-            </span>
-          ) : null}
-        </div>
-
-        {groups.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-app-base bg-app-surface p-10 text-center">
-            <p className="font-semibold text-white">
-              아직 속한 그룹이 없습니다.
-            </p>
-            <p className="mt-2 text-sm text-app-muted">
-              그룹을 만들어 함께 작업을 공유해보세요.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {groups.map((group) => (
-              <Link
-                key={group.id}
-                href={`/groups/${group.id}`}
-                className={cardClassNames.surfaceLink}
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className={textClassNames.titlePrimary}>
-                        {group.name}
-                      </h2>
-
-                      {group.isOwner ? (
-                        <span className={groupClassNames.titleOwnerBadge}>리더</span>
-                      ) : (
-                        <span className={groupClassNames.titleMemberBadge}>멤버</span>
-                      )}
-                    </div>
-
-                    <p className="mt-3 text-sm text-app-muted">
-                      참여일 {group.joinedAt}
-                    </p>
-                  </div>
-
-                  <dl className="grid shrink-0 grid-cols-[auto_auto] gap-x-3 gap-y-2 text-sm text-app-soft">
-                    <dt className="text-app-muted">멤버</dt>
-                    <dd className="min-w-10 text-right tabular-nums">
-                      {group.memberCount}명
-                    </dd>
-
-                    <dt className="text-app-muted">작업</dt>
-                    <dd className="min-w-10 text-right tabular-nums">
-                      {group.taskCount}개
-                    </dd>
-                  </dl>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
+        <Suspense fallback={<GroupListLoading />}>
+          <GroupListSection groupsPromise={groupsPromise} />
+        </Suspense>
       </section>
     </main>
+  );
+}
+
+async function GroupCreateButton({
+  groupsPromise,
+}: {
+  groupsPromise: GroupsPromise;
+}) {
+  const groups = await groupsPromise;
+  const isGroupLimitReached = groups.length >= USER_GROUP_LIMIT;
+
+  if (isGroupLimitReached) {
+    return (
+      <span className={buttonClassNames.fixedPrimaryInactive}>
+        <Plus className="h-4 w-4" aria-hidden="true" />
+        생성
+      </span>
+    );
+  }
+
+  return (
+    <Link href={routes.groupsNew} className={buttonClassNames.fixedPrimary}>
+      <Plus className="h-4 w-4" aria-hidden="true" />
+      생성
+    </Link>
+  );
+}
+
+async function GroupListSection({
+  groupsPromise,
+}: {
+  groupsPromise: GroupsPromise;
+}) {
+  const groups = await groupsPromise;
+  const userGroupCount = groups.length;
+  const isGroupLimitReached = userGroupCount >= USER_GROUP_LIMIT;
+
+  return (
+    <>
+      <div className="mb-3 flex items-center justify-between text-app-muted">
+        <span className="text-sm">
+          {userGroupCount}/{USER_GROUP_LIMIT}
+        </span>
+
+        {isGroupLimitReached ? (
+          <span className="text-xs">
+            참여 가능한 그룹은 최대 {USER_GROUP_LIMIT}개입니다.
+          </span>
+        ) : null}
+      </div>
+
+      {groups.length === 0 ? (
+        <div className={panelClassNames.dashedSurface}>
+          <p className="font-semibold text-white">
+            아직 속한 그룹이 없습니다.
+          </p>
+          <p className="mt-2 text-sm text-app-muted">
+            그룹을 만들어 함께 작업을 공유해보세요.
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {groups.map((group) => (
+            <Link
+              key={group.id}
+              href={routes.groupDetail(group.id)}
+              className={cardClassNames.surfaceLink}
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className={textClassNames.titlePrimary}>
+                      {group.name}
+                    </h2>
+
+                    {group.isOwner ? (
+                      <span className={groupClassNames.titleOwnerBadge}>리더</span>
+                    ) : (
+                      <span className={groupClassNames.titleMemberBadge}>멤버</span>
+                    )}
+                  </div>
+
+                  <p className="mt-3 text-sm text-app-muted">
+                    참여일 {group.joinedAt}
+                  </p>
+                </div>
+
+                <dl className="grid shrink-0 grid-cols-[auto_auto] gap-x-3 gap-y-2 text-sm text-app-soft">
+                  <dt className="text-app-muted">멤버</dt>
+                  <dd className="min-w-10 text-right tabular-nums">
+                    {group.memberCount}명
+                  </dd>
+
+                  <dt className="text-app-muted">작업</dt>
+                  <dd className="min-w-10 text-right tabular-nums">
+                    {group.taskCount}개
+                  </dd>
+                </dl>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </>
   );
 }
