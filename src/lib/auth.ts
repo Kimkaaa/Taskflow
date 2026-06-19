@@ -37,9 +37,9 @@ function getNickname(user: Awaited<ReturnType<typeof requireUser>>) {
   return user.email?.split("@")[0] ?? "사용자";
 }
 
-export async function requireAppUser(nextPath?: string) {
-  const user = await requireUser(nextPath);
-
+export async function getOrCreateAppUser(
+  user: Awaited<ReturnType<typeof requireUser>>,
+) {
   return prisma.user.upsert({
     where: {
       id: user.id,
@@ -50,6 +50,12 @@ export async function requireAppUser(nextPath?: string) {
       nickname: getNickname(user),
     },
   });
+}
+
+export async function requireAppUser(nextPath?: string) {
+  const user = await requireUser(nextPath);
+
+  return getOrCreateAppUser(user);
 }
 
 export async function requireTaskOwner(taskId: string) {

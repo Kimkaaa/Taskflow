@@ -6,18 +6,21 @@ import DangerActionForm from "@/components/common/DangerActionForm";
 import AccountActivityCard from "@/components/account/AccountActivityCard";
 import AccountActivityLoading from "@/components/account/AccountActivityLoading";
 import AccountProfileForm from "@/components/account/AccountProfileForm";
+import AccountProfileLoading from "@/components/account/AccountProfileLoading";
 import {
   pageClassNames,
   panelClassNames,
   textClassNames,
 } from "@/constants/classNames";
 import { routes } from "@/constants/routes";
-import { requireAppUser } from "@/lib/auth";
+import { getOrCreateAppUser, requireUser } from "@/lib/auth";
 import { getAccountActivity } from "@/lib/accountActivity";
 import { formatDate } from "@/lib/date";
 
+type AuthUser = Awaited<ReturnType<typeof requireUser>>;
+
 export default async function MePage() {
-  const user = await requireAppUser(routes.me);
+  const authUser = await requireUser(routes.me);
 
   return (
     <main className={pageClassNames.main}>
@@ -34,27 +37,19 @@ export default async function MePage() {
 
         <div className="grid gap-6">
           <Suspense fallback={<AccountActivityLoading />}>
-            <AccountActivitySection userId={user.id} />
+            <AccountActivitySection userId={authUser.id} />
           </Suspense>
 
-          <section className={panelClassNames.surface}>
-            <h2 className={textClassNames.titleSecondary}>기본 정보</h2>
-
-            <p className="mt-2 text-sm text-app-muted">
-              생성일 {formatDate(user.createdAt)}
-            </p>
-
-            <AccountProfileForm
-              action={updateNickname}
-              nickname={user.nickname}
-            />
-          </section>
+          <Suspense fallback={<AccountProfileLoading />}>
+            <AccountProfileSection authUser={authUser} />
+          </Suspense>
 
           <section className={panelClassNames.danger}>
             <h2 className="text-sm font-semibold text-red-200">계정 탈퇴</h2>
 
             <p className="mt-2 text-sm leading-6 text-red-200/80">
-              계정을 탈퇴하면 작업과 그룹 정보가 삭제됩니다. 내가 만든 그룹의 공유 작업은 개인 작업으로 전환됩니다.
+              계정을 탈퇴하면 작업과 그룹 정보가 삭제됩니다. 내가 만든 그룹의
+              공유 작업은 개인 작업으로 전환됩니다.
             </p>
 
             <div className="mt-5">
@@ -78,4 +73,20 @@ async function AccountActivitySection({ userId }: { userId: string }) {
   const activity = await getAccountActivity(userId);
 
   return <AccountActivityCard activity={activity} />;
+}
+
+async function AccountProfileSection({ authUser }: { authUser: AuthUser }) {
+  const user = await getOrCreateAppUser(authUser);
+
+  return (
+    <section className={panelClassNames.surface}>
+      <h2 className={textClassNames.titleSecondary}>기본 정보</h2>
+
+      <p className="mt-2 text-sm text-app-muted">
+        생성일 {formatDate(user.createdAt)}
+      </p>
+
+      <AccountProfileForm action={updateNickname} nickname={user.nickname} />
+    </section>
+  );
 }
