@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import BackLink from "@/components/common/BackLink";
 import GroupListLoading from "@/components/groups/GroupListLoading";
-import { requireAppUser } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { getMyGroups } from "@/lib/groups";
 import {
   pageClassNames,
@@ -19,7 +19,7 @@ import { routes } from "@/constants/routes";
 type GroupsPromise = ReturnType<typeof getMyGroups>;
 
 export default async function GroupsPage() {
-  const user = await requireAppUser(routes.groups);
+  const user = await requireUser(routes.groups);
   const groupsPromise = getMyGroups(user.id);
 
   return (
