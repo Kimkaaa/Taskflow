@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import { deleteAccount, updateNickname } from "@/app/actions/account";
 import AuthButton from "@/components/auth/AuthButton";
 import BackLink from "@/components/common/BackLink";
 import DangerActionForm from "@/components/common/DangerActionForm";
 import AccountActivityCard from "@/components/account/AccountActivityCard";
+import AccountActivityLoading from "@/components/account/AccountActivityLoading";
 import AccountProfileForm from "@/components/account/AccountProfileForm";
 import {
   pageClassNames,
@@ -16,7 +18,6 @@ import { formatDate } from "@/lib/date";
 
 export default async function MePage() {
   const user = await requireAppUser(routes.me);
-  const activity = await getAccountActivity(user.id);
 
   return (
     <main className={pageClassNames.main}>
@@ -32,7 +33,9 @@ export default async function MePage() {
         </div>
 
         <div className="grid gap-6">
-          <AccountActivityCard activity={activity} />
+          <Suspense fallback={<AccountActivityLoading />}>
+            <AccountActivitySection userId={user.id} />
+          </Suspense>
 
           <section className={panelClassNames.surface}>
             <h2 className={textClassNames.titleSecondary}>기본 정보</h2>
@@ -69,4 +72,10 @@ export default async function MePage() {
       </section>
     </main>
   );
+}
+
+async function AccountActivitySection({ userId }: { userId: string }) {
+  const activity = await getAccountActivity(userId);
+
+  return <AccountActivityCard activity={activity} />;
 }
