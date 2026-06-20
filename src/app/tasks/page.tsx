@@ -17,7 +17,11 @@ type TasksPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-function createTaskListKey(query: ReturnType<typeof parseTaskQuery>) {
+type ParsedTaskQuery = ReturnType<typeof parseTaskQuery>;
+type CurrentUserPromise = ReturnType<typeof getCurrentUser>;
+type GroupOptionsPromise = ReturnType<typeof getGroupOptionsForQuery>;
+
+function createTaskListKey(query: ParsedTaskQuery) {
   return [
     query.keyword ?? "",
     query.status ?? "",
@@ -26,6 +30,43 @@ function createTaskListKey(query: ReturnType<typeof parseTaskQuery>) {
     query.scope ?? "",
     query.groupId ?? "",
   ].join("-");
+}
+
+async function getGroupOptionsForQuery(
+  userPromise: CurrentUserPromise,
+  query: ParsedTaskQuery,
+) {
+  if (query.scope !== "group") {
+    return [];
+  }
+
+  const user = await userPromise;
+
+  if (!user) {
+    return [];
+  }
+
+  return getMyGroupOptions(user.id);
+}
+
+function resolveTaskQuery(
+  query: ParsedTaskQuery,
+  groupOptions: Awaited<GroupOptionsPromise>,
+) {
+  const viewerGroupIds = groupOptions.map((group) => group.id);
+
+  if (
+    query.scope === "group" &&
+    query.groupId &&
+    !viewerGroupIds.includes(query.groupId)
+  ) {
+    return {
+      ...query,
+      groupId: undefined,
+    };
+  }
+
+  return query;
 }
 
 const navLinkClass =
@@ -37,6 +78,9 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
   const taskDataKey = createTaskListKey(parsedQuery);
   const filterKey = `filter-keyword-${parsedQuery.keyword ?? ""}`;
   const tasksDataKey = `tasks-data-${taskDataKey}`;
+
+  const userPromise = getCurrentUser();
+  const groupOptionsPromise = getGroupOptionsForQuery(userPromise, parsedQuery);
 
   return (
     <main className={pageClassNames.main}>
@@ -50,26 +94,38 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
           </Link>
 
           <Suspense fallback={null}>
-            <TasksNavigation />
+            <TasksNavigation userPromise={userPromise} />
           </Suspense>
         </div>
 
         <TaskFilterForm key={filterKey} query={parsedQuery}>
           <Suspense fallback={null}>
-            <TasksScopeFilterSection query={parsedQuery} />
+            <TasksScopeFilterSection
+              query={parsedQuery}
+              userPromise={userPromise}
+              groupOptionsPromise={groupOptionsPromise}
+            />
           </Suspense>
         </TaskFilterForm>
 
         <Suspense key={tasksDataKey} fallback={<TaskListLoading />}>
-          <TasksDataSection query={parsedQuery} />
+          <TasksDataSection
+            query={parsedQuery}
+            userPromise={userPromise}
+            groupOptionsPromise={groupOptionsPromise}
+          />
         </Suspense>
       </section>
     </main>
   );
 }
 
-async function TasksNavigation() {
-  const user = await getCurrentUser();
+async function TasksNavigation({
+  userPromise,
+}: {
+  userPromise: CurrentUserPromise;
+}) {
+  const user = await userPromise;
 
   if (!user) {
     return <AuthButton isLoggedIn={false} />;
@@ -90,57 +146,44 @@ async function TasksNavigation() {
 
 async function TasksScopeFilterSection({
   query: parsedQuery,
+  userPromise,
+  groupOptionsPromise,
 }: {
-  query: ReturnType<typeof parseTaskQuery>;
+  query: ParsedTaskQuery;
+  userPromise: CurrentUserPromise;
+  groupOptionsPromise: GroupOptionsPromise;
 }) {
-  const user = await getCurrentUser();
+  const [user, groupOptions] = await Promise.all([
+    userPromise,
+    groupOptionsPromise,
+  ]);
 
   if (!user) {
     return null;
   }
 
-  const groupOptions =
-    parsedQuery.scope === "group" ? await getMyGroupOptions(user.id) : [];
-
-  const viewerGroupIds = groupOptions.map((group) => group.id);
-
-  const query =
-    parsedQuery.scope === "group" &&
-    parsedQuery.groupId &&
-    !viewerGroupIds.includes(parsedQuery.groupId)
-      ? {
-          ...parsedQuery,
-          groupId: undefined,
-        }
-      : parsedQuery;
+  const query = resolveTaskQuery(parsedQuery, groupOptions);
 
   return <TaskScopeFilterControls query={query} groupOptions={groupOptions} />;
 }
 
 async function TasksDataSection({
   query: parsedQuery,
+  userPromise,
+  groupOptionsPromise,
 }: {
-  query: ReturnType<typeof parseTaskQuery>;
+  query: ParsedTaskQuery;
+  userPromise: CurrentUserPromise;
+  groupOptionsPromise: GroupOptionsPromise;
 }) {
-  const user = await getCurrentUser();
+  const [user, groupOptions] = await Promise.all([
+    userPromise,
+    groupOptionsPromise,
+  ]);
+
   const createTaskHref = user ? routes.tasksNew : routes.login(routes.tasksNew);
-
-  const groupOptions =
-    user && parsedQuery.scope === "group"
-      ? await getMyGroupOptions(user.id)
-      : [];
-
   const viewerGroupIds = groupOptions.map((group) => group.id);
-
-  const query =
-    parsedQuery.scope === "group" &&
-    parsedQuery.groupId &&
-    !viewerGroupIds.includes(parsedQuery.groupId)
-      ? {
-          ...parsedQuery,
-          groupId: undefined,
-        }
-      : parsedQuery;
+  const query = resolveTaskQuery(parsedQuery, groupOptions);
 
   const { tasks, nextCursor, totalCount } = await getTaskPage(query, {
     includeTotalCount: true,
