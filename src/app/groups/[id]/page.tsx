@@ -15,7 +15,7 @@ import {
   textClassNames,
 } from "@/constants/classNames";
 import { routes } from "@/constants/routes";
-import { requireAppUser } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { getGroupDetail } from "@/lib/groups";
 import { GROUP_MEMBER_LIMIT } from "@/constants/group";
 
@@ -29,7 +29,7 @@ export default async function GroupDetailPage({
   params,
 }: GroupDetailPageProps) {
   const { id } = await params;
-  const user = await requireAppUser(routes.groupDetail(id));
+  const user = await requireUser(routes.groupDetail(id));
   const group = await getGroupDetail(id, user.id);
 
   if (!group) {
