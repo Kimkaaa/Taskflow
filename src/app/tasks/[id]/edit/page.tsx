@@ -3,7 +3,7 @@ import BackLink from "@/components/common/BackLink";
 import TaskForm from "@/components/tasks/TaskForm";
 import { pageClassNames, panelClassNames } from "@/constants/classNames";
 import { updateTask } from "@/app/actions/tasks";
-import { requireAppUser } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { getMyGroupOptions } from "@/lib/groups";
 import { getOwnedTaskById } from "@/lib/tasks";
 
@@ -16,7 +16,7 @@ type EditTaskPageProps = {
 export default async function EditTaskPage({ params }: EditTaskPageProps) {
   const { id } = await params;
 
-  const user = await requireAppUser();
+  const user = await requireUser();
   const task = await getOwnedTaskById(id, user.id);
 
   if (!task) {
