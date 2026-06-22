@@ -16,7 +16,7 @@ import {
   USER_GROUP_LIMIT,
 } from "@/constants/group";
 import { routes } from "@/constants/routes";
-import { getCurrentUser, requireAppUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import {
   getGroupInviteDetail,
   type GroupInviteUnavailableReason,
@@ -104,8 +104,7 @@ function InviteGroupPanel({
 
 export default async function InvitePage({ params }: InvitePageProps) {
   const { token } = await params;
-  const currentUser = await getCurrentUser();
-  const user = currentUser ? await requireAppUser(routes.invite(token)) : null;
+  const user = await getCurrentUser();
   const invite = await getGroupInviteDetail(token, user?.id ?? null);
 
   const acceptGroupInviteWithToken = acceptGroupInvite.bind(null, token);
