@@ -3,7 +3,7 @@ import BackLink from "@/components/common/BackLink";
 import TaskForm from "@/components/tasks/TaskForm";
 import { pageClassNames, panelClassNames } from "@/constants/classNames";
 import { createTask } from "@/app/actions/tasks";
-import { requireAppUser } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { getMyGroupOptions } from "@/lib/groups";
 
 type NewTaskPageProps = {
@@ -25,7 +25,7 @@ export default async function NewTaskPage({
 }: NewTaskPageProps) {
   const params = await searchParams;
   const defaultGroupId = getFirstParam(params.groupId) ?? null;
-  const user = await requireAppUser();
+  const user = await requireUser();
   const groups = await getMyGroupOptions(user.id);
 
   if (defaultGroupId) {
