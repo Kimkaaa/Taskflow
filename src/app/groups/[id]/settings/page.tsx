@@ -19,7 +19,7 @@ import {
 } from "@/constants/classNames";
 import { GROUP_MEMBER_LIMIT } from "@/constants/group";
 import { routes } from "@/constants/routes";
-import { requireAppUser } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { getGroupSettingsDetail } from "@/lib/groups";
 
 type GroupSettingsPageProps = {
@@ -32,7 +32,7 @@ export default async function GroupSettingsPage({
   params,
 }: GroupSettingsPageProps) {
   const { id } = await params;
-  const user = await requireAppUser(routes.groupSettings(id));
+  const user = await requireUser(routes.groupSettings(id));
   const group = await getGroupSettingsDetail(id, user.id);
 
   if (!group) {
