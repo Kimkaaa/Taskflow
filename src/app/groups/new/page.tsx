@@ -9,11 +9,11 @@ import {
 } from "@/constants/classNames";
 import { USER_GROUP_LIMIT } from "@/constants/group";
 import { routes } from "@/constants/routes";
-import { requireAppUser } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { getUserGroupCount } from "@/lib/groups";
 
 export default async function NewGroupPage() {
-  const user = await requireAppUser(routes.groupsNew);
+  const user = await requireUser(routes.groupsNew);
   const userGroupCount = await getUserGroupCount(user.id);
   const isGroupLimitReached = userGroupCount >= USER_GROUP_LIMIT;
 
