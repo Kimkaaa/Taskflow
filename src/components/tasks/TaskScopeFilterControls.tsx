@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import Dialog from "@/components/common/Dialog";
-import type { TaskQuery, TaskScope } from "@/types/task";
+import type { TaskScope } from "@/types/task";
 import { dialogClassNames, taskClassNames } from "@/constants/classNames";
 import { taskScopeLabels, taskScopeOptions } from "@/constants/taskMeta";
-import { createTaskListHref } from "@/lib/taskQuery";
+import { useTaskFilterNavigation } from "@/components/tasks/TaskFilterForm";
 
 type TaskGroupOption = {
   id: string;
@@ -15,14 +14,8 @@ type TaskGroupOption = {
 };
 
 type TaskScopeFilterControlsProps = {
-  query: TaskQuery;
   groupOptions: TaskGroupOption[];
 };
-
-type TaskQueryUpdates = Partial<{
-  scope: TaskScope | null;
-  groupId: string | null;
-}>;
 
 function getScopeChipClass(isActive: boolean) {
   return isActive
@@ -36,47 +29,14 @@ function getGroupOptionClass(isSelected: boolean) {
     : dialogClassNames.optionButtonDefault;
 }
 
-function createNextQuery(
-  query: TaskQuery,
-  updates: TaskQueryUpdates,
-): TaskQuery {
-  const scope = updates.scope !== undefined ? updates.scope : query.scope;
-  const nextScope = scope && scope !== "all" ? scope : undefined;
-
-  const groupId =
-    updates.groupId !== undefined
-      ? updates.groupId?.trim() || null
-      : query.groupId;
-
-  return {
-    ...query,
-    scope: nextScope,
-    groupId: nextScope === "group" ? groupId || undefined : undefined,
-  };
-}
-
 export default function TaskScopeFilterControls({
-  query,
   groupOptions,
 }: TaskScopeFilterControlsProps) {
-  const router = useRouter();
-  const [, startTransition] = useTransition();
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
-
-  const navigate = (nextQuery: TaskQuery) => {
-    startTransition(() => {
-      router.push(createTaskListHref(nextQuery), {
-        scroll: false,
-      });
-    });
-  };
-
-  const navigateWithUpdates = (updates: TaskQueryUpdates) => {
-    navigate(createNextQuery(query, updates));
-  };
+  const { optimisticQuery, navigateWithUpdates } = useTaskFilterNavigation();
 
   const handleScopeChange = (scope: TaskScope) => {
-    const currentScope = query.scope ?? "all";
+    const currentScope = optimisticQuery.scope ?? "all";
     const nextScope = scope === "all" || currentScope === scope ? null : scope;
 
     navigateWithUpdates({
@@ -95,11 +55,11 @@ export default function TaskScopeFilterControls({
   };
 
   const selectedGroup = groupOptions.find(
-    (group) => group.id === query.groupId,
+    (group) => group.id === optimisticQuery.groupId,
   );
 
   const shouldShowGroupSelector =
-    query.scope === "group" && groupOptions.length > 0;
+    optimisticQuery.scope === "group" && groupOptions.length > 0;
 
   const groupFilterLabel = selectedGroup?.name ?? "그룹 전체";
 
@@ -107,7 +67,7 @@ export default function TaskScopeFilterControls({
     <>
       <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
         {taskScopeOptions.map((scope) => {
-          const currentScope = query.scope ?? "all";
+          const currentScope = optimisticQuery.scope ?? "all";
           const isActive = currentScope === scope;
 
           return (
@@ -148,13 +108,13 @@ export default function TaskScopeFilterControls({
           <button
             type="button"
             onClick={() => handleSelectGroup(null)}
-            className={getGroupOptionClass(!query.groupId)}
+            className={getGroupOptionClass(!optimisticQuery.groupId)}
           >
             그룹 전체
           </button>
 
           {groupOptions.map((group) => {
-            const isSelected = query.groupId === group.id;
+            const isSelected = optimisticQuery.groupId === group.id;
 
             return (
               <button

@@ -101,7 +101,6 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
         <TaskFilterForm key={filterKey} query={parsedQuery}>
           <Suspense fallback={null}>
             <TasksScopeFilterSection
-              query={parsedQuery}
               userPromise={userPromise}
               groupOptionsPromise={groupOptionsPromise}
             />
@@ -145,11 +144,9 @@ async function TasksNavigation({
 }
 
 async function TasksScopeFilterSection({
-  query: parsedQuery,
   userPromise,
   groupOptionsPromise,
 }: {
-  query: ParsedTaskQuery;
   userPromise: CurrentUserPromise;
   groupOptionsPromise: GroupOptionsPromise;
 }) {
@@ -162,9 +159,7 @@ async function TasksScopeFilterSection({
     return null;
   }
 
-  const query = resolveTaskQuery(parsedQuery, groupOptions);
-
-  return <TaskScopeFilterControls query={query} groupOptions={groupOptions} />;
+  return <TaskScopeFilterControls groupOptions={groupOptions} />;
 }
 
 async function TasksDataSection({

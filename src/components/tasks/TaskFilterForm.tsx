@@ -1,6 +1,14 @@
 "use client";
 
-import { useState, useTransition, type FormEvent, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useOptimistic,
+  useState,
+  useTransition,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { useRouter } from "next/navigation";
 import { RotateCcw, Search, X } from "lucide-react";
 import type {
@@ -31,6 +39,24 @@ type TaskQueryUpdates = Partial<{
   scope: TaskScope | null;
   groupId: string | null;
 }>;
+
+type TaskFilterNavigationContextValue = {
+  optimisticQuery: TaskQuery;
+  navigateWithUpdates: (updates: TaskQueryUpdates) => void;
+};
+
+const TaskFilterNavigationContext =
+  createContext<TaskFilterNavigationContextValue | null>(null);
+
+export function useTaskFilterNavigation() {
+  const context = useContext(TaskFilterNavigationContext);
+
+  if (!context) {
+    throw new Error("useTaskFilterNavigation must be used within TaskFilterForm.");
+  }
+
+  return context;
+}
 
 const resetButtonClass =
   "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-app-base bg-app-bg text-app-soft transition";
@@ -99,9 +125,15 @@ export default function TaskFilterForm({
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [keywordValue, setKeywordValue] = useState(query.keyword ?? "");
+  const [optimisticQuery, setOptimisticQuery] = useOptimistic(
+    query,
+    (_currentQuery, nextQuery: TaskQuery) => nextQuery,
+  );
 
   const navigate = (nextQuery: TaskQuery) => {
     startTransition(() => {
+      setOptimisticQuery(nextQuery);
+
       router.push(createTaskListHref(nextQuery), {
         scroll: false,
       });
@@ -109,7 +141,7 @@ export default function TaskFilterForm({
   };
 
   const navigateWithUpdates = (updates: TaskQueryUpdates) => {
-    const nextQuery = createNextQuery(query, {
+    const nextQuery = createNextQuery(optimisticQuery, {
       keyword: updates.keyword !== undefined ? updates.keyword : keywordValue,
       status: updates.status,
       priority: updates.priority,
@@ -144,7 +176,7 @@ export default function TaskFilterForm({
 
   const handleTagClear = () => {
     navigate(
-      createNextQuery(query, {
+      createNextQuery(optimisticQuery, {
         tag: null,
       }),
     );
@@ -156,104 +188,111 @@ export default function TaskFilterForm({
   };
 
   return (
-    <section className="mb-5 rounded-2xl border border-app-base bg-app-surface p-4 shadow-sm">
-      <form onSubmit={handleSearchSubmit} className="flex gap-2">
-        <label className="relative flex-1">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-app-muted"
-            aria-hidden="true"
-          />
+    <TaskFilterNavigationContext.Provider
+      value={{
+        optimisticQuery,
+        navigateWithUpdates,
+      }}
+    >
+      <section className="mb-5 rounded-2xl border border-app-base bg-app-surface p-4 shadow-sm">
+        <form onSubmit={handleSearchSubmit} className="flex gap-2">
+          <label className="relative flex-1">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-app-muted"
+              aria-hidden="true"
+            />
 
-          <input
-            type="search"
-            name="keyword"
-            enterKeyHint="search"
-            value={keywordValue}
-            onChange={(event) => setKeywordValue(event.target.value)}
-            placeholder="검색"
-            aria-label="작업 검색"
-            className="task-search-input h-10 w-full rounded-xl border border-app-base bg-app-bg pl-9 pr-1 text-sm text-white outline-none transition placeholder:text-app-muted focus:border-app-focus focus:bg-app-bg"
-          />
-        </label>
+            <input
+              type="search"
+              name="keyword"
+              enterKeyHint="search"
+              value={keywordValue}
+              onChange={(event) => setKeywordValue(event.target.value)}
+              placeholder="검색"
+              aria-label="작업 검색"
+              className="task-search-input h-10 w-full rounded-xl border border-app-base bg-app-bg pl-9 pr-1 text-sm text-white outline-none transition placeholder:text-app-muted focus:border-app-focus focus:bg-app-bg"
+            />
+          </label>
 
-        <button
-          type="button"
-          onClick={handleReset}
-          className={resetButtonClass}
-          aria-label="초기화"
-          title="초기화"
-        >
-          <RotateCcw className="h-4 w-4" aria-hidden="true" />
-        </button>
-      </form>
-
-      {query.tag ? (
-        <div className="mt-3 flex flex-wrap gap-2">
-          <div
-            className={`${taskClassNames.tag} inline-flex items-center gap-1.5`}
+          <button
+            type="button"
+            onClick={handleReset}
+            className={resetButtonClass}
+            aria-label="초기화"
+            title="초기화"
           >
-            <span>#{query.tag}</span>
+            <RotateCcw className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </form>
 
-            <button
-              type="button"
-              onClick={handleTagClear}
-              className="cursor-pointer text-app-muted transition hover:text-white"
-              aria-label={`#${query.tag} 태그 필터 제거`}
-              title="태그 필터 제거"
+        {optimisticQuery.tag ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <div
+              className={`${taskClassNames.tag} inline-flex items-center gap-1.5`}
             >
-              <X className="h-3 w-3" aria-hidden="true" />
-            </button>
+              <span>#{optimisticQuery.tag}</span>
+
+              <button
+                type="button"
+                onClick={handleTagClear}
+                className="cursor-pointer text-app-muted transition hover:text-white"
+                aria-label={`#${optimisticQuery.tag} 태그 필터 제거`}
+                title="태그 필터 제거"
+              >
+                <X className="h-3 w-3" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {children}
+
+        <div className="mt-3 flex flex-wrap items-center gap-3 sm:gap-4">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            {statusOptions.map((status) => {
+              const isActive = optimisticQuery.status === status;
+
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  onClick={() => {
+                    navigateWithUpdates({
+                      status: isActive ? null : status,
+                    });
+                  }}
+                  className={getDetailChipClass(isActive)}
+                >
+                  {statusLabels[status]}
+                </button>
+              );
+            })}
+          </div>
+
+          <span className="h-5 w-px bg-app-base" />
+
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            {priorityOptions.map((priority) => {
+              const isActive = optimisticQuery.priority === priority;
+
+              return (
+                <button
+                  key={priority}
+                  type="button"
+                  onClick={() => {
+                    navigateWithUpdates({
+                      priority: isActive ? null : priority,
+                    });
+                  }}
+                  className={getDetailChipClass(isActive)}
+                >
+                  {priorityLabels[priority]}
+                </button>
+              );
+            })}
           </div>
         </div>
-      ) : null}
-
-      {children}
-
-      <div className="mt-3 flex flex-wrap items-center gap-3 sm:gap-4">
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          {statusOptions.map((status) => {
-            const isActive = query.status === status;
-
-            return (
-              <button
-                key={status}
-                type="button"
-                onClick={() => {
-                  navigateWithUpdates({
-                    status: isActive ? null : status,
-                  });
-                }}
-                className={getDetailChipClass(isActive)}
-              >
-                {statusLabels[status]}
-              </button>
-            );
-          })}
-        </div>
-
-        <span className="h-5 w-px bg-app-base" />
-
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          {priorityOptions.map((priority) => {
-            const isActive = query.priority === priority;
-
-            return (
-              <button
-                key={priority}
-                type="button"
-                onClick={() => {
-                  navigateWithUpdates({
-                    priority: isActive ? null : priority,
-                  });
-                }}
-                className={getDetailChipClass(isActive)}
-              >
-                {priorityLabels[priority]}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </section>
+      </section>
+    </TaskFilterNavigationContext.Provider>
   );
 }
