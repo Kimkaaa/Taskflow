@@ -4,7 +4,10 @@ import AuthButton from "@/components/auth/AuthButton";
 import CreateTaskButton from "@/components/tasks/CreateTaskButton";
 import TaskBoard from "@/components/tasks/TaskBoard";
 import TaskFilterForm from "@/components/tasks/TaskFilterForm";
-import TaskListLoading from "@/components/tasks/TaskListLoading";
+import {
+  TaskListFallback,
+  TaskListLoadingProvider,
+} from "@/components/tasks/TaskListLoadingState";
 import TaskScopeFilterControls from "@/components/tasks/TaskScopeFilterControls";
 import { pageClassNames } from "@/constants/classNames";
 import { routes } from "@/constants/routes";
@@ -98,22 +101,24 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
           </Suspense>
         </div>
 
-        <TaskFilterForm key={filterKey} query={parsedQuery}>
-          <Suspense fallback={null}>
-            <TasksScopeFilterSection
+        <TaskListLoadingProvider>
+          <TaskFilterForm key={filterKey} query={parsedQuery}>
+            <Suspense fallback={null}>
+              <TasksScopeFilterSection
+                userPromise={userPromise}
+                groupOptionsPromise={groupOptionsPromise}
+              />
+            </Suspense>
+          </TaskFilterForm>
+
+          <Suspense key={tasksDataKey} fallback={<TaskListFallback />}>
+            <TasksDataSection
+              query={parsedQuery}
               userPromise={userPromise}
               groupOptionsPromise={groupOptionsPromise}
             />
           </Suspense>
-        </TaskFilterForm>
-
-        <Suspense key={tasksDataKey} fallback={<TaskListLoading />}>
-          <TasksDataSection
-            query={parsedQuery}
-            userPromise={userPromise}
-            groupOptionsPromise={groupOptionsPromise}
-          />
-        </Suspense>
+        </TaskListLoadingProvider>
       </section>
     </main>
   );

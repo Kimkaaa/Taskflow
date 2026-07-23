@@ -25,6 +25,7 @@ import {
 } from "@/constants/taskMeta";
 import { taskClassNames } from "@/constants/classNames";
 import { createTaskListHref } from "@/lib/taskQuery";
+import { useTaskListNavigation } from "@/components/tasks/TaskListLoadingState";
 
 type TaskFilterFormProps = {
   query: TaskQuery;
@@ -124,13 +125,18 @@ export default function TaskFilterForm({
 }: TaskFilterFormProps) {
   const router = useRouter();
   const [, startTransition] = useTransition();
+  const markFilterNavigationStarted = useTaskListNavigation();
+
   const [keywordValue, setKeywordValue] = useState(query.keyword ?? "");
+
   const [optimisticQuery, setOptimisticQuery] = useOptimistic(
     query,
     (_currentQuery, nextQuery: TaskQuery) => nextQuery,
   );
 
   const navigate = (nextQuery: TaskQuery) => {
+    markFilterNavigationStarted();
+
     startTransition(() => {
       setOptimisticQuery(nextQuery);
 
