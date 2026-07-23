@@ -1,6 +1,4 @@
-import { panelClassNames, textClassNames } from "@/constants/classNames";
-
-const skeletonBase = "animate-pulse rounded bg-app-base";
+import { panelClassNames, textClassNames, skeletonBase } from "@/constants/classNames";
 
 export default function AccountProfileLoading() {
     return (

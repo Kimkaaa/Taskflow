@@ -85,6 +85,9 @@ export const formClassNames = {
   dateInput: `${formInputBase} min-w-0 appearance-none`,
 } as const;
 
+// 공통 스켈레톤
+export const skeletonBase = "animate-pulse rounded bg-app-base";
+
 // 뒤로가기
 export const navigationClassNames = {
   back: "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-app-soft",

@@ -1,6 +1,4 @@
-import { panelClassNames } from "@/constants/classNames";
-
-const skeletonBase = "animate-pulse rounded bg-app-base";
+import { panelClassNames, skeletonBase } from "@/constants/classNames";
 
 function TaskCardSkeleton() {
   return (
